@@ -1,59 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>不幸是由细枝末节的小事开始</title>
-    <url>/2022/01/14/table/</url>
-    <content><![CDATA[<p>是从何时开始的？回过神来时，不幸却已经发生，时间就是这样残酷，总是要求我们做出选择，反应迟钝的我总是错过选择而经历不幸……</p>
-<h2 id="使用文档"><a href="#使用文档" class="headerlink" title="使用文档"></a>使用文档</h2><h3 id="撰写新的文章"><a href="#撰写新的文章" class="headerlink" title="撰写新的文章"></a>撰写新的文章</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="新建文章模板"><a href="#新建文章模板" class="headerlink" title="新建文章模板"></a>新建文章模板</h3><figure class="highlight markdown"><table><tr><td class="code"><pre><span class="line">---</span><br><span class="line">title: My awesome title</span><br><span class="line">date: 2016-10-12 18:38:45</span><br><span class="line">categories: </span><br><span class="line"><span class="bullet">    -</span> 分类1</span><br><span class="line"><span class="bullet">    -</span> 分类2</span><br><span class="line">tags: </span><br><span class="line"><span class="bullet">    -</span> 标签1</span><br><span class="line"><span class="bullet">    -</span> 标签2</span><br><span class="line">mp3: http://domain.com/awesome.mp3</span><br><span class="line"><span class="section">cover: http://domain.com/awesome.jpg</span></span><br><span class="line"><span class="section">---</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="启动服务"><a href="#启动服务" class="headerlink" title="启动服务"></a>启动服务</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo server -p 80</span><br></pre></td></tr></table></figure>
-
-<h3 id="生成静态网页"><a href="#生成静态网页" class="headerlink" title="生成静态网页"></a>生成静态网页</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<h3 id="清理缓存"><a href="#清理缓存" class="headerlink" title="清理缓存"></a>清理缓存</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo clean</span><br></pre></td></tr></table></figure>
-
-<h3 id="创建分类页"><a href="#创建分类页" class="headerlink" title="创建分类页"></a>创建分类页</h3><p>1 新建一个页面，命名为 categories 。命令如下：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new page categories</span><br></pre></td></tr></table></figure>
-
-<p>2 编辑刚新建的页面，将页面的类型设置为 categories</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">title: categories</span><br><span class="line">date: 2014-12-22 12:39:04</span><br><span class="line">type: &quot;categories&quot;</span><br><span class="line">---</span><br></pre></td></tr></table></figure>
-
-<p>主题将自动为这个页面显示所有分类。</p>
-<h3 id="创建标签页"><a href="#创建标签页" class="headerlink" title="创建标签页"></a>创建标签页</h3><p>1 新建一个页面，命名为 tags 。命令如下：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new page tags</span><br></pre></td></tr></table></figure>
-
-<p>2 编辑刚新建的页面，将页面的类型设置为 tags</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">title: tags</span><br><span class="line">date: 2014-12-22 12:39:04</span><br><span class="line">type: &quot;tags&quot;</span><br><span class="line">---</span><br></pre></td></tr></table></figure>
-
-<p>主题将自动为这个页面显示所有标签。</p>
-<h3 id="创建搜索页"><a href="#创建搜索页" class="headerlink" title="创建搜索页"></a>创建搜索页</h3><p>1 需要安装hexo的搜索插件</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ npm install hexo-generator-searchdb --save</span><br></pre></td></tr></table></figure>
-
-<p>2 配置hexo全局配置文件（请将生成的索引文件放在网站根目录或修改主题js文件的path值）</p>
-<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">search:</span></span><br><span class="line">  <span class="attr">path:</span> <span class="string">search.xml</span></span><br><span class="line">  <span class="attr">field:</span> <span class="string">post</span></span><br><span class="line">  <span class="attr">format:</span> <span class="string">html</span></span><br><span class="line">  <span class="attr">limit:</span> <span class="number">10000</span></span><br></pre></td></tr></table></figure>
-
-<p>3 新建一个页面，命名为 search 。命令如下：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new page search</span><br></pre></td></tr></table></figure>
-
-<p>4 编辑刚新建的页面，将页面的类型设置为 search</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">title: search</span><br><span class="line">date: 2014-12-22 12:39:04</span><br><span class="line">type: &quot;search&quot;</span><br><span class="line">---</span><br></pre></td></tr></table></figure>
-
-<p>5 在主题配置文件启用本地搜索</p>
-<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="comment">#本地搜索,请将索引文件放在网站根目录</span></span><br><span class="line"><span class="attr">local_search:</span></span><br><span class="line">    <span class="comment">#是否启用</span></span><br><span class="line">    <span class="attr">enable:</span> <span class="literal">true</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>主题将自动为这个页面显示搜索功能。</p>
-<h3 id="主题配置"><a href="#主题配置" class="headerlink" title="主题配置"></a>主题配置</h3><figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 头部菜单，title: link</span></span><br><span class="line"><span class="attr">menu:</span></span><br><span class="line">  <span class="string">首页:</span> <span class="string">/</span></span><br><span class="line">  <span class="string">分类:</span> <span class="string">/categories</span></span><br><span class="line">  <span class="string">标签:</span> <span class="string">/tags</span></span><br><span class="line">  <span class="string">归档:</span> <span class="string">/archives</span>  </span><br><span class="line">  <span class="string">关于:</span> <span class="string">/about</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 是否显示目录</span></span><br><span class="line"><span class="attr">TOC:</span> <span class="literal">false</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 是否自动播放音乐</span></span><br><span class="line"><span class="attr">autoplay:</span> <span class="literal">false</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 默认音乐（随机播放）</span></span><br><span class="line"><span class="attr">mp3:</span> </span><br><span class="line">    <span class="bullet">-</span> <span class="string">http://link.hhtjim.com/163/425570952.mp3</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">http://link.hhtjim.com/163/425570952.mp3</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 首页封面图, 为空时取文章的cover作为封面(注意跨域问题,建议使用同源图片)</span></span><br><span class="line"><span class="attr">welcome_cover:</span> <span class="string">/img/welcome-cover.jpg</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 默认文章封面图（随机调用,支持外链）</span></span><br><span class="line"><span class="attr">cover:</span> </span><br><span class="line">  <span class="bullet">-</span> <span class="string">/img/cover.jpg</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">/img/welcome-cover.jpg</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 是否显示Twitter分享卡片图像(图像尺寸要求：1200*600，creatorid不需要带@符号。注意：链接必须是完整url，否则Twitter将无法读取图片信息）</span></span><br><span class="line"><span class="attr">twitterpic:</span></span><br><span class="line">  <span class="attr">enable:</span> <span class="literal">false</span></span><br><span class="line">  <span class="attr">src:</span> <span class="string">https://bangdream.moe/img/ident.png</span></span><br><span class="line">  <span class="attr">creatorid:</span> <span class="string">yourtwitteridhere</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 是否关闭默认滚动条</span></span><br><span class="line"><span class="attr">scrollbar:</span> <span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 本地搜索,请将索引文件放在网站根目录,或修改主题js文件的path值</span></span><br><span class="line"><span class="attr">local_search:</span></span><br><span class="line">    <span class="comment"># 是否启用</span></span><br><span class="line">    <span class="attr">enable:</span> <span class="literal">false</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 是否显示 一言(hitokoto)</span></span><br><span class="line"><span class="attr">hitokoto:</span> <span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 链接(可选:facebook,twitter,github,wechat,email)</span></span><br><span class="line"><span class="attr">links:</span></span><br><span class="line">    <span class="attr">facebook:</span> <span class="string">/</span></span><br><span class="line">    <span class="attr">twitter:</span> <span class="string">/</span></span><br><span class="line">    <span class="attr">github:</span> <span class="string">/</span></span><br><span class="line">    <span class="attr">wechat:</span> <span class="string">/img/logo.png</span></span><br><span class="line">    <span class="attr">email:</span> <span class="string">mailto:xxxx@gmail.com</span></span><br><span class="line">  </span><br><span class="line"><span class="comment"># 备案</span></span><br><span class="line"><span class="attr">beian:</span> </span><br><span class="line">    <span class="comment"># 是否显示备案信息</span></span><br><span class="line">    <span class="attr">enable:</span> <span class="literal">true</span></span><br><span class="line">    <span class="comment"># 是否在主页面最底下显示备案信息(虽然丑，但是完全满足规定要求)</span></span><br><span class="line">    <span class="attr">enableFooter:</span> <span class="literal">false</span></span><br><span class="line">    <span class="comment"># 备案号</span></span><br><span class="line">    <span class="attr">beianInfo:</span> <span class="string">冀ICP备xxxxxxx号</span></span><br><span class="line">    <span class="comment"># 链接地址</span></span><br><span class="line">    <span class="attr">link:</span> <span class="string">http://www.beian.miit.gov.cn</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 是否使用mathjax</span></span><br><span class="line"><span class="attr">mathjax:</span> <span class="literal">false</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Gitalk 评论插件（https://github.com/gitalk/gitalk）</span></span><br><span class="line"><span class="attr">gitalk:</span></span><br><span class="line">    <span class="comment"># 是否启用评论功能</span></span><br><span class="line">    <span class="attr">enable:</span> <span class="literal">false</span></span><br><span class="line">    <span class="comment"># 是否自动展开评论框</span></span><br><span class="line">    <span class="attr">autoExpand:</span> <span class="literal">false</span></span><br><span class="line">    <span class="comment"># 应用编号</span></span><br><span class="line">    <span class="attr">clientID:</span> <span class="string">&#x27;&#x27;</span></span><br><span class="line">    <span class="comment"># 应用秘钥</span></span><br><span class="line">    <span class="attr">clientSecret:</span> <span class="string">&#x27;&#x27;</span></span><br><span class="line">    <span class="comment"># issue仓库名</span></span><br><span class="line">    <span class="attr">repo:</span> <span class="string">&#x27;&#x27;</span></span><br><span class="line">    <span class="comment"># Github名</span></span><br><span class="line">    <span class="attr">owner:</span> <span class="string">&#x27;&#x27;</span></span><br><span class="line">    <span class="comment"># Github名</span></span><br><span class="line">    <span class="attr">admin:</span> [<span class="string">&#x27;&#x27;</span>]</span><br><span class="line">    <span class="comment"># Ensure uniqueness and length less than 50</span></span><br><span class="line">    <span class="attr">id:</span> <span class="string">location.pathname</span></span><br><span class="line">    <span class="comment"># Facebook-like distraction free mode</span></span><br><span class="line">    <span class="attr">distractionFreeMode:</span> <span class="literal">false</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 网站关键字</span></span><br><span class="line"><span class="attr">keywords:</span> <span class="string">Fechin</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 要使用google_analytics进行统计的话，这里需要配置ID</span></span><br><span class="line"><span class="attr">google_analytics:</span> </span><br><span class="line"></span><br><span class="line"><span class="comment"># 网站ico</span></span><br><span class="line"><span class="attr">favicon:</span> <span class="string">/img/favicon.png</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># rss文件</span></span><br><span class="line"><span class="attr">rss:</span> <span class="string">atom.xml</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h2 id="托管github"><a href="#托管github" class="headerlink" title="托管github"></a>托管github</h2><blockquote>
-<p>deploy:<br>  &emsp;type: git<br>  &emsp;repo: <a href="https://github.com/Hikaru199/hikaru.github.io.git">https://github.com/Hikaru199/hikaru.github.io.git</a><br>  &emsp;branch: master</p>
-</blockquote>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git config --global user.name <span class="string">&quot;GitHub用户名&quot;</span></span><br><span class="line">git config --global user.email <span class="string">&quot;GitHub注册邮箱&quot;</span></span><br><span class="line">ssh-keygen -t rsa -C <span class="string">&quot;GitHub注册邮箱&quot;</span></span><br><span class="line">ssh git@github.com</span><br><span class="line">npm install hexo-deployer-git --save</span><br><span class="line">hexo clean  //清理</span><br><span class="line">hexo g  //生成页面</span><br><span class="line">hexo d //部署页面</span><br></pre></td></tr></table></figure>
-
-]]></content>
-  </entry>
-  <entry>
     <title>番剧杂谈 · 你是彼方</title>
     <url>/2021/07/15/%E3%80%90%E7%95%AA%E5%89%A7%E6%9D%82%E8%B0%88%E3%80%91%E4%BD%A0%E6%98%AF%E5%BD%BC%E6%96%B9/</url>
     <content><![CDATA[<div align=center><img width = '270' height ='381' src ="https://gitee.com/hikarucyan/picture/raw/master/images/nsbf_img/nsbf_00.jpg"/>
@@ -182,6 +129,185 @@
       <tags>
         <tag>番剧杂谈</tag>
         <tag>你是彼方</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>不幸是由细枝末节的小事开始</title>
+    <url>/2022/01/14/table/</url>
+    <content><![CDATA[<p>是从何时开始的？回过神来时，不幸却已经发生，时间就是这样残酷，总是要求我们做出选择，反应迟钝的我总是错过选择而经历不幸……</p>
+<h2 id="使用文档"><a href="#使用文档" class="headerlink" title="使用文档"></a>使用文档</h2><h3 id="撰写新的文章"><a href="#撰写新的文章" class="headerlink" title="撰写新的文章"></a>撰写新的文章</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="新建文章模板"><a href="#新建文章模板" class="headerlink" title="新建文章模板"></a>新建文章模板</h3><figure class="highlight markdown"><table><tr><td class="code"><pre><span class="line">---</span><br><span class="line">title: My awesome title</span><br><span class="line">date: 2016-10-12 18:38:45</span><br><span class="line">categories: </span><br><span class="line"><span class="bullet">    -</span> 分类1</span><br><span class="line"><span class="bullet">    -</span> 分类2</span><br><span class="line">tags: </span><br><span class="line"><span class="bullet">    -</span> 标签1</span><br><span class="line"><span class="bullet">    -</span> 标签2</span><br><span class="line">mp3: http://domain.com/awesome.mp3</span><br><span class="line"><span class="section">cover: http://domain.com/awesome.jpg</span></span><br><span class="line"><span class="section">---</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="启动服务"><a href="#启动服务" class="headerlink" title="启动服务"></a>启动服务</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo server -p 80</span><br></pre></td></tr></table></figure>
+
+<h3 id="生成静态网页"><a href="#生成静态网页" class="headerlink" title="生成静态网页"></a>生成静态网页</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
+
+<h3 id="清理缓存"><a href="#清理缓存" class="headerlink" title="清理缓存"></a>清理缓存</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo clean</span><br></pre></td></tr></table></figure>
+
+<h3 id="创建分类页"><a href="#创建分类页" class="headerlink" title="创建分类页"></a>创建分类页</h3><p>1 新建一个页面，命名为 categories 。命令如下：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new page categories</span><br></pre></td></tr></table></figure>
+
+<p>2 编辑刚新建的页面，将页面的类型设置为 categories</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">title: categories</span><br><span class="line">date: 2014-12-22 12:39:04</span><br><span class="line">type: &quot;categories&quot;</span><br><span class="line">---</span><br></pre></td></tr></table></figure>
+
+<p>主题将自动为这个页面显示所有分类。</p>
+<h3 id="创建标签页"><a href="#创建标签页" class="headerlink" title="创建标签页"></a>创建标签页</h3><p>1 新建一个页面，命名为 tags 。命令如下：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new page tags</span><br></pre></td></tr></table></figure>
+
+<p>2 编辑刚新建的页面，将页面的类型设置为 tags</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">title: tags</span><br><span class="line">date: 2014-12-22 12:39:04</span><br><span class="line">type: &quot;tags&quot;</span><br><span class="line">---</span><br></pre></td></tr></table></figure>
+
+<p>主题将自动为这个页面显示所有标签。</p>
+<h3 id="创建搜索页"><a href="#创建搜索页" class="headerlink" title="创建搜索页"></a>创建搜索页</h3><p>1 需要安装hexo的搜索插件</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ npm install hexo-generator-searchdb --save</span><br></pre></td></tr></table></figure>
+
+<p>2 配置hexo全局配置文件（请将生成的索引文件放在网站根目录或修改主题js文件的path值）</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">search:</span></span><br><span class="line">  <span class="attr">path:</span> <span class="string">search.xml</span></span><br><span class="line">  <span class="attr">field:</span> <span class="string">post</span></span><br><span class="line">  <span class="attr">format:</span> <span class="string">html</span></span><br><span class="line">  <span class="attr">limit:</span> <span class="number">10000</span></span><br></pre></td></tr></table></figure>
+
+<p>3 新建一个页面，命名为 search 。命令如下：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new page search</span><br></pre></td></tr></table></figure>
+
+<p>4 编辑刚新建的页面，将页面的类型设置为 search</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">title: search</span><br><span class="line">date: 2014-12-22 12:39:04</span><br><span class="line">type: &quot;search&quot;</span><br><span class="line">---</span><br></pre></td></tr></table></figure>
+
+<p>5 在主题配置文件启用本地搜索</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="comment">#本地搜索,请将索引文件放在网站根目录</span></span><br><span class="line"><span class="attr">local_search:</span></span><br><span class="line">    <span class="comment">#是否启用</span></span><br><span class="line">    <span class="attr">enable:</span> <span class="literal">true</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>主题将自动为这个页面显示搜索功能。</p>
+<h3 id="主题配置"><a href="#主题配置" class="headerlink" title="主题配置"></a>主题配置</h3><figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 头部菜单，title: link</span></span><br><span class="line"><span class="attr">menu:</span></span><br><span class="line">  <span class="string">首页:</span> <span class="string">/</span></span><br><span class="line">  <span class="string">分类:</span> <span class="string">/categories</span></span><br><span class="line">  <span class="string">标签:</span> <span class="string">/tags</span></span><br><span class="line">  <span class="string">归档:</span> <span class="string">/archives</span>  </span><br><span class="line">  <span class="string">关于:</span> <span class="string">/about</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 是否显示目录</span></span><br><span class="line"><span class="attr">TOC:</span> <span class="literal">false</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 是否自动播放音乐</span></span><br><span class="line"><span class="attr">autoplay:</span> <span class="literal">false</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 默认音乐（随机播放）</span></span><br><span class="line"><span class="attr">mp3:</span> </span><br><span class="line">    <span class="bullet">-</span> <span class="string">http://link.hhtjim.com/163/425570952.mp3</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">http://link.hhtjim.com/163/425570952.mp3</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 首页封面图, 为空时取文章的cover作为封面(注意跨域问题,建议使用同源图片)</span></span><br><span class="line"><span class="attr">welcome_cover:</span> <span class="string">/img/welcome-cover.jpg</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 默认文章封面图（随机调用,支持外链）</span></span><br><span class="line"><span class="attr">cover:</span> </span><br><span class="line">  <span class="bullet">-</span> <span class="string">/img/cover.jpg</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">/img/welcome-cover.jpg</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 是否显示Twitter分享卡片图像(图像尺寸要求：1200*600，creatorid不需要带@符号。注意：链接必须是完整url，否则Twitter将无法读取图片信息）</span></span><br><span class="line"><span class="attr">twitterpic:</span></span><br><span class="line">  <span class="attr">enable:</span> <span class="literal">false</span></span><br><span class="line">  <span class="attr">src:</span> <span class="string">https://bangdream.moe/img/ident.png</span></span><br><span class="line">  <span class="attr">creatorid:</span> <span class="string">yourtwitteridhere</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 是否关闭默认滚动条</span></span><br><span class="line"><span class="attr">scrollbar:</span> <span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 本地搜索,请将索引文件放在网站根目录,或修改主题js文件的path值</span></span><br><span class="line"><span class="attr">local_search:</span></span><br><span class="line">    <span class="comment"># 是否启用</span></span><br><span class="line">    <span class="attr">enable:</span> <span class="literal">false</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 是否显示 一言(hitokoto)</span></span><br><span class="line"><span class="attr">hitokoto:</span> <span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 链接(可选:facebook,twitter,github,wechat,email)</span></span><br><span class="line"><span class="attr">links:</span></span><br><span class="line">    <span class="attr">facebook:</span> <span class="string">/</span></span><br><span class="line">    <span class="attr">twitter:</span> <span class="string">/</span></span><br><span class="line">    <span class="attr">github:</span> <span class="string">/</span></span><br><span class="line">    <span class="attr">wechat:</span> <span class="string">/img/logo.png</span></span><br><span class="line">    <span class="attr">email:</span> <span class="string">mailto:xxxx@gmail.com</span></span><br><span class="line">  </span><br><span class="line"><span class="comment"># 备案</span></span><br><span class="line"><span class="attr">beian:</span> </span><br><span class="line">    <span class="comment"># 是否显示备案信息</span></span><br><span class="line">    <span class="attr">enable:</span> <span class="literal">true</span></span><br><span class="line">    <span class="comment"># 是否在主页面最底下显示备案信息(虽然丑，但是完全满足规定要求)</span></span><br><span class="line">    <span class="attr">enableFooter:</span> <span class="literal">false</span></span><br><span class="line">    <span class="comment"># 备案号</span></span><br><span class="line">    <span class="attr">beianInfo:</span> <span class="string">冀ICP备xxxxxxx号</span></span><br><span class="line">    <span class="comment"># 链接地址</span></span><br><span class="line">    <span class="attr">link:</span> <span class="string">http://www.beian.miit.gov.cn</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 是否使用mathjax</span></span><br><span class="line"><span class="attr">mathjax:</span> <span class="literal">false</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Gitalk 评论插件（https://github.com/gitalk/gitalk）</span></span><br><span class="line"><span class="attr">gitalk:</span></span><br><span class="line">    <span class="comment"># 是否启用评论功能</span></span><br><span class="line">    <span class="attr">enable:</span> <span class="literal">false</span></span><br><span class="line">    <span class="comment"># 是否自动展开评论框</span></span><br><span class="line">    <span class="attr">autoExpand:</span> <span class="literal">false</span></span><br><span class="line">    <span class="comment"># 应用编号</span></span><br><span class="line">    <span class="attr">clientID:</span> <span class="string">&#x27;&#x27;</span></span><br><span class="line">    <span class="comment"># 应用秘钥</span></span><br><span class="line">    <span class="attr">clientSecret:</span> <span class="string">&#x27;&#x27;</span></span><br><span class="line">    <span class="comment"># issue仓库名</span></span><br><span class="line">    <span class="attr">repo:</span> <span class="string">&#x27;&#x27;</span></span><br><span class="line">    <span class="comment"># Github名</span></span><br><span class="line">    <span class="attr">owner:</span> <span class="string">&#x27;&#x27;</span></span><br><span class="line">    <span class="comment"># Github名</span></span><br><span class="line">    <span class="attr">admin:</span> [<span class="string">&#x27;&#x27;</span>]</span><br><span class="line">    <span class="comment"># Ensure uniqueness and length less than 50</span></span><br><span class="line">    <span class="attr">id:</span> <span class="string">location.pathname</span></span><br><span class="line">    <span class="comment"># Facebook-like distraction free mode</span></span><br><span class="line">    <span class="attr">distractionFreeMode:</span> <span class="literal">false</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 网站关键字</span></span><br><span class="line"><span class="attr">keywords:</span> <span class="string">Fechin</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 要使用google_analytics进行统计的话，这里需要配置ID</span></span><br><span class="line"><span class="attr">google_analytics:</span> </span><br><span class="line"></span><br><span class="line"><span class="comment"># 网站ico</span></span><br><span class="line"><span class="attr">favicon:</span> <span class="string">/img/favicon.png</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># rss文件</span></span><br><span class="line"><span class="attr">rss:</span> <span class="string">atom.xml</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="托管github"><a href="#托管github" class="headerlink" title="托管github"></a>托管github</h2><blockquote>
+<p>deploy:<br>  &emsp;type: git<br>  &emsp;repo: <a href="https://github.com/Hikaru199/hikaru.github.io.git">https://github.com/Hikaru199/hikaru.github.io.git</a><br>  &emsp;branch: master</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git config --global user.name <span class="string">&quot;Hikaru199&quot;</span></span><br><span class="line">git config --global user.email <span class="string">&quot;849892160@qq.com&quot;</span></span><br><span class="line">ssh-keygen -t rsa -C <span class="string">&quot;849892160@qq.com&quot;</span></span><br><span class="line">ssh git@github.com</span><br><span class="line">npm install hexo-deployer-git --save</span><br><span class="line">hexo clean  //清理</span><br><span class="line">hexo g  //生成页面</span><br><span class="line">hexo d //部署页面</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="托管gitee"><a href="#托管gitee" class="headerlink" title="托管gitee"></a>托管gitee</h2><blockquote>
+<p>deploy:<br>  &emsp;type: git<br>  &emsp;repo: <a href="https://gitee.com/hikarucyan/hikarucyan.gitee.io.git">https://gitee.com/hikarucyan/hikarucyan.gitee.io.git</a><br>  &emsp;branch: master</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git config --global user.name <span class="string">&quot;Hikaru&quot;</span></span><br><span class="line">git config --global user.email <span class="string">&quot;849892160@qq.com&quot;</span></span><br><span class="line">ssh-keygen -t rsa -C <span class="string">&quot;849892160@qq.com&quot;</span></span><br><span class="line">ssh git@github.com</span><br><span class="line">npm install hexo-deployer-git --save</span><br><span class="line">hexo clean  //清理</span><br><span class="line">hexo g  //生成页面</span><br><span class="line">hexo d //部署页面</span><br></pre></td></tr></table></figure>]]></content>
+  </entry>
+  <entry>
+    <title>番剧杂谈 · 心欲呐喊</title>
+    <url>/2021/08/06/%E3%80%90%E7%95%AA%E5%89%A7%E6%9D%82%E8%B0%88%E3%80%91%E5%BF%83%E6%AC%B2%E5%91%90%E5%96%8A/</url>
+    <content><![CDATA[<div align=center><img width = '270' height ='381' src ="https://gitee.com/hikarucyan/picture/raw/master/images/xynh_img/xynh_00.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;少女成濑顺（水濑祈 配音）有着一段不堪回首的童年往事，曾经，年少无知的她因为口无遮拦，导致了家族的悲剧，而她本人亦被封印了言语，无法再开口说话。这样的顺终日生活在悲伤之中，和所有人都保持着距离，紧紧的关闭上了心门。某一天，浑浑噩噩迷迷糊糊的少年坂上拓実（内山昂辉 配音）、因为受伤而无法完成棒球梦想的田崎大树（细谷佳正 配音）、深陷令人苦恼的恋爱之中的拉拉队员仁藤菜月（雨宫天 配音）以及顺，这四人被老师任命组成了“地域沟通交流会”，他们要在交流会上表演一出音乐剧，可是班级里的大部分学生对此兴趣寥寥。在一片争执声中，顺突然出声，担下了演唱的任务。</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikarucyan/picture/raw/master/images/xynh_img/xynh_01.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;一个向往着城堡与王子的天真少女，因为儿时碰巧发现父亲的外遇而导致家庭的破碎，而父母的做法却是将过错全部归结于这个“多嘴”的女孩，成濑顺也因此变得安静下来，认为自己的“多嘴”会使她失去更多<br>&emsp;&emsp;就是这样，人往往因为遗憾和错过归结于一个明显的主导原因，忽视了其他的干扰因素，为了杜绝历史重演，而选择将其封杀，但是那些被忽略的因素却在以其他的方式在让历史重演，使得失去的不断累积<br>&emsp;&emsp;从“多嘴”但“安静”，需要的只是一个契机<br>&emsp;&emsp;对于我来说，这个契机是成长的象征，同时也是不会忘却的遗憾</p>
+</blockquote>
+<div align=center><img width = '1080' height='608' src ="https://gitee.com/hikarucyan/picture/raw/master/images/xynh_img/xynh_02.jpg"/>
+
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikarucyan/picture/raw/master/images/xynh_img/xynh_03.jpg"/>
+
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikarucyan/picture/raw/master/images/xynh_img/xynh_04.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;老师的指定无疑是剧本了，将偶然变成机遇，看似随机但是实际上老师也是懂得，青春就是这样将形形色色的人碰撞在一起才会变得有趣<br>&emsp;&emsp;因为是班级活动，又被点名，女主顺也就这样的一个偶然对男主说出了关于自己的事，将自己变得安静、变得不能说话的原因向男主倾述<br>&emsp;&emsp;一般来说，如果足够的好感的话，这种原因是不会说的，至少我是这样的，对于那些真心想接触我的人，我往往也会毫无保留的将自己变得安静的原因倾述一通，我希望被理解，希望自己能从其中摆脱出来，希望借助对方的帮助，但是往往事实不会如我想象的那样发展<br>&emsp;&emsp;也许是因为我的原因本身吧，因为在感情中的挫败而封闭自己，这样的原因如实告诉了对方，但是对方却理解成“我无法忘记她，所以要拒绝你”这样的，所以至今也没能被理解<br>&emsp;&emsp;就是这样不坦率，有时候真的很懊悔，为什么要这样呢，可是将事实说出来却成了错误，无法理解，就是无法理解这样的“真诚”为什么无法在这个时代生存，我到底在期待什么，坚守什么，连自己都开始怀疑了</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikarucyan/picture/raw/master/images/xynh_img/xynh_05.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;沉默寡言的女孩子对我有着格外的吸引力，我喜欢去接触这样的女生，虽然她们不擅长与表达，但是却拥有格外高的情商，因为我自己也不怎么爱说话，也许是“同类”所以有着格外的吸引力吧<br>&emsp;&emsp;就像顺一样，虽然看起来沉默寡言，但是却通过网络不断地向外界表达自己，希望被发现希望被喜欢地心情，我曾经……不，现在也依旧喜欢地那个女孩子就是这样子的，明明很可爱，明明已经被我发现了，但是强烈的占有欲却让我将与她的联系彻底地斩断了<br>&emsp;&emsp;话语绝对的是双刃剑，有时候可以给人救赎有时候又会将人伤害，用最少的话传达出最深最真挚的情感，这是我一直想要达到的，但是不坦率的我却经常用话语去伤害自己最喜欢的人，少说话是我一直在提醒自己的，说话前一定要谨慎，这样的想法往往在我的犹豫里错过了说话的时机</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikarucyan/picture/raw/master/images/xynh_img/xynh_06.jpg"/>
+
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikarucyan/picture/raw/master/images/xynh_img/xynh_07.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;回忆里，在初中时期男主拓实因为家庭原因而处于人生低谷的时候，女二菜月想要伸出援手，想要帮助拓实，但是却没能帮到，自那以后男主放弃了曾经父亲最喜欢的音乐剧，菜月也失去了与男主交流的可能，成为了菜月的遗憾<br>&emsp;&emsp;这样的遗憾我是可以理解的，因为它确确实实的发生在我身上了<br>&emsp;&emsp;高一那年，我疯狂般追求着一个女孩子，但是到了基本确定关系后，家庭的变故出现了，继父在工作中发生意外失去了劳动能力，母亲只能贴身照顾，失去经济来源的家庭面临着我将要放弃学业去打工的可能，不甘的心情与叛逆一起爆发，与家庭原本就不怎么样的联系变得支离破碎，面对随时可能退学的明天充满恐惧，整个人变得低迷。就在那个时候，是她出现在了我的身边，我无法忘记那天晚上，正在晚自习的我就要睡着了，她将我带了出去，一起翘掉了晚自习，她陪着我坐在操场上，她一句话都没说，只是在我旁边静静的看着远处，而我看着她哭了起来，那晚明明我们什么都没说，但是我却被她救赎了，这也是我永远喜欢她的契机<br>&emsp;&emsp;但是，后来虽然没有退学，但是我却无法处理跟她的感情，无尽的自卑和无法给出承诺的自己，希望她变得更好的想法，我选择了退让和离开，最后与她分手了，但是迟到的不甘和懊悔没给我反悔的机会了</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikarucyan/picture/raw/master/images/xynh_img/xynh_08.jpg"/>
+
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikarucyan/picture/raw/master/images/xynh_img/xynh_09.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;在那之后，我将自己沉浸在二次元里，从《CLANNAD》里学会人生，这也是我的入宅番，变得比之前稍微乐观一些<br>&emsp;&emsp;后来有很多人问过我，问我跟她，称她是我女朋友之类的话题，我都1敷衍的回答“她不是我女朋友”后，将话题岔开，不再去面对<br>&emsp;&emsp;将那份感情封印起来……</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikarucyan/picture/raw/master/images/xynh_img/xynh_10.jpg"/>
+
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikarucyan/picture/raw/master/images/xynh_img/xynh_11.jpg"/>
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;像男主一样，虽然暂时走出来低谷，但是一切都不可能跟原来一样了，我也就这样接受了自己的无趣，将他人的评价的标签不论真假的贴在自己身上<br>&emsp;&emsp;“想到什么说什么，别人说什么都要还嘴，总觉得这样很累，与周围人争论也很麻烦，由它去了”<br>&emsp;&emsp;我就这样过上了现在的生活，将一切都无视掉，不与人争论，也不与人争抢，只是这样庸庸碌碌的活着就好<br>&emsp;&emsp;有时候会遇到一些喜欢自己的人说着这样的我就行，虽然很感谢她们的心意，我对听到这些话也很开心，但是我不能接受她们的心意，这样的我去去谈感情的话，会伤害她们的</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikarucyan/picture/raw/master/images/xynh_img/xynh_12.jpg"/>
+
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikarucyan/picture/raw/master/images/xynh_img/xynh_13.jpg"/>
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;因为音乐剧引发的“奇迹”就这样发生了，抱着各种的想法而组合在一起的小团队，青春的碰撞就此开始预热</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikarucyan/picture/raw/master/images/xynh_img/xynh_14.jpg"/>
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;男主向菜月表明自己后悔初中时无视掉的感情，明知道当时菜月想要帮助自己，但自己却什么都没做，只是等待…</p>
+</blockquote>
+<div align=center><img width = '1080' height ='549' src ="https://gitee.com/hikarucyan/picture/raw/master/images/xynh_img/xynh_15.jpg"/>
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;顺原本是已经喜欢上男主的，但是面对男主不喜欢自己的事实，选择了逃避这个事实<br>&emsp;&emsp;比起被正面拒绝，从侧面听到自己不被喜欢的事实更加痛苦一些</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikarucyan/picture/raw/master/images/xynh_img/xynh_16.jpg"/>
+
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikarucyan/picture/raw/master/images/xynh_img/xynh_17.jpg"/>
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;故事的结尾是男主与女二一对、女主与男二一对，真是出乎意料的大胆尝试，不过我本来就看好男主与女二的，因为对我来说共鸣点更多</p>
+</blockquote>
+<h2 id="观感杂谈"><a href="#观感杂谈" class="headerlink" title="观感杂谈"></a><center>观感杂谈</center></h2><div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;作为冈妈的“超平和Busters”第二部，依旧是让我百感交集，相比《未闻花名》，这部地泪点就高很多，只有在最后成濑顺开唱后的短短几句歌词里能感受到，不过《心欲呐喊》做的好的地方还是有很多的，作品里不像花名一样贯穿青春恋爱始终，更多的笔墨像是在描绘家庭关系对青春的影响，塑造的形象也并没有花名那样的超现实，共鸣点还是很多的，总之就是很好的一部作品<br>&emsp;&emsp;如果说为什么我会选冈妈的作品来写，因为在我的人生中，尤其因为并没有太多的家庭生活，而最重要的校园生活却又充满遗憾，所以总能在冈田麿里的作品里找到共鸣点。比起新海诚的空洞幻想系恋爱、key那亲情爱情友情杂糅的复杂恋爱，简单的校园恋爱是无比符合我的口味的</p>
+</blockquote>
+<div align=right>
+
+
+<blockquote>
+<p>&emsp;&emsp;——Hikaru199</p>
+</blockquote>
+]]></content>
+      <categories>
+        <category>番剧杂谈</category>
+      </categories>
+      <tags>
+        <tag>番剧杂谈</tag>
+        <tag>心欲呐喊</tag>
       </tags>
   </entry>
   <entry>
@@ -375,127 +501,6 @@
       <tags>
         <tag>番剧杂谈</tag>
         <tag>堀与宫村</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>番剧杂谈 · 心欲呐喊</title>
-    <url>/2021/08/06/%E3%80%90%E7%95%AA%E5%89%A7%E6%9D%82%E8%B0%88%E3%80%91%E5%BF%83%E6%AC%B2%E5%91%90%E5%96%8A/</url>
-    <content><![CDATA[<div align=center><img width = '270' height ='381' src ="https://gitee.com/hikarucyan/picture/raw/master/images/xynh_img/xynh_00.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;少女成濑顺（水濑祈 配音）有着一段不堪回首的童年往事，曾经，年少无知的她因为口无遮拦，导致了家族的悲剧，而她本人亦被封印了言语，无法再开口说话。这样的顺终日生活在悲伤之中，和所有人都保持着距离，紧紧的关闭上了心门。某一天，浑浑噩噩迷迷糊糊的少年坂上拓実（内山昂辉 配音）、因为受伤而无法完成棒球梦想的田崎大树（细谷佳正 配音）、深陷令人苦恼的恋爱之中的拉拉队员仁藤菜月（雨宫天 配音）以及顺，这四人被老师任命组成了“地域沟通交流会”，他们要在交流会上表演一出音乐剧，可是班级里的大部分学生对此兴趣寥寥。在一片争执声中，顺突然出声，担下了演唱的任务。</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikarucyan/picture/raw/master/images/xynh_img/xynh_01.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;一个向往着城堡与王子的天真少女，因为儿时碰巧发现父亲的外遇而导致家庭的破碎，而父母的做法却是将过错全部归结于这个“多嘴”的女孩，成濑顺也因此变得安静下来，认为自己的“多嘴”会使她失去更多<br>&emsp;&emsp;就是这样，人往往因为遗憾和错过归结于一个明显的主导原因，忽视了其他的干扰因素，为了杜绝历史重演，而选择将其封杀，但是那些被忽略的因素却在以其他的方式在让历史重演，使得失去的不断累积<br>&emsp;&emsp;从“多嘴”但“安静”，需要的只是一个契机<br>&emsp;&emsp;对于我来说，这个契机是成长的象征，同时也是不会忘却的遗憾</p>
-</blockquote>
-<div align=center><img width = '1080' height='608' src ="https://gitee.com/hikarucyan/picture/raw/master/images/xynh_img/xynh_02.jpg"/>
-
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikarucyan/picture/raw/master/images/xynh_img/xynh_03.jpg"/>
-
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikarucyan/picture/raw/master/images/xynh_img/xynh_04.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;老师的指定无疑是剧本了，将偶然变成机遇，看似随机但是实际上老师也是懂得，青春就是这样将形形色色的人碰撞在一起才会变得有趣<br>&emsp;&emsp;因为是班级活动，又被点名，女主顺也就这样的一个偶然对男主说出了关于自己的事，将自己变得安静、变得不能说话的原因向男主倾述<br>&emsp;&emsp;一般来说，如果足够的好感的话，这种原因是不会说的，至少我是这样的，对于那些真心想接触我的人，我往往也会毫无保留的将自己变得安静的原因倾述一通，我希望被理解，希望自己能从其中摆脱出来，希望借助对方的帮助，但是往往事实不会如我想象的那样发展<br>&emsp;&emsp;也许是因为我的原因本身吧，因为在感情中的挫败而封闭自己，这样的原因如实告诉了对方，但是对方却理解成“我无法忘记她，所以要拒绝你”这样的，所以至今也没能被理解<br>&emsp;&emsp;就是这样不坦率，有时候真的很懊悔，为什么要这样呢，可是将事实说出来却成了错误，无法理解，就是无法理解这样的“真诚”为什么无法在这个时代生存，我到底在期待什么，坚守什么，连自己都开始怀疑了</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikarucyan/picture/raw/master/images/xynh_img/xynh_05.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;沉默寡言的女孩子对我有着格外的吸引力，我喜欢去接触这样的女生，虽然她们不擅长与表达，但是却拥有格外高的情商，因为我自己也不怎么爱说话，也许是“同类”所以有着格外的吸引力吧<br>&emsp;&emsp;就像顺一样，虽然看起来沉默寡言，但是却通过网络不断地向外界表达自己，希望被发现希望被喜欢地心情，我曾经……不，现在也依旧喜欢地那个女孩子就是这样子的，明明很可爱，明明已经被我发现了，但是强烈的占有欲却让我将与她的联系彻底地斩断了<br>&emsp;&emsp;话语绝对的是双刃剑，有时候可以给人救赎有时候又会将人伤害，用最少的话传达出最深最真挚的情感，这是我一直想要达到的，但是不坦率的我却经常用话语去伤害自己最喜欢的人，少说话是我一直在提醒自己的，说话前一定要谨慎，这样的想法往往在我的犹豫里错过了说话的时机</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikarucyan/picture/raw/master/images/xynh_img/xynh_06.jpg"/>
-
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikarucyan/picture/raw/master/images/xynh_img/xynh_07.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;回忆里，在初中时期男主拓实因为家庭原因而处于人生低谷的时候，女二菜月想要伸出援手，想要帮助拓实，但是却没能帮到，自那以后男主放弃了曾经父亲最喜欢的音乐剧，菜月也失去了与男主交流的可能，成为了菜月的遗憾<br>&emsp;&emsp;这样的遗憾我是可以理解的，因为它确确实实的发生在我身上了<br>&emsp;&emsp;高一那年，我疯狂般追求着一个女孩子，但是到了基本确定关系后，家庭的变故出现了，继父在工作中发生意外失去了劳动能力，母亲只能贴身照顾，失去经济来源的家庭面临着我将要放弃学业去打工的可能，不甘的心情与叛逆一起爆发，与家庭原本就不怎么样的联系变得支离破碎，面对随时可能退学的明天充满恐惧，整个人变得低迷。就在那个时候，是她出现在了我的身边，我无法忘记那天晚上，正在晚自习的我就要睡着了，她将我带了出去，一起翘掉了晚自习，她陪着我坐在操场上，她一句话都没说，只是在我旁边静静的看着远处，而我看着她哭了起来，那晚明明我们什么都没说，但是我却被她救赎了，这也是我永远喜欢她的契机<br>&emsp;&emsp;但是，后来虽然没有退学，但是我却无法处理跟她的感情，无尽的自卑和无法给出承诺的自己，希望她变得更好的想法，我选择了退让和离开，最后与她分手了，但是迟到的不甘和懊悔没给我反悔的机会了</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikarucyan/picture/raw/master/images/xynh_img/xynh_08.jpg"/>
-
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikarucyan/picture/raw/master/images/xynh_img/xynh_09.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;在那之后，我将自己沉浸在二次元里，从《CLANNAD》里学会人生，这也是我的入宅番，变得比之前稍微乐观一些<br>&emsp;&emsp;后来有很多人问过我，问我跟她，称她是我女朋友之类的话题，我都1敷衍的回答“她不是我女朋友”后，将话题岔开，不再去面对<br>&emsp;&emsp;将那份感情封印起来……</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikarucyan/picture/raw/master/images/xynh_img/xynh_10.jpg"/>
-
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikarucyan/picture/raw/master/images/xynh_img/xynh_11.jpg"/>
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;像男主一样，虽然暂时走出来低谷，但是一切都不可能跟原来一样了，我也就这样接受了自己的无趣，将他人的评价的标签不论真假的贴在自己身上<br>&emsp;&emsp;“想到什么说什么，别人说什么都要还嘴，总觉得这样很累，与周围人争论也很麻烦，由它去了”<br>&emsp;&emsp;我就这样过上了现在的生活，将一切都无视掉，不与人争论，也不与人争抢，只是这样庸庸碌碌的活着就好<br>&emsp;&emsp;有时候会遇到一些喜欢自己的人说着这样的我就行，虽然很感谢她们的心意，我对听到这些话也很开心，但是我不能接受她们的心意，这样的我去去谈感情的话，会伤害她们的</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikarucyan/picture/raw/master/images/xynh_img/xynh_12.jpg"/>
-
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikarucyan/picture/raw/master/images/xynh_img/xynh_13.jpg"/>
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;因为音乐剧引发的“奇迹”就这样发生了，抱着各种的想法而组合在一起的小团队，青春的碰撞就此开始预热</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikarucyan/picture/raw/master/images/xynh_img/xynh_14.jpg"/>
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;男主向菜月表明自己后悔初中时无视掉的感情，明知道当时菜月想要帮助自己，但自己却什么都没做，只是等待…</p>
-</blockquote>
-<div align=center><img width = '1080' height ='549' src ="https://gitee.com/hikarucyan/picture/raw/master/images/xynh_img/xynh_15.jpg"/>
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;顺原本是已经喜欢上男主的，但是面对男主不喜欢自己的事实，选择了逃避这个事实<br>&emsp;&emsp;比起被正面拒绝，从侧面听到自己不被喜欢的事实更加痛苦一些</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikarucyan/picture/raw/master/images/xynh_img/xynh_16.jpg"/>
-
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikarucyan/picture/raw/master/images/xynh_img/xynh_17.jpg"/>
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;故事的结尾是男主与女二一对、女主与男二一对，真是出乎意料的大胆尝试，不过我本来就看好男主与女二的，因为对我来说共鸣点更多</p>
-</blockquote>
-<h2 id="观感杂谈"><a href="#观感杂谈" class="headerlink" title="观感杂谈"></a><center>观感杂谈</center></h2><div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;作为冈妈的“超平和Busters”第二部，依旧是让我百感交集，相比《未闻花名》，这部地泪点就高很多，只有在最后成濑顺开唱后的短短几句歌词里能感受到，不过《心欲呐喊》做的好的地方还是有很多的，作品里不像花名一样贯穿青春恋爱始终，更多的笔墨像是在描绘家庭关系对青春的影响，塑造的形象也并没有花名那样的超现实，共鸣点还是很多的，总之就是很好的一部作品<br>&emsp;&emsp;如果说为什么我会选冈妈的作品来写，因为在我的人生中，尤其因为并没有太多的家庭生活，而最重要的校园生活却又充满遗憾，所以总能在冈田麿里的作品里找到共鸣点。比起新海诚的空洞幻想系恋爱、key那亲情爱情友情杂糅的复杂恋爱，简单的校园恋爱是无比符合我的口味的</p>
-</blockquote>
-<div align=right>
-
-
-<blockquote>
-<p>&emsp;&emsp;——Hikaru199</p>
-</blockquote>
-]]></content>
-      <categories>
-        <category>番剧杂谈</category>
-      </categories>
-      <tags>
-        <tag>番剧杂谈</tag>
-        <tag>心欲呐喊</tag>
       </tags>
   </entry>
   <entry>
