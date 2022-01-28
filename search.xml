@@ -1,6 +1,236 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>【Python】·图片批量加圆角</title>
+    <url>/2021/10/14/Python%C2%B7%E5%9B%BE%E7%89%87%E6%89%B9%E9%87%8F%E5%8A%A0%E5%9C%86%E8%A7%92/</url>
+    <content><![CDATA[<p>使用<code>Image</code>和<code>ImageDraw</code>库，实现图片批量加圆角                                                                            </p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment"># _*_ coding: utf-8 _*_</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">Author: Hikaru199</span></span><br><span class="line"><span class="string">Date: 2021-10-14</span></span><br><span class="line"><span class="string">wechat: Hikaru-199</span></span><br><span class="line"><span class="string">function： </span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="keyword">from</span> PIL <span class="keyword">import</span> Image, ImageDraw</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">circle_corner</span>(<span class="params">img, radii</span>):</span></span><br><span class="line">    circle = Image.new(<span class="string">&#x27;L&#x27;</span>, (radii * <span class="number">2</span>, radii * <span class="number">2</span>), <span class="number">0</span>)  <span class="comment"># 创建黑色方形</span></span><br><span class="line">    draw = ImageDraw.Draw(circle)</span><br><span class="line">    draw.ellipse((<span class="number">0</span>, <span class="number">0</span>, radii * <span class="number">2</span>, radii * <span class="number">2</span>), fill=<span class="number">255</span>)  <span class="comment"># 黑色方形内切白色圆形</span></span><br><span class="line"></span><br><span class="line">    img = img.convert(<span class="string">&quot;RGBA&quot;</span>)</span><br><span class="line">    w, h = img.size</span><br><span class="line"></span><br><span class="line">    <span class="comment">#创建一个alpha层，存放四个圆角，使用透明度切除圆角外的图片</span></span><br><span class="line">    alpha = Image.new(<span class="string">&#x27;L&#x27;</span>, img.size, <span class="number">255</span>)</span><br><span class="line">    alpha.paste(circle.crop((<span class="number">0</span>, <span class="number">0</span>, radii, radii)), (<span class="number">0</span>, <span class="number">0</span>))  <span class="comment"># 左上角</span></span><br><span class="line">    alpha.paste(circle.crop((radii, <span class="number">0</span>, radii * <span class="number">2</span>, radii)),</span><br><span class="line">                (w - radii, <span class="number">0</span>))  <span class="comment"># 右上角</span></span><br><span class="line">    alpha.paste(circle.crop((radii, radii, radii * <span class="number">2</span>, radii * <span class="number">2</span>)),</span><br><span class="line">                (w - radii, h - radii))  <span class="comment"># 右下角</span></span><br><span class="line">    alpha.paste(circle.crop((<span class="number">0</span>, radii, radii, radii * <span class="number">2</span>)),</span><br><span class="line">                (<span class="number">0</span>, h - radii))  <span class="comment"># 左下角</span></span><br><span class="line">    img.putalpha(alpha)  <span class="comment"># 白色区域透明可见，黑色区域不可见</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 添加圆角边框</span></span><br><span class="line">    draw = ImageDraw.Draw(img)</span><br><span class="line">    draw.rounded_rectangle(img.getbbox(), outline=<span class="string">&quot;#f8f8f8&quot;</span>, width=<span class="number">3</span>, radius=radii)</span><br><span class="line">    <span class="keyword">return</span> img</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    radii = <span class="number">20</span>  <span class="comment"># 圆角大小</span></span><br><span class="line">    filePath = <span class="string">&#x27;D:/Desktop/Src&#x27;</span></span><br><span class="line">    outPath = <span class="string">&#x27;D:/Desktop/Des&#x27;</span></span><br><span class="line">    <span class="keyword">for</span> i, j, k <span class="keyword">in</span> os.walk(filePath):</span><br><span class="line">        <span class="keyword">for</span> filename <span class="keyword">in</span> k:</span><br><span class="line">            src = filePath + <span class="string">&quot;/&quot;</span> + filename</span><br><span class="line">            des = outPath + <span class="string">&quot;/&quot;</span> + filename</span><br><span class="line">            <span class="built_in">print</span>(src)</span><br><span class="line">            img = Image.<span class="built_in">open</span>(src)</span><br><span class="line">            img = circle_corner(img, radii)</span><br><span class="line">            img.save(des, <span class="string">&#x27;png&#x27;</span>, quality=<span class="number">100</span>)</span><br><span class="line"></span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>Python</category>
+      </categories>
+      <tags>
+        <tag>python</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>不幸是由细枝末节的小事开始</title>
+    <url>/2022/01/14/table/</url>
+    <content><![CDATA[<p>是从何时开始的？回过神来时，不幸却已经发生，时间就是这样残酷，总是要求我们做出选择，反应迟钝的我总是错过选择而经历不幸……</p>
+<h2 id="使用文档"><a href="#使用文档" class="headerlink" title="使用文档"></a>使用文档</h2><h3 id="撰写新的文章"><a href="#撰写新的文章" class="headerlink" title="撰写新的文章"></a>撰写新的文章</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="新建文章模板"><a href="#新建文章模板" class="headerlink" title="新建文章模板"></a>新建文章模板</h3><figure class="highlight markdown"><table><tr><td class="code"><pre><span class="line">---</span><br><span class="line">title: My awesome title</span><br><span class="line">date: 2016-10-12 18:38:45</span><br><span class="line">categories: </span><br><span class="line"><span class="bullet">    -</span> 分类1</span><br><span class="line"><span class="bullet">    -</span> 分类2</span><br><span class="line">tags: </span><br><span class="line"><span class="bullet">    -</span> 标签1</span><br><span class="line"><span class="bullet">    -</span> 标签2</span><br><span class="line">mp3: http://domain.com/awesome.mp3</span><br><span class="line"><span class="section">cover: http://domain.com/awesome.jpg</span></span><br><span class="line"><span class="section">---</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="启动服务"><a href="#启动服务" class="headerlink" title="启动服务"></a>启动服务</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo server -p 80</span><br></pre></td></tr></table></figure>
+
+<h3 id="生成静态网页"><a href="#生成静态网页" class="headerlink" title="生成静态网页"></a>生成静态网页</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
+
+<h3 id="清理缓存"><a href="#清理缓存" class="headerlink" title="清理缓存"></a>清理缓存</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo clean</span><br></pre></td></tr></table></figure>
+
+<h3 id="创建分类页"><a href="#创建分类页" class="headerlink" title="创建分类页"></a>创建分类页</h3><p>1 新建一个页面，命名为 categories 。命令如下：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new page categories</span><br></pre></td></tr></table></figure>
+
+<p>2 编辑刚新建的页面，将页面的类型设置为 categories</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">title: categories</span><br><span class="line">date: 2014-12-22 12:39:04</span><br><span class="line">type: &quot;categories&quot;</span><br><span class="line">---</span><br></pre></td></tr></table></figure>
+
+<p>主题将自动为这个页面显示所有分类。</p>
+<h3 id="创建标签页"><a href="#创建标签页" class="headerlink" title="创建标签页"></a>创建标签页</h3><p>1 新建一个页面，命名为 tags 。命令如下：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new page tags</span><br></pre></td></tr></table></figure>
+
+<p>2 编辑刚新建的页面，将页面的类型设置为 tags</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">title: tags</span><br><span class="line">date: 2014-12-22 12:39:04</span><br><span class="line">type: &quot;tags&quot;</span><br><span class="line">---</span><br></pre></td></tr></table></figure>
+
+<p>主题将自动为这个页面显示所有标签。</p>
+<h3 id="创建搜索页"><a href="#创建搜索页" class="headerlink" title="创建搜索页"></a>创建搜索页</h3><p>1 需要安装hexo的搜索插件</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ npm install hexo-generator-searchdb --save</span><br></pre></td></tr></table></figure>
+
+<p>2 配置hexo全局配置文件（请将生成的索引文件放在网站根目录或修改主题js文件的path值）</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">search:</span></span><br><span class="line">  <span class="attr">path:</span> <span class="string">search.xml</span></span><br><span class="line">  <span class="attr">field:</span> <span class="string">post</span></span><br><span class="line">  <span class="attr">format:</span> <span class="string">html</span></span><br><span class="line">  <span class="attr">limit:</span> <span class="number">10000</span></span><br></pre></td></tr></table></figure>
+
+<p>3 新建一个页面，命名为 search 。命令如下：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new page search</span><br></pre></td></tr></table></figure>
+
+<p>4 编辑刚新建的页面，将页面的类型设置为 search</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">title: search</span><br><span class="line">date: 2014-12-22 12:39:04</span><br><span class="line">type: &quot;search&quot;</span><br><span class="line">---</span><br></pre></td></tr></table></figure>
+
+<p>5 在主题配置文件启用本地搜索</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="comment">#本地搜索,请将索引文件放在网站根目录</span></span><br><span class="line"><span class="attr">local_search:</span></span><br><span class="line">    <span class="comment">#是否启用</span></span><br><span class="line">    <span class="attr">enable:</span> <span class="literal">true</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>主题将自动为这个页面显示搜索功能。</p>
+<h3 id="主题配置"><a href="#主题配置" class="headerlink" title="主题配置"></a>主题配置</h3><figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 头部菜单，title: link</span></span><br><span class="line"><span class="attr">menu:</span></span><br><span class="line">  <span class="string">首页:</span> <span class="string">/</span></span><br><span class="line">  <span class="string">分类:</span> <span class="string">/categories</span></span><br><span class="line">  <span class="string">标签:</span> <span class="string">/tags</span></span><br><span class="line">  <span class="string">归档:</span> <span class="string">/archives</span>  </span><br><span class="line">  <span class="string">关于:</span> <span class="string">/about</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 是否显示目录</span></span><br><span class="line"><span class="attr">TOC:</span> <span class="literal">false</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 是否自动播放音乐</span></span><br><span class="line"><span class="attr">autoplay:</span> <span class="literal">false</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 默认音乐（随机播放）</span></span><br><span class="line"><span class="attr">mp3:</span> </span><br><span class="line">    <span class="bullet">-</span> <span class="string">http://link.hhtjim.com/163/425570952.mp3</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">http://link.hhtjim.com/163/425570952.mp3</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 首页封面图, 为空时取文章的cover作为封面(注意跨域问题,建议使用同源图片)</span></span><br><span class="line"><span class="attr">welcome_cover:</span> <span class="string">/img/welcome-cover.jpg</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 默认文章封面图（随机调用,支持外链）</span></span><br><span class="line"><span class="attr">cover:</span> </span><br><span class="line">  <span class="bullet">-</span> <span class="string">/img/cover.jpg</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">/img/welcome-cover.jpg</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 是否显示Twitter分享卡片图像(图像尺寸要求：1200*600，creatorid不需要带@符号。注意：链接必须是完整url，否则Twitter将无法读取图片信息）</span></span><br><span class="line"><span class="attr">twitterpic:</span></span><br><span class="line">  <span class="attr">enable:</span> <span class="literal">false</span></span><br><span class="line">  <span class="attr">src:</span> <span class="string">https://bangdream.moe/img/ident.png</span></span><br><span class="line">  <span class="attr">creatorid:</span> <span class="string">yourtwitteridhere</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 是否关闭默认滚动条</span></span><br><span class="line"><span class="attr">scrollbar:</span> <span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 本地搜索,请将索引文件放在网站根目录,或修改主题js文件的path值</span></span><br><span class="line"><span class="attr">local_search:</span></span><br><span class="line">    <span class="comment"># 是否启用</span></span><br><span class="line">    <span class="attr">enable:</span> <span class="literal">false</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 是否显示 一言(hitokoto)</span></span><br><span class="line"><span class="attr">hitokoto:</span> <span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 链接(可选:facebook,twitter,github,wechat,email)</span></span><br><span class="line"><span class="attr">links:</span></span><br><span class="line">    <span class="attr">facebook:</span> <span class="string">/</span></span><br><span class="line">    <span class="attr">twitter:</span> <span class="string">/</span></span><br><span class="line">    <span class="attr">github:</span> <span class="string">/</span></span><br><span class="line">    <span class="attr">wechat:</span> <span class="string">/img/logo.png</span></span><br><span class="line">    <span class="attr">email:</span> <span class="string">mailto:xxxx@gmail.com</span></span><br><span class="line">  </span><br><span class="line"><span class="comment"># 备案</span></span><br><span class="line"><span class="attr">beian:</span> </span><br><span class="line">    <span class="comment"># 是否显示备案信息</span></span><br><span class="line">    <span class="attr">enable:</span> <span class="literal">true</span></span><br><span class="line">    <span class="comment"># 是否在主页面最底下显示备案信息(虽然丑，但是完全满足规定要求)</span></span><br><span class="line">    <span class="attr">enableFooter:</span> <span class="literal">false</span></span><br><span class="line">    <span class="comment"># 备案号</span></span><br><span class="line">    <span class="attr">beianInfo:</span> <span class="string">冀ICP备xxxxxxx号</span></span><br><span class="line">    <span class="comment"># 链接地址</span></span><br><span class="line">    <span class="attr">link:</span> <span class="string">http://www.beian.miit.gov.cn</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 是否使用mathjax</span></span><br><span class="line"><span class="attr">mathjax:</span> <span class="literal">false</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Gitalk 评论插件（https://github.com/gitalk/gitalk）</span></span><br><span class="line"><span class="attr">gitalk:</span></span><br><span class="line">    <span class="comment"># 是否启用评论功能</span></span><br><span class="line">    <span class="attr">enable:</span> <span class="literal">false</span></span><br><span class="line">    <span class="comment"># 是否自动展开评论框</span></span><br><span class="line">    <span class="attr">autoExpand:</span> <span class="literal">false</span></span><br><span class="line">    <span class="comment"># 应用编号</span></span><br><span class="line">    <span class="attr">clientID:</span> <span class="string">&#x27;&#x27;</span></span><br><span class="line">    <span class="comment"># 应用秘钥</span></span><br><span class="line">    <span class="attr">clientSecret:</span> <span class="string">&#x27;&#x27;</span></span><br><span class="line">    <span class="comment"># issue仓库名</span></span><br><span class="line">    <span class="attr">repo:</span> <span class="string">&#x27;&#x27;</span></span><br><span class="line">    <span class="comment"># Github名</span></span><br><span class="line">    <span class="attr">owner:</span> <span class="string">&#x27;&#x27;</span></span><br><span class="line">    <span class="comment"># Github名</span></span><br><span class="line">    <span class="attr">admin:</span> [<span class="string">&#x27;&#x27;</span>]</span><br><span class="line">    <span class="comment"># Ensure uniqueness and length less than 50</span></span><br><span class="line">    <span class="attr">id:</span> <span class="string">location.pathname</span></span><br><span class="line">    <span class="comment"># Facebook-like distraction free mode</span></span><br><span class="line">    <span class="attr">distractionFreeMode:</span> <span class="literal">false</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 网站关键字</span></span><br><span class="line"><span class="attr">keywords:</span> <span class="string">Fechin</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 要使用google_analytics进行统计的话，这里需要配置ID</span></span><br><span class="line"><span class="attr">google_analytics:</span> </span><br><span class="line"></span><br><span class="line"><span class="comment"># 网站ico</span></span><br><span class="line"><span class="attr">favicon:</span> <span class="string">/img/favicon.png</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># rss文件</span></span><br><span class="line"><span class="attr">rss:</span> <span class="string">atom.xml</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="托管github"><a href="#托管github" class="headerlink" title="托管github"></a>托管github</h2><blockquote>
+<p>deploy:<br>  &emsp;type: git<br>  &emsp;repo: <a href="https://github.com/Hikaru199/hikaru.github.io.git">https://github.com/Hikaru199/hikaru.github.io.git</a><br>  &emsp;branch: master</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git config --global user.name <span class="string">&quot;Hikaru199&quot;</span></span><br><span class="line">git config --global user.email <span class="string">&quot;849892160@qq.com&quot;</span></span><br><span class="line">ssh-keygen -t rsa -C <span class="string">&quot;849892160@qq.com&quot;</span></span><br><span class="line">ssh git@github.com</span><br><span class="line">npm install hexo-deployer-git --save</span><br><span class="line">hexo clean  //清理</span><br><span class="line">hexo g  //生成页面</span><br><span class="line">hexo d //部署页面</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="托管gitee"><a href="#托管gitee" class="headerlink" title="托管gitee"></a>托管gitee</h2><blockquote>
+<p>deploy:<br>  &emsp;type: git<br>  &emsp;repo: <a href="https://gitee.com/hikaru199/hikaruc199.gitee.io.git">https://gitee.com/hikaru199/hikaruc199.gitee.io.git</a><br>  &emsp;branch: master</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git config --global user.name <span class="string">&quot;Hikaru&quot;</span></span><br><span class="line">git config --global user.email <span class="string">&quot;849892160@qq.com&quot;</span></span><br><span class="line">ssh-keygen -t rsa -C <span class="string">&quot;849892160@qq.com&quot;</span></span><br><span class="line">ssh git@github.com</span><br><span class="line">npm install hexo-deployer-git --save</span><br><span class="line">hexo clean  //清理</span><br><span class="line">hexo g  //生成页面</span><br><span class="line">hexo d //部署页面</span><br></pre></td></tr></table></figure>]]></content>
+  </entry>
+  <entry>
+    <title>番剧杂谈 · Just Because!</title>
+    <url>/2021/11/06/%E7%95%AA%E5%89%A7%E6%9D%82%E8%B0%88%C2%B7Just%20Because!/</url>
+    <content><![CDATA[<div align=center><img width = '270' height ='375' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_00.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;高三的冬天，所剩无几的高中生活。大家都认为就这么毫无波澜地迎来毕业之日。直到某一天，他突然回来了。在中学时搬去遥远城镇的同学。与不合时节的转学生的再次相见，伴随着某种不确定的感情，转变开始的信号发出了微弱的声响。</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_01.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;整体节奏是比较缓慢的番，以男主瑛太的转学为起点叙述高中最后一年的故事，是杂糅了“青春”、“校园”、“选择”、“恋情”等关键词的作品，对我来说，这样的标签是绝对会看的番，至于问为什么的话，就是一句——“热爱”！仅仅如此……</p>
+</blockquote>
+<div align=center><img width = '1080' height='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_02.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;转学后回来的瑛太遇上国中的基友阳斗，就像这段回忆里说的那样，即便越好转学后常联系，但是也只有最初的一个月左右，因为联系了就不知道该说什么了，久了便不会再有联系了，这是这个世界的常态，不是每天见面的话就会变成那样<br>&emsp;&emsp;对于我来说，因为是小学六年级的时候转学，对于当时的我并没有太多实感，但刚刚转学的那段时间里，孤独感还是有的，偶尔还会想起之前的伙伴，但是在融入新环境后也就不太有那种感觉了<br>&emsp;&emsp;现在的我，或者是说之前的我，小学和初中的同学，在毕业时我都很干脆的清除了联系，因为那并没有值得我去留恋的东西，孤身一人升到没有人能发掘到我过去的高中。但是高中毕业后却留了不少人的联系，不过大多数是那种“万事通”之类的人物，因为根据六边形社交，通过他们可以快速的获取到高中各个不同的小团体的其他人，仅仅保留联系方式，却也不常联系</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_03.jpg"/>
+
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;经典三角构图</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_04.jpg"/>
+
+<div align=center><img width = '1080' height ='550' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_05.jpg"/>
+
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_06.jpg"/>
+
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;夏目在看到基友阳斗跟其他女生对话时叹气了，基本可以确定国中的夏目是喜欢基友的，然而却被男主看到，很经典的剧情该说是<br>&emsp;&emsp;总之就是非常非常喜欢短发加发卡……<br>&emsp;&emsp;原因未知，只是每每看到都会心生爱慕，仅仅如此</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_07.jpg"/>
+
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;阳斗：“你喜欢夏目是吧”<br>&emsp;&emsp;瑛太：“为什么会变成这样”<br>&emsp;&emsp;阳斗：“你国中的时候跟我说过吧”<br>&emsp;&emsp;瑛太：“才没说过”<br>&emsp;&emsp;阳斗：“那我为什么知道”<br>&emsp;&emsp;瑛太：“我还想问你呢”<br>&emsp;&emsp;瑛太：“都是以前的事情了”<br>&emsp;&emsp;可以从这段对话里看出瑛太喜欢夏目，然后根据前情是夏目喜欢阳斗，但阳斗并不知情，而瑛太发现了，虽说复杂但又非常经典的三角</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_08.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;在？<br>&emsp;&emsp;摄像头拆一下，谢谢！</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_09.jpg"/>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_10.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;只是单纯的看着聊天页面，却不知道回复什么比较好，像极了我<br>&emsp;&emsp;有时候就是这样，明明觉得还是应该回复一下比较好的，但是却根本不知道该怎么回复，尤其是一些不明所以的话，因为不理解也不好意思让对方解释，说没看懂对方又以为你在装傻，真的是很麻烦的呢，明明线上通讯只是用来方便传递信息，却在网络上对着屏幕聊不明所以的感情，就算你用文字表达的很真切，但是还是想传达的情感完全不会被传达啊，真搞不明白人类……</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_11.jpg"/>
+
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;明明已经编辑好了的消息却没有勇气发出去<br>&emsp;&emsp;有时候总是会顾及很多东西，比如会不会对方曲解了含义，或是突然的消息造成对方的困扰，再不然就是要是对方无视了怎么办，好尴尬，就是有着这样的理由，除非是非常明确的事务，一般我不会选择主动联系别人，至少现在的我是这样的</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_12.jpg"/>
+
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_13.jpg"/>
+
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;真兄弟就应该同时被甩……<br>&emsp;&emsp;因为家庭原因而不能选择恋爱的叶月<br>&emsp;&emsp;因为喜欢阳斗而忽视瑛太的夏目<br>&emsp;&emsp;怎么说呢，胃疼，但是不讨厌，或许已经习惯了吧，喜欢的人喜欢别人，被喜欢的人却过于执着，而两个位置我都体验过，所以我知道这样的感受。作为爱慕者没能追求到的懊悔，作为被爱慕者执着于过去的失败拒绝他人，当然，原因肯定不只是执着，也有像叶月的家庭因素，总之就是很难受的状态，所以在学会如何处理这样的事件时，我必须先不接触感情，也就形成了现在的我</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_14.jpg"/>
+
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_15.jpg"/>
+
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;明明已经保送，但是为了跟夏目考一个大学，还是选择偷偷报名入学考试，真是青春啊，有勇气将未来赌在感情(一个人)上，我很羡慕，但绝对不会效仿，因为我可是…非常的…懦弱呢……</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_16.jpg"/>
+
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;双向奔赴的爱情了已经是，明明考不上的机率比较大，但还是选择努力一把，真是羡慕呢……<br>&emsp;&emsp;但是错位了啊，明明说双向奔赴，但是却因为没有告诉对方而错位，我的胃开始隐隐作痛了啊~</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_17.jpg"/>
+
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_18.jpg"/>
+
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_19.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;学妹的恶搞壁纸被夏目发现了，原本两人都打算送巧克力来着，结果却是一个没拿到，啊~<br>&emsp;&emsp;胃疼停不下来了啊，为什么，好心疼夏目，但是也好心疼学妹啊，明明所有人都没错的，但是形成的结果却是所有人都不幸了，果然爱情是超级麻烦的，啊~我的胃啊</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_20.jpg"/>
+
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_21.jpg"/>
+
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_22.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;故事以瑛太的告白和夏目的接受结尾，双向奔赴能修得正果什么的，果然还是大家喜闻乐见的结局，只是胃疼了这么久，发糖才十秒不到，果然还是不能满足啊~~</p>
+</blockquote>
+<h2 id="观感杂谈"><a href="#观感杂谈" class="headerlink" title="观感杂谈"></a><center>观感杂谈</center></h2><div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;总结：胃疼~~停不下来的那种！<br>&emsp;&emsp;怎么说呢，这是第二次看这部番，因为这部番被我列入了“绝对不能二番目列表”，果然还是跟第一次看这部番的感觉一样胃疼呢<br>&emsp;&emsp;番里对女主夏目美绪的感情处理从单恋到双向奔赴，条理清晰，采用大量的心理和行为描写，在对话方面却是省了很多配音经费，不过它所要表达的就是这样，因为缺乏交流而引发误会，因为没说出口而压抑的爱意，这些或许就是它想要传达的东西，但是并没有现实可比性哦，因为这么坚强又执着，即便误会还没解开也继续奔赴，单纯想要证明自己爱意的女孩子或男孩子是不存在的啦，至少我不认为会有这样的存在<br>&emsp;&emsp;之所以没说学妹和基友那对，主要是因为“我可是一开始就站男主女主的”，大概就是这样吧。但是我喜欢学妹的人物设定，就像番里说的那样“充满活力的女孩子很招人喜欢”，对待感情拿得起放得下也是我喜欢并值得学习的地方。基友阳斗与叶月也是属于设定上的完美角色，从结局上“起眼与不起眼”、“理想与现实”的写照也很明显，是奔着结婚去的那种恋爱，这也是我现在唯一想谈的(或许是因为青春已逝吧)<br>&emsp;&emsp;总之总之，还是非常喜欢的一部番，非常值得体会和深思，除了有点费胃药……</p>
+</blockquote>
+<div align=right>
+
+
+<blockquote>
+<p>&emsp;&emsp;——Hikaru199</p>
+</blockquote>
+]]></content>
+      <categories>
+        <category>番剧杂谈</category>
+      </categories>
+      <tags>
+        <tag>番剧杂谈</tag>
+        <tag>Just Because!</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>番剧杂谈 · 你是彼方</title>
     <url>/2021/07/15/%E7%95%AA%E5%89%A7%E6%9D%82%E8%B0%88%C2%B7%E4%BD%A0%E6%98%AF%E5%BD%BC%E6%96%B9/</url>
     <content><![CDATA[<div align=center><img width = '270' height ='381' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/nsbf_img/nsbf_00.jpg"/>
@@ -132,62 +362,162 @@
       </tags>
   </entry>
   <entry>
-    <title>不幸是由细枝末节的小事开始</title>
-    <url>/2022/01/14/table/</url>
-    <content><![CDATA[<p>是从何时开始的？回过神来时，不幸却已经发生，时间就是这样残酷，总是要求我们做出选择，反应迟钝的我总是错过选择而经历不幸……</p>
-<h2 id="使用文档"><a href="#使用文档" class="headerlink" title="使用文档"></a>使用文档</h2><h3 id="撰写新的文章"><a href="#撰写新的文章" class="headerlink" title="撰写新的文章"></a>撰写新的文章</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
+    <title>番剧杂谈 · 天气之子</title>
+    <url>/2021/07/24/%E7%95%AA%E5%89%A7%E6%9D%82%E8%B0%88%C2%B7%E5%A4%A9%E6%B0%94%E4%B9%8B%E5%AD%90/</url>
+    <content><![CDATA[<div align=center><img width = '270' height ='381' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_00.jpg"/>
 
-<h3 id="新建文章模板"><a href="#新建文章模板" class="headerlink" title="新建文章模板"></a>新建文章模板</h3><figure class="highlight markdown"><table><tr><td class="code"><pre><span class="line">---</span><br><span class="line">title: My awesome title</span><br><span class="line">date: 2016-10-12 18:38:45</span><br><span class="line">categories: </span><br><span class="line"><span class="bullet">    -</span> 分类1</span><br><span class="line"><span class="bullet">    -</span> 分类2</span><br><span class="line">tags: </span><br><span class="line"><span class="bullet">    -</span> 标签1</span><br><span class="line"><span class="bullet">    -</span> 标签2</span><br><span class="line">mp3: http://domain.com/awesome.mp3</span><br><span class="line"><span class="section">cover: http://domain.com/awesome.jpg</span></span><br><span class="line"><span class="section">---</span></span><br></pre></td></tr></table></figure>
+<div align=left>
 
-<h3 id="启动服务"><a href="#启动服务" class="headerlink" title="启动服务"></a>启动服务</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo server -p 80</span><br></pre></td></tr></table></figure>
 
-<h3 id="生成静态网页"><a href="#生成静态网页" class="headerlink" title="生成静态网页"></a>生成静态网页</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<h3 id="清理缓存"><a href="#清理缓存" class="headerlink" title="清理缓存"></a>清理缓存</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo clean</span><br></pre></td></tr></table></figure>
-
-<h3 id="创建分类页"><a href="#创建分类页" class="headerlink" title="创建分类页"></a>创建分类页</h3><p>1 新建一个页面，命名为 categories 。命令如下：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new page categories</span><br></pre></td></tr></table></figure>
-
-<p>2 编辑刚新建的页面，将页面的类型设置为 categories</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">title: categories</span><br><span class="line">date: 2014-12-22 12:39:04</span><br><span class="line">type: &quot;categories&quot;</span><br><span class="line">---</span><br></pre></td></tr></table></figure>
-
-<p>主题将自动为这个页面显示所有分类。</p>
-<h3 id="创建标签页"><a href="#创建标签页" class="headerlink" title="创建标签页"></a>创建标签页</h3><p>1 新建一个页面，命名为 tags 。命令如下：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new page tags</span><br></pre></td></tr></table></figure>
-
-<p>2 编辑刚新建的页面，将页面的类型设置为 tags</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">title: tags</span><br><span class="line">date: 2014-12-22 12:39:04</span><br><span class="line">type: &quot;tags&quot;</span><br><span class="line">---</span><br></pre></td></tr></table></figure>
-
-<p>主题将自动为这个页面显示所有标签。</p>
-<h3 id="创建搜索页"><a href="#创建搜索页" class="headerlink" title="创建搜索页"></a>创建搜索页</h3><p>1 需要安装hexo的搜索插件</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ npm install hexo-generator-searchdb --save</span><br></pre></td></tr></table></figure>
-
-<p>2 配置hexo全局配置文件（请将生成的索引文件放在网站根目录或修改主题js文件的path值）</p>
-<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">search:</span></span><br><span class="line">  <span class="attr">path:</span> <span class="string">search.xml</span></span><br><span class="line">  <span class="attr">field:</span> <span class="string">post</span></span><br><span class="line">  <span class="attr">format:</span> <span class="string">html</span></span><br><span class="line">  <span class="attr">limit:</span> <span class="number">10000</span></span><br></pre></td></tr></table></figure>
-
-<p>3 新建一个页面，命名为 search 。命令如下：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new page search</span><br></pre></td></tr></table></figure>
-
-<p>4 编辑刚新建的页面，将页面的类型设置为 search</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">title: search</span><br><span class="line">date: 2014-12-22 12:39:04</span><br><span class="line">type: &quot;search&quot;</span><br><span class="line">---</span><br></pre></td></tr></table></figure>
-
-<p>5 在主题配置文件启用本地搜索</p>
-<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="comment">#本地搜索,请将索引文件放在网站根目录</span></span><br><span class="line"><span class="attr">local_search:</span></span><br><span class="line">    <span class="comment">#是否启用</span></span><br><span class="line">    <span class="attr">enable:</span> <span class="literal">true</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>主题将自动为这个页面显示搜索功能。</p>
-<h3 id="主题配置"><a href="#主题配置" class="headerlink" title="主题配置"></a>主题配置</h3><figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 头部菜单，title: link</span></span><br><span class="line"><span class="attr">menu:</span></span><br><span class="line">  <span class="string">首页:</span> <span class="string">/</span></span><br><span class="line">  <span class="string">分类:</span> <span class="string">/categories</span></span><br><span class="line">  <span class="string">标签:</span> <span class="string">/tags</span></span><br><span class="line">  <span class="string">归档:</span> <span class="string">/archives</span>  </span><br><span class="line">  <span class="string">关于:</span> <span class="string">/about</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 是否显示目录</span></span><br><span class="line"><span class="attr">TOC:</span> <span class="literal">false</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 是否自动播放音乐</span></span><br><span class="line"><span class="attr">autoplay:</span> <span class="literal">false</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 默认音乐（随机播放）</span></span><br><span class="line"><span class="attr">mp3:</span> </span><br><span class="line">    <span class="bullet">-</span> <span class="string">http://link.hhtjim.com/163/425570952.mp3</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">http://link.hhtjim.com/163/425570952.mp3</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 首页封面图, 为空时取文章的cover作为封面(注意跨域问题,建议使用同源图片)</span></span><br><span class="line"><span class="attr">welcome_cover:</span> <span class="string">/img/welcome-cover.jpg</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 默认文章封面图（随机调用,支持外链）</span></span><br><span class="line"><span class="attr">cover:</span> </span><br><span class="line">  <span class="bullet">-</span> <span class="string">/img/cover.jpg</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">/img/welcome-cover.jpg</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 是否显示Twitter分享卡片图像(图像尺寸要求：1200*600，creatorid不需要带@符号。注意：链接必须是完整url，否则Twitter将无法读取图片信息）</span></span><br><span class="line"><span class="attr">twitterpic:</span></span><br><span class="line">  <span class="attr">enable:</span> <span class="literal">false</span></span><br><span class="line">  <span class="attr">src:</span> <span class="string">https://bangdream.moe/img/ident.png</span></span><br><span class="line">  <span class="attr">creatorid:</span> <span class="string">yourtwitteridhere</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 是否关闭默认滚动条</span></span><br><span class="line"><span class="attr">scrollbar:</span> <span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 本地搜索,请将索引文件放在网站根目录,或修改主题js文件的path值</span></span><br><span class="line"><span class="attr">local_search:</span></span><br><span class="line">    <span class="comment"># 是否启用</span></span><br><span class="line">    <span class="attr">enable:</span> <span class="literal">false</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 是否显示 一言(hitokoto)</span></span><br><span class="line"><span class="attr">hitokoto:</span> <span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 链接(可选:facebook,twitter,github,wechat,email)</span></span><br><span class="line"><span class="attr">links:</span></span><br><span class="line">    <span class="attr">facebook:</span> <span class="string">/</span></span><br><span class="line">    <span class="attr">twitter:</span> <span class="string">/</span></span><br><span class="line">    <span class="attr">github:</span> <span class="string">/</span></span><br><span class="line">    <span class="attr">wechat:</span> <span class="string">/img/logo.png</span></span><br><span class="line">    <span class="attr">email:</span> <span class="string">mailto:xxxx@gmail.com</span></span><br><span class="line">  </span><br><span class="line"><span class="comment"># 备案</span></span><br><span class="line"><span class="attr">beian:</span> </span><br><span class="line">    <span class="comment"># 是否显示备案信息</span></span><br><span class="line">    <span class="attr">enable:</span> <span class="literal">true</span></span><br><span class="line">    <span class="comment"># 是否在主页面最底下显示备案信息(虽然丑，但是完全满足规定要求)</span></span><br><span class="line">    <span class="attr">enableFooter:</span> <span class="literal">false</span></span><br><span class="line">    <span class="comment"># 备案号</span></span><br><span class="line">    <span class="attr">beianInfo:</span> <span class="string">冀ICP备xxxxxxx号</span></span><br><span class="line">    <span class="comment"># 链接地址</span></span><br><span class="line">    <span class="attr">link:</span> <span class="string">http://www.beian.miit.gov.cn</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 是否使用mathjax</span></span><br><span class="line"><span class="attr">mathjax:</span> <span class="literal">false</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Gitalk 评论插件（https://github.com/gitalk/gitalk）</span></span><br><span class="line"><span class="attr">gitalk:</span></span><br><span class="line">    <span class="comment"># 是否启用评论功能</span></span><br><span class="line">    <span class="attr">enable:</span> <span class="literal">false</span></span><br><span class="line">    <span class="comment"># 是否自动展开评论框</span></span><br><span class="line">    <span class="attr">autoExpand:</span> <span class="literal">false</span></span><br><span class="line">    <span class="comment"># 应用编号</span></span><br><span class="line">    <span class="attr">clientID:</span> <span class="string">&#x27;&#x27;</span></span><br><span class="line">    <span class="comment"># 应用秘钥</span></span><br><span class="line">    <span class="attr">clientSecret:</span> <span class="string">&#x27;&#x27;</span></span><br><span class="line">    <span class="comment"># issue仓库名</span></span><br><span class="line">    <span class="attr">repo:</span> <span class="string">&#x27;&#x27;</span></span><br><span class="line">    <span class="comment"># Github名</span></span><br><span class="line">    <span class="attr">owner:</span> <span class="string">&#x27;&#x27;</span></span><br><span class="line">    <span class="comment"># Github名</span></span><br><span class="line">    <span class="attr">admin:</span> [<span class="string">&#x27;&#x27;</span>]</span><br><span class="line">    <span class="comment"># Ensure uniqueness and length less than 50</span></span><br><span class="line">    <span class="attr">id:</span> <span class="string">location.pathname</span></span><br><span class="line">    <span class="comment"># Facebook-like distraction free mode</span></span><br><span class="line">    <span class="attr">distractionFreeMode:</span> <span class="literal">false</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 网站关键字</span></span><br><span class="line"><span class="attr">keywords:</span> <span class="string">Fechin</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 要使用google_analytics进行统计的话，这里需要配置ID</span></span><br><span class="line"><span class="attr">google_analytics:</span> </span><br><span class="line"></span><br><span class="line"><span class="comment"># 网站ico</span></span><br><span class="line"><span class="attr">favicon:</span> <span class="string">/img/favicon.png</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># rss文件</span></span><br><span class="line"><span class="attr">rss:</span> <span class="string">atom.xml</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h2 id="托管github"><a href="#托管github" class="headerlink" title="托管github"></a>托管github</h2><blockquote>
-<p>deploy:<br>  &emsp;type: git<br>  &emsp;repo: <a href="https://github.com/Hikaru199/hikaru.github.io.git">https://github.com/Hikaru199/hikaru.github.io.git</a><br>  &emsp;branch: master</p>
+<blockquote>
+<p>&emsp;&emsp;故事描述帆高（醍醐虎汰朗 配音）在高一的夏天离开位在离岛的家乡，独自一人来到东京，拮据的生活迫使他不得不找份工作，最后来到一间专门出版奇怪超自然刊物的出版社担任写手。不久，东京开始下起连日大雨，仿佛暗示著帆高不顺遂的未来，在这座繁忙城市里到处取材的帆高邂逅了与弟弟相依为命，不可思议的美少女阳菜（森七菜 配音）。“等等就会放晴了喔。”阳菜这样告诉著帆高，不久，头顶的乌云逐渐散去，耀眼的阳光洒落街道……原来，阳菜拥有“改变天气”的奇妙能力……</p>
 </blockquote>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git config --global user.name <span class="string">&quot;Hikaru199&quot;</span></span><br><span class="line">git config --global user.email <span class="string">&quot;849892160@qq.com&quot;</span></span><br><span class="line">ssh-keygen -t rsa -C <span class="string">&quot;849892160@qq.com&quot;</span></span><br><span class="line">ssh git@github.com</span><br><span class="line">npm install hexo-deployer-git --save</span><br><span class="line">hexo clean  //清理</span><br><span class="line">hexo g  //生成页面</span><br><span class="line">hexo d //部署页面</span><br></pre></td></tr></table></figure>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_01.jpg"/>
+
+<div align=left>
 
 
-
-<h2 id="托管gitee"><a href="#托管gitee" class="headerlink" title="托管gitee"></a>托管gitee</h2><blockquote>
-<p>deploy:<br>  &emsp;type: git<br>  &emsp;repo: <a href="https://gitee.com/hikaru199/hikaruc199.gitee.io.git">https://gitee.com/hikaru199/hikaruc199.gitee.io.git</a><br>  &emsp;branch: master</p>
+<blockquote>
+<p>&emsp;&emsp;离家出走的少年，一个人的旅途，这也是我至今在妄想，却没勇气去做的事情，没有亲人的束缚是我一直以来所追求的目标，可是无能又胆小的我却只能安静的等待着长大</p>
 </blockquote>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git config --global user.name <span class="string">&quot;Hikaru&quot;</span></span><br><span class="line">git config --global user.email <span class="string">&quot;849892160@qq.com&quot;</span></span><br><span class="line">ssh-keygen -t rsa -C <span class="string">&quot;849892160@qq.com&quot;</span></span><br><span class="line">ssh git@github.com</span><br><span class="line">npm install hexo-deployer-git --save</span><br><span class="line">hexo clean  //清理</span><br><span class="line">hexo g  //生成页面</span><br><span class="line">hexo d //部署页面</span><br></pre></td></tr></table></figure>]]></content>
+<div align=center><img width = '1080' height='569' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_02.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;这是我最理想的房间设计了，以后就按着这个复刻一个这样的地方，一个完全属于自己、完全隔离外界的小空间</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_03.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;在人生失意前路迷茫的时候，人往往会捕捉美好的细节。在帆高没有找到工作，饿着肚子的时候，阳菜的一个汉堡也许无法提供饱腹感，却可以提供无穷的喜悦感，那是一种对大人对这个世界的厌恶感里获得的一丝美好。对于青春期的男孩子，即便是素不相识的人无意投来的好意也会被放大成爱意，而这就是青春妄想症</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_04.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;作为多年沉浸在二次元的朦胧小男孩，我理解，这是不可抗力</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_05.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;但是相信我，我绝不会这么大胆的看，至少就是瞥几眼，真的….</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_06.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;对阳菜的处境一无所知就贸然冲上去，年少时就是这样，凭着一腔热血和虚幻的正义感，就能成为行动的动力，但是长大以后就会发现，并不是正义感消失了，只是考虑的东西太多了，犹豫的时间已经让自己错过了出手的时机，义无反顾的冲上去救下困境的女孩子其实还是超酷的，我想过无数次这样的情景，但是真正发生的时候，我却还是选择了旁观…</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_07.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;拥有放晴能力的阳菜与她自己的经历和环境形成的对比，乐观真的是非常让人羡慕的，至少我会很羡慕，但是每当我想到对方的经历和环境过后，那种乐观却让人无比心疼，那种心疼会让我的无力变成一种痛苦，我不敢于接触了，像是一个极其脆弱的玻璃球，再我没办法完全保证它的安全前，变得不敢触碰</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_08.jpg"/>
+
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_09.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;面对孩子的发现表示的敷衍的母亲，面对未知选择探索的学生，这里的对比也表现出了，长大真的会失去很多，对于年轻时代的好奇心，也许我们都已经无法记清了，忘记了对未知的渴望，而甘愿沉浸在世俗的材米油盐当中，这是现在社会很可怕的事情，也许是因为高度社会分化的原因，大多数普通人选择将这些复杂的东西交给那些所谓的精英们去做，开始放弃了自主的思考，我无法为那些思想已经固化的的人说明什么，但对于自己，我只想保持自己的那一份好奇，保留自己还未完全长大的心理</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_10.jpg"/>
+
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_11.jpg"/>
+
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_12.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;请叫小雨表情喵，突然又想养一只猫了，但是…<br>&emsp;&emsp;等有能生活自理的猫我一定养，我发誓…</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_13.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;其实我觉得女孩子的身材其实可能没我好来着，哈哈，就我个人而言吧，我不会在吧身材放在择偶要求里，因为我不是很在意，但是很多时候，因为跟朋友们聊天，又有时候会讨论这类话题，要是说没要求还会被追问为什么，为了避免麻烦，我往往会回答”满足动漫人物身材就行”，因为我很在意比例这种东西，有点强迫症</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_14.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;跟女孩子开身材或者性之类的玩笑我超喜欢的，不过只跟熟悉的并且不当成恋爱对象的人开这样的玩笑，因为看女孩子害羞的样子真的很可爱很有满足感，但是却总是被当成变态，不过就是变态啦，无所谓咯</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_15.jpg"/>
+
+<div align=center><img width = '1080' height ='540' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_16.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;人的心灵真的不可思议<br>&emsp;&emsp;仅仅因为窗外是晴天，就会变得很精神<br>&emsp;&emsp;仅仅因为天空是湛蓝的，就会觉得活着如此美好<br>&emsp;&emsp;就会觉得身边的某个人更加的可爱”<br>&emsp;&emsp;应该没有人会喜欢雨天吧，对于我，我就很讨厌雨天，因为雨天我的心情就会很压抑，就会开始胡思乱想，就会想起一个个令我后悔的过去</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_17.jpg"/>
+
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_18.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;阳菜问帆高希不希望恢复晴天，在不知道代价的帆高来说，选择只是轻易给出的，但是阳菜却会毅然选择献祭，有时候就是这样，一些很普通的问题却会给对方带来极大的理解偏差，阳菜给的问题是“晴天和我你选择哪个”，而对于帆高理解的的问题却是“你喜欢晴天还是雨天”，往往就是这样的理解偏差和不坦率，会造成很多很多的悲剧…<br>&emsp;&emsp;经典日剧跑一般象征着故事的高潮点，两人的回忆与过去的平常历历在目，这确实也是常用发刀手法，虽然我历练了这么久，但是眼角却还是变得有些湿润…</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_19.jpg"/>
+
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_20.jpg"/>
+
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_21.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;有时候爱情就是会让人羡慕，但是祝福还是应当的，传统美德？算是吧。</p>
+</blockquote>
+<h2 id="观感杂谈"><a href="#观感杂谈" class="headerlink" title="观感杂谈"></a><center>观感杂谈</center></h2><div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;新海诚的作品在这个时代觉得是出类拔萃的，尤其吹爆的是能做到每一帧都是壁纸的画风和技术，剧本还是可圈可点，存在一部分剧情的空洞，也许是篇幅限制，也许是刻意留白都不好说，但总体观感就是一个字——“神作”<br>&emsp;&emsp;这部作品与新海诚前一部神作《你的名字》是一个系列的两种线路，《你的名字》里是在“世界”和“她”里选择了“世界”这样的更符合大众观念的的选项，而《天气之子》则是选择了“她”，这种观念不能迎合大众，也是对这部作品的口碑上不如《你的名字》，但是反观，两种选择都没有错，只是不同人的认同点不同而已<br>&emsp;&emsp;“爱情是可以将世界与她区分开来的东西”<br>&emsp;&emsp;这是我一直认可的爱情观，但是现实却是世界从未停止过的干扰和不坚定的自己，让爱情在现实面前不堪一击，我很无力，我尝试着找到平衡点，但是现实的压迫对于我来说过于沉重，如果没有办法改变我所处的环境，我并不想去爱上任何人，这是我给自己上的枷锁，为了避免我改变心意，把解开的钥匙给丢掉了，等待着枷锁腐烂变质到我足以挣脱它的时候，我应该才会去考虑恋爱吧</p>
+</blockquote>
+<div align=right>
+
+
+<blockquote>
+<p>&emsp;&emsp;——Hikaru199</p>
+</blockquote>
+]]></content>
+      <categories>
+        <category>番剧杂谈</category>
+      </categories>
+      <tags>
+        <tag>番剧杂谈</tag>
+        <tag>天气之子</tag>
+      </tags>
   </entry>
   <entry>
     <title>番剧杂谈 · 堀与宫村</title>
@@ -504,147 +834,53 @@
       </tags>
   </entry>
   <entry>
-    <title>番剧杂谈 · 天气之子</title>
-    <url>/2021/07/24/%E7%95%AA%E5%89%A7%E6%9D%82%E8%B0%88%C2%B7%E5%A4%A9%E6%B0%94%E4%B9%8B%E5%AD%90/</url>
-    <content><![CDATA[<div align=center><img width = '270' height ='381' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_00.jpg"/>
+    <title>番剧杂谈 · 我们的重制人生</title>
+    <url>/2021/09/29/%E7%95%AA%E5%89%A7%E6%9D%82%E8%B0%88%C2%B7%E6%88%91%E4%BB%AC%E7%9A%84%E9%87%8D%E5%88%B6%E4%BA%BA%E7%94%9F/</url>
+    <content><![CDATA[<div align=center><img width = '270' height ='381' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/czrs_img/czrs_00.jpg"/>
 
 <div align=left>
 
 
 <blockquote>
-<p>&emsp;&emsp;故事描述帆高（醍醐虎汰朗 配音）在高一的夏天离开位在离岛的家乡，独自一人来到东京，拮据的生活迫使他不得不找份工作，最后来到一间专门出版奇怪超自然刊物的出版社担任写手。不久，东京开始下起连日大雨，仿佛暗示著帆高不顺遂的未来，在这座繁忙城市里到处取材的帆高邂逅了与弟弟相依为命，不可思议的美少女阳菜（森七菜 配音）。“等等就会放晴了喔。”阳菜这样告诉著帆高，不久，头顶的乌云逐渐散去，耀眼的阳光洒落街道……原来，阳菜拥有“改变天气”的奇妙能力……</p>
+<p>&emsp;&emsp;2016年，桥场恭也就职于一家普通的游戏公司。然而有一天，公司作为债务抵押品被扣，社长失踪，他失业了。他在电视上看到与他同龄的创作大神们的活跃表现，不由钦佩憧憬的同时，也开始对过往浑浑噩噩的人生感到懊悔。失业的他返回家中时，无意间发现了一封自己当年放弃就读的美术大学的录取通知书，竟在下一刻被命运牵引，穿越时光回到了10年前的2006年。因过去的种种，他决心重新选择，开启“另一种人生”，但事情却似乎没那么顺利……<br>&emsp;&emsp;如果人生真的可以重置，如果可以返回上一个结点……</p>
 </blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_01.jpg"/>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/czrs_img/czrs_01.jpg"/>
 
 <div align=left>
 
 
 <blockquote>
-<p>&emsp;&emsp;离家出走的少年，一个人的旅途，这也是我至今在妄想，却没勇气去做的事情，没有亲人的束缚是我一直以来所追求的目标，可是无能又胆小的我却只能安静的等待着长大</p>
+<p>&emsp;&emsp;想起高考结束后选志愿的时候，对于大学和专业本就不了解的我，只能通过简单的检索，看着那些泛泛而论的介绍，在兴趣和热门的专业里，我选择了热门，对于当时的我来说，想着专业与就业必然相关，最后我选择了一个普通大学的经济学专业。<br>&emsp;&emsp;要说强烈的爱好和兴趣，其实我也没有。从初中开始就自学编程，主要原因是因为想做一个自己的游戏，但在我第一个小游戏发布后，慢慢的就取消了这个念头，所以当时就很犹豫是不是要选择计算机类的专业，毕竟这是一个又热门又有点兴趣的专业，后来我放弃的原因也很简单，因为我不想让兴趣变成职业。<br>&emsp;&emsp;从小到大，我喜欢的事物总是很容易更替，没有找到自己真正喜欢的事物。初一时因为喜欢偶像，而学习日语，结果是只学到五十音图就结束了；初二因为喜欢游戏，而学习编程，结果不是做游戏，而是学会了制作游戏辅助；高一时因为喜欢动画，而学习绘画，结果是我至今都没能画出自己满意的画。我的爱好从来都是一阵一阵的。</p>
 </blockquote>
-<div align=center><img width = '1080' height='569' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_02.jpg"/>
+<div align=center><img width = '1080' height='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/czrs_img/czrs_02.jpg"/>
 
 <div align=left>
 
 
 <blockquote>
-<p>&emsp;&emsp;这是我最理想的房间设计了，以后就按着这个复刻一个这样的地方，一个完全属于自己、完全隔离外界的小空间</p>
+<p>&emsp;&emsp;不知道从什么时候开始，我觉得自己一无是处，不管是什么都做不好。<br>&emsp;&emsp;在学习上，本就不太聪明又过于懒惰，成绩一直也是平平无奇；在生活上，一直想要通过自己去挣一些钱的，但是却发现自己啥都做不了。没有特长，没有爱好，没有梦想，我总是会因为这些而迷茫，想要改变自己的想法却一直只是想法，现实里我依旧只是会抱怨而已。<br>&emsp;&emsp;很多时候我会期待，期待一个让我改变的契机。羡慕志野亚贵这样能让桥场恭也说出自己的烦恼，回顾自己，并没有人愿意去接近并了解我，更别说对人说出这样的烦恼了，就算只是倾听者也是不存在的，每次想到这里总是自嘲自己的无能。</p>
 </blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_03.jpg"/>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/czrs_img/czrs_03.jpg"/>
 
 <div align=left>
 
 
 <blockquote>
-<p>&emsp;&emsp;在人生失意前路迷茫的时候，人往往会捕捉美好的细节。在帆高没有找到工作，饿着肚子的时候，阳菜的一个汉堡也许无法提供饱腹感，却可以提供无穷的喜悦感，那是一种对大人对这个世界的厌恶感里获得的一丝美好。对于青春期的男孩子，即便是素不相识的人无意投来的好意也会被放大成爱意，而这就是青春妄想症</p>
+<p>&emsp;&emsp;有时候一旦发现自己身边的人在自己看不到的背后不断努力，而自己却无所事事，想着自己是否也应该更加努力的时候，现实却是我已经习惯了废材的生活方式，没有努力的目标也没有努力的动力，只是一味的看着别人靠着努力而一步步远去，被抛弃的感觉与嫉妒总是压抑不住地向外倾泻。<br>&emsp;&emsp;“究竟怎样做才是对的，我究竟该怎样？”<br>&emsp;&emsp;这样的想法是一直以来，我烦闷的原因，对于问题的最优解我不得而知，但是内心渴望有着一个明确的方向，这样的方向何时才会出现，我又何时才能摆脱现在的状况……</p>
 </blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_04.jpg"/>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/czrs_img/czrs_04.jpg"/>
 
 <div align=left>
 
 
 <blockquote>
-<p>&emsp;&emsp;作为多年沉浸在二次元的朦胧小男孩，我理解，这是不可抗力</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_05.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;但是相信我，我绝不会这么大胆的看，至少就是瞥几眼，真的….</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_06.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;对阳菜的处境一无所知就贸然冲上去，年少时就是这样，凭着一腔热血和虚幻的正义感，就能成为行动的动力，但是长大以后就会发现，并不是正义感消失了，只是考虑的东西太多了，犹豫的时间已经让自己错过了出手的时机，义无反顾的冲上去救下困境的女孩子其实还是超酷的，我想过无数次这样的情景，但是真正发生的时候，我却还是选择了旁观…</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_07.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;拥有放晴能力的阳菜与她自己的经历和环境形成的对比，乐观真的是非常让人羡慕的，至少我会很羡慕，但是每当我想到对方的经历和环境过后，那种乐观却让人无比心疼，那种心疼会让我的无力变成一种痛苦，我不敢于接触了，像是一个极其脆弱的玻璃球，再我没办法完全保证它的安全前，变得不敢触碰</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_08.jpg"/>
-
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_09.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;面对孩子的发现表示的敷衍的母亲，面对未知选择探索的学生，这里的对比也表现出了，长大真的会失去很多，对于年轻时代的好奇心，也许我们都已经无法记清了，忘记了对未知的渴望，而甘愿沉浸在世俗的材米油盐当中，这是现在社会很可怕的事情，也许是因为高度社会分化的原因，大多数普通人选择将这些复杂的东西交给那些所谓的精英们去做，开始放弃了自主的思考，我无法为那些思想已经固化的的人说明什么，但对于自己，我只想保持自己的那一份好奇，保留自己还未完全长大的心理</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_10.jpg"/>
-
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_11.jpg"/>
-
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_12.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;请叫小雨表情喵，突然又想养一只猫了，但是…<br>&emsp;&emsp;等有能生活自理的猫我一定养，我发誓…</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_13.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;其实我觉得女孩子的身材其实可能没我好来着，哈哈，就我个人而言吧，我不会在吧身材放在择偶要求里，因为我不是很在意，但是很多时候，因为跟朋友们聊天，又有时候会讨论这类话题，要是说没要求还会被追问为什么，为了避免麻烦，我往往会回答”满足动漫人物身材就行”，因为我很在意比例这种东西，有点强迫症</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_14.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;跟女孩子开身材或者性之类的玩笑我超喜欢的，不过只跟熟悉的并且不当成恋爱对象的人开这样的玩笑，因为看女孩子害羞的样子真的很可爱很有满足感，但是却总是被当成变态，不过就是变态啦，无所谓咯</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_15.jpg"/>
-
-<div align=center><img width = '1080' height ='540' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_16.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;人的心灵真的不可思议<br>&emsp;&emsp;仅仅因为窗外是晴天，就会变得很精神<br>&emsp;&emsp;仅仅因为天空是湛蓝的，就会觉得活着如此美好<br>&emsp;&emsp;就会觉得身边的某个人更加的可爱”<br>&emsp;&emsp;应该没有人会喜欢雨天吧，对于我，我就很讨厌雨天，因为雨天我的心情就会很压抑，就会开始胡思乱想，就会想起一个个令我后悔的过去</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_17.jpg"/>
-
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_18.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;阳菜问帆高希不希望恢复晴天，在不知道代价的帆高来说，选择只是轻易给出的，但是阳菜却会毅然选择献祭，有时候就是这样，一些很普通的问题却会给对方带来极大的理解偏差，阳菜给的问题是“晴天和我你选择哪个”，而对于帆高理解的的问题却是“你喜欢晴天还是雨天”，往往就是这样的理解偏差和不坦率，会造成很多很多的悲剧…<br>&emsp;&emsp;经典日剧跑一般象征着故事的高潮点，两人的回忆与过去的平常历历在目，这确实也是常用发刀手法，虽然我历练了这么久，但是眼角却还是变得有些湿润…</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_19.jpg"/>
-
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_20.jpg"/>
-
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_21.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;有时候爱情就是会让人羡慕，但是祝福还是应当的，传统美德？算是吧。</p>
+<p>&emsp;&emsp;“为什么不向他人求助”<br>&emsp;&emsp;“为什么所有事情都揽到自己身上”<br>&emsp;&emsp;“周围的人真的就那么不值得信任嘛”<br>&emsp;&emsp;“不知所措的时候为什么从没想过依靠别人”<br>&emsp;&emsp;”我是因为这样才逐渐崩溃的嘛”<br>&emsp;&emsp;——求助？与其说我完全没有求助的对象，不如说是我从一开始拒绝了他人的帮助，因为我太过胆小、太过懦弱，只是害怕受到同情的目光，不管是什么，都想着一个人来完成，但是一个人真的做得到嘛？在拒绝了所有人之后一无所有的我，还值得被施以援手嘛……<br>&emsp;&emsp;——信任？我甚至都没有一个信任的人，想着不去信任就不会被背叛什么的，但是要怎样才能信任，说到底还是因为害怕，因为一两次的背叛而不再去相信别人，想将人际关系看的更物质化一些，让利益关系代替感情什么的想法，是从什么时候开始的也不得而知了…….</p>
 </blockquote>
 <h2 id="观感杂谈"><a href="#观感杂谈" class="headerlink" title="观感杂谈"></a><center>观感杂谈</center></h2><div align=left>
 
 
 <blockquote>
-<p>&emsp;&emsp;新海诚的作品在这个时代觉得是出类拔萃的，尤其吹爆的是能做到每一帧都是壁纸的画风和技术，剧本还是可圈可点，存在一部分剧情的空洞，也许是篇幅限制，也许是刻意留白都不好说，但总体观感就是一个字——“神作”<br>&emsp;&emsp;这部作品与新海诚前一部神作《你的名字》是一个系列的两种线路，《你的名字》里是在“世界”和“她”里选择了“世界”这样的更符合大众观念的的选项，而《天气之子》则是选择了“她”，这种观念不能迎合大众，也是对这部作品的口碑上不如《你的名字》，但是反观，两种选择都没有错，只是不同人的认同点不同而已<br>&emsp;&emsp;“爱情是可以将世界与她区分开来的东西”<br>&emsp;&emsp;这是我一直认可的爱情观，但是现实却是世界从未停止过的干扰和不坚定的自己，让爱情在现实面前不堪一击，我很无力，我尝试着找到平衡点，但是现实的压迫对于我来说过于沉重，如果没有办法改变我所处的环境，我并不想去爱上任何人，这是我给自己上的枷锁，为了避免我改变心意，把解开的钥匙给丢掉了，等待着枷锁腐烂变质到我足以挣脱它的时候，我应该才会去考虑恋爱吧</p>
+<p>&emsp;&emsp;对于自己未来的迷茫而恐惧，也许这就是我烦恼的根本原因。<br>&emsp;&emsp;这部番我还很喜欢的，满5分的话，我给4.5分，扣掉的0.5分是我没能从番里找到摆脱现状的方法，也许两遍还不够吧，所以只能暂时叫它为《别人的重制人生》。<br>&emsp;&emsp;人生本就没有如果，对于过去直到现在，即便很多地方充满悔恨，但是我并没有办法重来，并不像GAL一样可以跳转到上一个支节点重新选择，所以对于过去我更希望的是不要忘记，作为反面教材留存在我的记忆里，但是有些时候明明做出了不一样的选择，但是却还是相似的结果，究竟是选择的错误还是思想的错误，因为不想再重复实验，也就没有追求到底的必要……<br>&emsp;&emsp;现在的我，能做什么、该做什么、要怎么做、做成什么，是我必须要做出回复的东西，否则现在的我永远都会在原地踏步……</p>
 </blockquote>
 <div align=right>
 
@@ -658,7 +894,7 @@
       </categories>
       <tags>
         <tag>番剧杂谈</tag>
-        <tag>天气之子</tag>
+        <tag>我们的重制人生</tag>
       </tags>
   </entry>
   <entry>
@@ -746,70 +982,6 @@
       <tags>
         <tag>番剧杂谈</tag>
         <tag>未闻花名</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>番剧杂谈 · 我们的重制人生</title>
-    <url>/2021/09/29/%E7%95%AA%E5%89%A7%E6%9D%82%E8%B0%88%C2%B7%E6%88%91%E4%BB%AC%E7%9A%84%E9%87%8D%E5%88%B6%E4%BA%BA%E7%94%9F/</url>
-    <content><![CDATA[<div align=center><img width = '270' height ='381' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/czrs_img/czrs_00.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;2016年，桥场恭也就职于一家普通的游戏公司。然而有一天，公司作为债务抵押品被扣，社长失踪，他失业了。他在电视上看到与他同龄的创作大神们的活跃表现，不由钦佩憧憬的同时，也开始对过往浑浑噩噩的人生感到懊悔。失业的他返回家中时，无意间发现了一封自己当年放弃就读的美术大学的录取通知书，竟在下一刻被命运牵引，穿越时光回到了10年前的2006年。因过去的种种，他决心重新选择，开启“另一种人生”，但事情却似乎没那么顺利……<br>&emsp;&emsp;如果人生真的可以重置，如果可以返回上一个结点……</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/czrs_img/czrs_01.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;想起高考结束后选志愿的时候，对于大学和专业本就不了解的我，只能通过简单的检索，看着那些泛泛而论的介绍，在兴趣和热门的专业里，我选择了热门，对于当时的我来说，想着专业与就业必然相关，最后我选择了一个普通大学的经济学专业。<br>&emsp;&emsp;要说强烈的爱好和兴趣，其实我也没有。从初中开始就自学编程，主要原因是因为想做一个自己的游戏，但在我第一个小游戏发布后，慢慢的就取消了这个念头，所以当时就很犹豫是不是要选择计算机类的专业，毕竟这是一个又热门又有点兴趣的专业，后来我放弃的原因也很简单，因为我不想让兴趣变成职业。<br>&emsp;&emsp;从小到大，我喜欢的事物总是很容易更替，没有找到自己真正喜欢的事物。初一时因为喜欢偶像，而学习日语，结果是只学到五十音图就结束了；初二因为喜欢游戏，而学习编程，结果不是做游戏，而是学会了制作游戏辅助；高一时因为喜欢动画，而学习绘画，结果是我至今都没能画出自己满意的画。我的爱好从来都是一阵一阵的。</p>
-</blockquote>
-<div align=center><img width = '1080' height='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/czrs_img/czrs_02.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;不知道从什么时候开始，我觉得自己一无是处，不管是什么都做不好。<br>&emsp;&emsp;在学习上，本就不太聪明又过于懒惰，成绩一直也是平平无奇；在生活上，一直想要通过自己去挣一些钱的，但是却发现自己啥都做不了。没有特长，没有爱好，没有梦想，我总是会因为这些而迷茫，想要改变自己的想法却一直只是想法，现实里我依旧只是会抱怨而已。<br>&emsp;&emsp;很多时候我会期待，期待一个让我改变的契机。羡慕志野亚贵这样能让桥场恭也说出自己的烦恼，回顾自己，并没有人愿意去接近并了解我，更别说对人说出这样的烦恼了，就算只是倾听者也是不存在的，每次想到这里总是自嘲自己的无能。</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/czrs_img/czrs_03.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;有时候一旦发现自己身边的人在自己看不到的背后不断努力，而自己却无所事事，想着自己是否也应该更加努力的时候，现实却是我已经习惯了废材的生活方式，没有努力的目标也没有努力的动力，只是一味的看着别人靠着努力而一步步远去，被抛弃的感觉与嫉妒总是压抑不住地向外倾泻。<br>&emsp;&emsp;“究竟怎样做才是对的，我究竟该怎样？”<br>&emsp;&emsp;这样的想法是一直以来，我烦闷的原因，对于问题的最优解我不得而知，但是内心渴望有着一个明确的方向，这样的方向何时才会出现，我又何时才能摆脱现在的状况……</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/czrs_img/czrs_04.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;“为什么不向他人求助”<br>&emsp;&emsp;“为什么所有事情都揽到自己身上”<br>&emsp;&emsp;“周围的人真的就那么不值得信任嘛”<br>&emsp;&emsp;“不知所措的时候为什么从没想过依靠别人”<br>&emsp;&emsp;”我是因为这样才逐渐崩溃的嘛”<br>&emsp;&emsp;——求助？与其说我完全没有求助的对象，不如说是我从一开始拒绝了他人的帮助，因为我太过胆小、太过懦弱，只是害怕受到同情的目光，不管是什么，都想着一个人来完成，但是一个人真的做得到嘛？在拒绝了所有人之后一无所有的我，还值得被施以援手嘛……<br>&emsp;&emsp;——信任？我甚至都没有一个信任的人，想着不去信任就不会被背叛什么的，但是要怎样才能信任，说到底还是因为害怕，因为一两次的背叛而不再去相信别人，想将人际关系看的更物质化一些，让利益关系代替感情什么的想法，是从什么时候开始的也不得而知了…….</p>
-</blockquote>
-<h2 id="观感杂谈"><a href="#观感杂谈" class="headerlink" title="观感杂谈"></a><center>观感杂谈</center></h2><div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;对于自己未来的迷茫而恐惧，也许这就是我烦恼的根本原因。<br>&emsp;&emsp;这部番我还很喜欢的，满5分的话，我给4.5分，扣掉的0.5分是我没能从番里找到摆脱现状的方法，也许两遍还不够吧，所以只能暂时叫它为《别人的重制人生》。<br>&emsp;&emsp;人生本就没有如果，对于过去直到现在，即便很多地方充满悔恨，但是我并没有办法重来，并不像GAL一样可以跳转到上一个支节点重新选择，所以对于过去我更希望的是不要忘记，作为反面教材留存在我的记忆里，但是有些时候明明做出了不一样的选择，但是却还是相似的结果，究竟是选择的错误还是思想的错误，因为不想再重复实验，也就没有追求到底的必要……<br>&emsp;&emsp;现在的我，能做什么、该做什么、要怎么做、做成什么，是我必须要做出回复的东西，否则现在的我永远都会在原地踏步……</p>
-</blockquote>
-<div align=right>
-
-
-<blockquote>
-<p>&emsp;&emsp;——Hikaru199</p>
-</blockquote>
-]]></content>
-      <categories>
-        <category>番剧杂谈</category>
-      </categories>
-      <tags>
-        <tag>番剧杂谈</tag>
-        <tag>我们的重制人生</tag>
       </tags>
   </entry>
   <entry>

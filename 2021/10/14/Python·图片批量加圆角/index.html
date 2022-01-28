@@ -1,0 +1,214 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN" class="loading">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>【Python】·图片批量加圆角 - Hikaru Blog - 不忘每一次感动</title>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="google" content="notranslate" />
+    <meta name="keywords" content="Hikaru,"> 
+    <meta name="description" content="使用Image和ImageDraw库，实现图片批量加圆角                                                                       ,"> 
+    <meta name="author" content="Hikaru"> 
+    <link rel="alternative" href="atom.xml" title="Hikaru Blog - 不忘每一次感动" type="application/atom+xml"> 
+    <link rel="icon" href="/img/icon.png"> 
+    
+    
+    
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:title" content="【Python】·图片批量加圆角 - Hikaru Blog - 不忘每一次感动"/>
+    <meta name="twitter:description" content="使用Image和ImageDraw库，实现图片批量加圆角                                                                       ,"/>
+    
+    
+    
+    
+    <meta property="og:site_name" content="Hikaru Blog - 不忘每一次感动"/>
+    <meta property="og:type" content="object"/>
+    <meta property="og:title" content="【Python】·图片批量加圆角 - Hikaru Blog - 不忘每一次感动"/>
+    <meta property="og:description" content="使用Image和ImageDraw库，实现图片批量加圆角                                                                       ,"/>
+    
+<link rel="stylesheet" href="/css/diaspora.css">
+
+<meta name="generator" content="Hexo 6.0.0"></head>
+
+<body class="loading">
+    <span id="config-title" style="display:none">Hikaru Blog - 不忘每一次感动</span>
+    <div id="loader"></div>
+    <div id="single">
+    <div id="top" style="display: block;">
+    <div class="bar" style="width: 0;"></div>
+    <a class="iconfont icon-home image-icon" href="javascript:;" data-url="http://example.com"></a>
+    <div title="播放/暂停" class="iconfont icon-play"></div>
+    <h3 class="subtitle">【Python】·图片批量加圆角</h3>
+    <div class="social">
+        <div>
+            <div class="share">
+                <a title="获取二维码" class="iconfont icon-scan" href="javascript:;"></a>
+            </div>
+            <div id="qr"></div>
+        </div>
+    </div>
+    <div class="scrollbar"></div>
+</div>
+
+    <div class="section">
+        <div class="article">
+    <div class='main'>
+        <h1 class="title">【Python】·图片批量加圆角</h1>
+        <div class="stuff">
+            <span>十月 14, 2021</span>
+            
+  <ul class="post-tags-list" itemprop="keywords"><li class="post-tags-list-item"><a class="post-tags-list-link" href="/tags/python/" rel="tag">python</a></li></ul>
+
+
+        </div>
+        <div class="content markdown">
+            <p>使用<code>Image</code>和<code>ImageDraw</code>库，实现图片批量加圆角                                                                            </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment"># _*_ coding: utf-8 _*_</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">Author: Hikaru199</span></span><br><span class="line"><span class="string">Date: 2021-10-14</span></span><br><span class="line"><span class="string">wechat: Hikaru-199</span></span><br><span class="line"><span class="string">function： </span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="keyword">from</span> PIL <span class="keyword">import</span> Image, ImageDraw</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">circle_corner</span>(<span class="params">img, radii</span>):</span></span><br><span class="line">    circle = Image.new(<span class="string">&#x27;L&#x27;</span>, (radii * <span class="number">2</span>, radii * <span class="number">2</span>), <span class="number">0</span>)  <span class="comment"># 创建黑色方形</span></span><br><span class="line">    draw = ImageDraw.Draw(circle)</span><br><span class="line">    draw.ellipse((<span class="number">0</span>, <span class="number">0</span>, radii * <span class="number">2</span>, radii * <span class="number">2</span>), fill=<span class="number">255</span>)  <span class="comment"># 黑色方形内切白色圆形</span></span><br><span class="line"></span><br><span class="line">    img = img.convert(<span class="string">&quot;RGBA&quot;</span>)</span><br><span class="line">    w, h = img.size</span><br><span class="line"></span><br><span class="line">    <span class="comment">#创建一个alpha层，存放四个圆角，使用透明度切除圆角外的图片</span></span><br><span class="line">    alpha = Image.new(<span class="string">&#x27;L&#x27;</span>, img.size, <span class="number">255</span>)</span><br><span class="line">    alpha.paste(circle.crop((<span class="number">0</span>, <span class="number">0</span>, radii, radii)), (<span class="number">0</span>, <span class="number">0</span>))  <span class="comment"># 左上角</span></span><br><span class="line">    alpha.paste(circle.crop((radii, <span class="number">0</span>, radii * <span class="number">2</span>, radii)),</span><br><span class="line">                (w - radii, <span class="number">0</span>))  <span class="comment"># 右上角</span></span><br><span class="line">    alpha.paste(circle.crop((radii, radii, radii * <span class="number">2</span>, radii * <span class="number">2</span>)),</span><br><span class="line">                (w - radii, h - radii))  <span class="comment"># 右下角</span></span><br><span class="line">    alpha.paste(circle.crop((<span class="number">0</span>, radii, radii, radii * <span class="number">2</span>)),</span><br><span class="line">                (<span class="number">0</span>, h - radii))  <span class="comment"># 左下角</span></span><br><span class="line">    img.putalpha(alpha)  <span class="comment"># 白色区域透明可见，黑色区域不可见</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 添加圆角边框</span></span><br><span class="line">    draw = ImageDraw.Draw(img)</span><br><span class="line">    draw.rounded_rectangle(img.getbbox(), outline=<span class="string">&quot;#f8f8f8&quot;</span>, width=<span class="number">3</span>, radius=radii)</span><br><span class="line">    <span class="keyword">return</span> img</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    radii = <span class="number">20</span>  <span class="comment"># 圆角大小</span></span><br><span class="line">    filePath = <span class="string">&#x27;D:/Desktop/Src&#x27;</span></span><br><span class="line">    outPath = <span class="string">&#x27;D:/Desktop/Des&#x27;</span></span><br><span class="line">    <span class="keyword">for</span> i, j, k <span class="keyword">in</span> os.walk(filePath):</span><br><span class="line">        <span class="keyword">for</span> filename <span class="keyword">in</span> k:</span><br><span class="line">            src = filePath + <span class="string">&quot;/&quot;</span> + filename</span><br><span class="line">            des = outPath + <span class="string">&quot;/&quot;</span> + filename</span><br><span class="line">            <span class="built_in">print</span>(src)</span><br><span class="line">            img = Image.<span class="built_in">open</span>(src)</span><br><span class="line">            img = circle_corner(img, radii)</span><br><span class="line">            img.save(des, <span class="string">&#x27;png&#x27;</span>, quality=<span class="number">100</span>)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+            <!--[if lt IE 9]><script>document.createElement('audio');</script><![endif]-->
+            <audio id="audio" loop="1" preload="auto" controls="controls" data-autoplay="false">
+                <source type="audio/mpeg" src="">
+            </audio>
+            
+                <ul id="audio-list" style="display:none">
+                    
+                        
+                            <li title="0" data-url="https://cdn.jsdelivr.net/gh/hikaru199/blog_music@main/blog_nsbf.mp3"></li>
+                        
+                    
+                        
+                            <li title="1" data-url="https://cdn.jsdelivr.net/gh/hikaru199/blog_music@main/blog_dgjw.mp3"></li>
+                        
+                    
+                        
+                            <li title="2" data-url="https://cdn.jsdelivr.net/gh/hikaru199/blog_music@main/blog_kygc.mp3"></li>
+                        
+                    
+                        
+                            <li title="3" data-url="https://cdn.jsdelivr.net/gh/hikaru199/blog_music@main/blog_lrnz.mp3"></li>
+                        
+                    
+                        
+                            <li title="4" data-url="https://cdn.jsdelivr.net/gh/hikaru199/blog_music@main/blog_tqzz.mp3"></li>
+                        
+                    
+                        
+                            <li title="5" data-url="https://cdn.jsdelivr.net/gh/hikaru199/blog_music@main/blog_wwhm.mp3"></li>
+                        
+                    
+                        
+                            <li title="6" data-url="https://cdn.jsdelivr.net/gh/hikaru199/blog_music@main/blog_xynh.mp3"></li>
+                        
+                    
+                        
+                            <li title="7" data-url="https://cdn.jsdelivr.net/gh/hikaru199/blog_music@main/blog_czrs.mp3"></li>
+                        
+                    
+                        
+                            <li title="8" data-url="https://cdn.jsdelivr.net/gh/hikaru199/blog_music@main/blog_zxtk.mp3"></li>
+                        
+                    
+                        
+                            <li title="9" data-url="https://cdn.jsdelivr.net/gh/hikaru199/blog_music@main/blog_yxrs.mp3"></li>
+                        
+                    
+                        
+                            <li title="10" data-url="https://cdn.jsdelivr.net/gh/hikaru199/blog_music@main/blog_just.mp3"></li>
+                        
+                    
+                </ul>
+            
+        </div>
+        
+    <div id="gitalk-container" class="comment link"
+		data-enable="false"
+        data-ae="false"
+        data-ci=""
+        data-cs=""
+        data-r=""
+        data-o=""
+        data-a=""
+        data-d="false"
+    >查看评论</div>
+
+
+    </div>
+    
+</div>
+
+
+    </div>
+</div>
+</body>
+
+
+<script src="//lib.baomitu.com/jquery/1.8.3/jquery.min.js"></script>
+<script src="/js/plugin.js"></script>
+<script src="/js/typed.js"></script>
+<script src="/js/diaspora.js"></script>
+
+
+<link rel="stylesheet" href="/photoswipe/photoswipe.css">
+<link rel="stylesheet" href="/photoswipe/default-skin/default-skin.css">
+
+
+<script src="/photoswipe/photoswipe.min.js"></script>
+<script src="/photoswipe/photoswipe-ui-default.min.js"></script>
+
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+            <div class="pswp__top-bar">
+                <!--  Controls are self-explanatory. Order can be changed. -->
+                <div class="pswp__counter"></div>
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div> 
+            </div>
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+</html>
