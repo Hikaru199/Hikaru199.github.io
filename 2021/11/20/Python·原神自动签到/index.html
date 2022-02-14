@@ -1,0 +1,214 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN" class="loading">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Python · 原神自动签到 - Hikaru Blog - 不忘每一次感动</title>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="google" content="notranslate" />
+    <meta name="keywords" content="Hikaru,"> 
+    <meta name="description" content="通过requests库实现自动签到，并使用企业微信消息推送                                                                      ,"> 
+    <meta name="author" content="Hikaru"> 
+    <link rel="alternative" href="atom.xml" title="Hikaru Blog - 不忘每一次感动" type="application/atom+xml"> 
+    <link rel="icon" href="/img/icon.png"> 
+    
+    
+    
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:title" content="Python · 原神自动签到 - Hikaru Blog - 不忘每一次感动"/>
+    <meta name="twitter:description" content="通过requests库实现自动签到，并使用企业微信消息推送                                                                      ,"/>
+    
+    
+    
+    
+    <meta property="og:site_name" content="Hikaru Blog - 不忘每一次感动"/>
+    <meta property="og:type" content="object"/>
+    <meta property="og:title" content="Python · 原神自动签到 - Hikaru Blog - 不忘每一次感动"/>
+    <meta property="og:description" content="通过requests库实现自动签到，并使用企业微信消息推送                                                                      ,"/>
+    
+<link rel="stylesheet" href="/css/diaspora.css">
+
+<meta name="generator" content="Hexo 6.0.0"></head>
+
+<body class="loading">
+    <span id="config-title" style="display:none">Hikaru Blog - 不忘每一次感动</span>
+    <div id="loader"></div>
+    <div id="single">
+    <div id="top" style="display: block;">
+    <div class="bar" style="width: 0;"></div>
+    <a class="iconfont icon-home image-icon" href="javascript:;" data-url="http://example.com"></a>
+    <div title="播放/暂停" class="iconfont icon-play"></div>
+    <h3 class="subtitle">Python · 原神自动签到</h3>
+    <div class="social">
+        <div>
+            <div class="share">
+                <a title="获取二维码" class="iconfont icon-scan" href="javascript:;"></a>
+            </div>
+            <div id="qr"></div>
+        </div>
+    </div>
+    <div class="scrollbar"></div>
+</div>
+
+    <div class="section">
+        <div class="article">
+    <div class='main'>
+        <h1 class="title">Python · 原神自动签到</h1>
+        <div class="stuff">
+            <span>十一月 20, 2021</span>
+            
+  <ul class="post-tags-list" itemprop="keywords"><li class="post-tags-list-item"><a class="post-tags-list-link" href="/tags/python/" rel="tag">python</a></li></ul>
+
+
+        </div>
+        <div class="content markdown">
+            <p>通过<code>requests</code>库实现自动签到，并使用<code>企业微信</code>消息推送                                                                        </p>
+<h1 id="原神自动签到"><a href="#原神自动签到" class="headerlink" title="原神自动签到"></a>原神自动签到</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># _*_ coding: utf-8 _*_</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">Author: Hikaru199</span></span><br><span class="line"><span class="string">Date: 2021-11-20</span></span><br><span class="line"><span class="string">wechat: Hikaru-199</span></span><br><span class="line"><span class="string">function： </span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="keyword">import</span> hashlib</span><br><span class="line"><span class="keyword">import</span> json</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> random</span><br><span class="line"><span class="keyword">import</span> string</span><br><span class="line"><span class="keyword">import</span> uuid</span><br><span class="line"><span class="keyword">from</span> datetime <span class="keyword">import</span> date</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line"><span class="comment"># 固定变量</span></span><br><span class="line"><span class="comment"># 米游社的Salt</span></span><br><span class="line">mihoyobbs_Salt = <span class="string">&quot;fd3ykrh7o1j54g581upo1tvpam0dsgtf&quot;</span></span><br><span class="line">mihoyobbs_Salt_web = <span class="string">&quot;14bmu1mz0yuljprsfgpvjh3ju2ni468r&quot;</span></span><br><span class="line">mihoyobbs_Salt_web_old = <span class="string">&quot;h8w582wxwgqvahcdkpvdhbh2w9casgfl&quot;</span></span><br><span class="line"><span class="comment"># 米游社的版本</span></span><br><span class="line">mihoyobbs_Version = <span class="string">&quot;2.7.0&quot;</span>  <span class="comment"># Slat和Version相互对应</span></span><br><span class="line">mihoyobbs_Version_old = <span class="string">&quot;2.3.0&quot;</span></span><br><span class="line"><span class="comment"># 米游社的客户端类型</span></span><br><span class="line">mihoyobbs_Client_type = <span class="string">&quot;2&quot;</span>  <span class="comment"># 1为ios 2为安卓</span></span><br><span class="line">mihoyobbs_Client_type_web = <span class="string">&quot;5&quot;</span>  <span class="comment"># 4为pc web 5为mobile web</span></span><br><span class="line"><span class="comment"># 原神自动签到相关的设置</span></span><br><span class="line">genshin_Act_id = <span class="string">&quot;e202009291139501&quot;</span></span><br><span class="line">genshin_Account_info_url = <span class="string">&quot;https://api-takumi.mihoyo.com/binding/api/getUserGameRolesByCookie?game_biz=hk4e_cn&quot;</span></span><br><span class="line">genshin_Signlisturl = <span class="string">&quot;https://api-takumi.mihoyo.com/event/bbs_sign_reward/home?act_id=&#123;&#125;&quot;</span></span><br><span class="line">genshin_Is_signurl = <span class="string">&quot;https://api-takumi.mihoyo.com/event/bbs_sign_reward/info?act_id=&#123;&#125;&amp;region=&#123;&#125;&amp;uid=&#123;&#125;&quot;</span></span><br><span class="line">genshin_Signurl = <span class="string">&quot;https://api-takumi.mihoyo.com/event/bbs_sign_reward/sign&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 可变变量</span></span><br><span class="line"><span class="comment"># 企业微信配置</span></span><br><span class="line">corpid = <span class="string">&#x27;&#x27;</span>  <span class="comment"># 企业ID</span></span><br><span class="line">SECRET = <span class="string">&#x27;&#x27;</span>  <span class="comment"># 应用的凭证密钥secret</span></span><br><span class="line">agentid = <span class="string">&#x27;&#x27;</span>  <span class="comment"># 企业应用的id</span></span><br><span class="line">nameid = <span class="string">&#x27;&#x27;</span>  <span class="comment"># nameid企业微信用户id</span></span><br><span class="line"><span class="comment"># Cookies 可多账号签到</span></span><br><span class="line">mihoyobbs_Cookies = [</span><br><span class="line">    <span class="string">&quot;cookies_1&quot;</span>,</span><br><span class="line">    <span class="string">&quot;cookies_2&quot;</span>]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取绑定的账号列表</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_account_list</span>(<span class="params">cookies</span>):</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;正在获取米哈游账号绑定原神账号列表...&quot;</span>)</span><br><span class="line">    temp_list = []</span><br><span class="line">    genshin_Account_info_url = <span class="string">&quot;https://api-takumi.mihoyo.com/binding/api/getUserGameRolesByCookie?game_biz=hk4e_cn&quot;</span></span><br><span class="line">    req = requests.get(genshin_Account_info_url, headers=headers(cookies))</span><br><span class="line">    data = req.json()</span><br><span class="line">    <span class="keyword">if</span> data[<span class="string">&quot;retcode&quot;</span>] != <span class="number">0</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;获取账号列表失败！&quot;</span>)</span><br><span class="line">        <span class="comment"># genshin_Auto_sign = False</span></span><br><span class="line">        <span class="comment"># config.save_config()</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;米游社Cookie配置错误！&quot;</span>)</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> data[<span class="string">&quot;data&quot;</span>][<span class="string">&quot;list&quot;</span>]:</span><br><span class="line">        temp_list.append([i[<span class="string">&quot;nickname&quot;</span>], i[<span class="string">&quot;game_uid&quot;</span>], i[<span class="string">&quot;region&quot;</span>]])</span><br><span class="line">    <span class="comment"># print(f&quot;已获取到&#123;len(temp_list)&#125;个原神账号信息&quot;)</span></span><br><span class="line">    <span class="keyword">return</span> temp_list</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取已经签到奖励列表</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_signgive</span>(<span class="params">cookies</span>) -&gt; <span class="built_in">list</span>:</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;正在获取签到奖励列表...&quot;</span>)</span><br><span class="line">    req = requests.get(genshin_Signlisturl.<span class="built_in">format</span>(genshin_Act_id), headers=headers(cookies))</span><br><span class="line">    data = req.json()</span><br><span class="line">    <span class="keyword">if</span> data[<span class="string">&quot;retcode&quot;</span>] != <span class="number">0</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;获取签到奖励列表失败&quot;</span>)</span><br><span class="line">        <span class="built_in">print</span>(req.text)</span><br><span class="line">    <span class="keyword">return</span> data[<span class="string">&quot;data&quot;</span>][<span class="string">&quot;awards&quot;</span>]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 判断签到</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">is_sign</span>(<span class="params">cookies, region: <span class="built_in">str</span>, uid: <span class="built_in">str</span></span>):</span></span><br><span class="line">    req = requests.get(genshin_Is_signurl.<span class="built_in">format</span>(genshin_Act_id, region, uid), headers=headers(cookies))</span><br><span class="line">    data = req.json()</span><br><span class="line">    <span class="keyword">if</span> data[<span class="string">&quot;retcode&quot;</span>] != <span class="number">0</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;获取账号签到信息失败！&quot;</span>)</span><br><span class="line">        <span class="built_in">print</span>(req.text)</span><br><span class="line">        <span class="comment"># genshin_Auto_sign = False</span></span><br><span class="line">        <span class="comment"># config.save_config()</span></span><br><span class="line">        <span class="comment"># raise CookieError(&quot;BBS Cookie Errror&quot;)</span></span><br><span class="line">    <span class="keyword">return</span> data[<span class="string">&quot;data&quot;</span>]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 签到</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">sign_account</span>(<span class="params">cookies</span>):</span></span><br><span class="line">    acc_List = get_account_list(cookies)</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(acc_List) != <span class="number">0</span>:</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> acc_List:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">f&quot;正在为旅行者<span class="subst">&#123;i[<span class="number">0</span>]&#125;</span>进行签到...&quot;</span>)</span><br><span class="line">            time.sleep(random.randint(<span class="number">2</span>, <span class="number">8</span>))</span><br><span class="line">            is_data = is_sign(cookies, region=i[<span class="number">2</span>], uid=i[<span class="number">1</span>])</span><br><span class="line">            <span class="keyword">if</span> is_data[<span class="string">&quot;first_bind&quot;</span>]:</span><br><span class="line">                <span class="built_in">print</span>(<span class="string">f&quot;旅行者<span class="subst">&#123;i[<span class="number">0</span>]&#125;</span>是第一次绑定米游社，请先手动签到一次&quot;</span>)</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                sign_days = is_data[<span class="string">&quot;total_sign_day&quot;</span>] - <span class="number">1</span></span><br><span class="line">                ok = <span class="literal">True</span></span><br><span class="line">                <span class="keyword">if</span> is_data[<span class="string">&quot;is_sign&quot;</span>]:</span><br><span class="line">                    <span class="built_in">print</span>(<span class="string">f&quot;旅行者<span class="subst">&#123;i[<span class="number">0</span>]&#125;</span>今天已经签到过了~\r\n今天获得的奖励是<span class="subst">&#123;get_item(get_signgive(cookies)[sign_days])&#125;</span>&quot;</span>)</span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    time.sleep(random.randint(<span class="number">2</span>, <span class="number">8</span>))</span><br><span class="line">                    req = requests.post(url=genshin_Signurl, headers=headers(cookies),</span><br><span class="line">                                        json=&#123;<span class="string">&#x27;act_id&#x27;</span>: genshin_Act_id, <span class="string">&#x27;region&#x27;</span>: i[<span class="number">2</span>], <span class="string">&#x27;uid&#x27;</span>: i[<span class="number">1</span>]&#125;)</span><br><span class="line">                    data = req.json()</span><br><span class="line">                    <span class="keyword">if</span> data[<span class="string">&quot;retcode&quot;</span>] == <span class="number">0</span>:</span><br><span class="line">                        <span class="built_in">print</span>(</span><br><span class="line">                            <span class="string">f&quot;旅行者<span class="subst">&#123;i[<span class="number">0</span>]&#125;</span>签到成功~\r\n今天获得的奖励是<span class="subst">&#123;get_item(get_signgive(cookies)[<span class="number">0</span> <span class="keyword">if</span> sign_days == <span class="number">0</span> <span class="keyword">else</span> sign_days + <span class="number">1</span>])&#125;</span>&quot;</span>)</span><br><span class="line">                        sign_days += <span class="number">1</span></span><br><span class="line">                    <span class="keyword">elif</span> data[<span class="string">&quot;retcode&quot;</span>] == -<span class="number">5003</span>:</span><br><span class="line">                        <span class="built_in">print</span>(<span class="string">f&quot;旅行者<span class="subst">&#123;i[<span class="number">0</span>]&#125;</span>今天已经签到过了~\r\n今天获得的奖励是<span class="subst">&#123;get_item(get_signgive(cookies)[sign_days])&#125;</span>&quot;</span>)</span><br><span class="line">                    <span class="keyword">else</span>:</span><br><span class="line">                        <span class="built_in">print</span>(<span class="string">&quot;账号签到失败！&quot;</span>)</span><br><span class="line">                        <span class="built_in">print</span>(req.text)</span><br><span class="line">                        ok = <span class="literal">False</span></span><br><span class="line">                <span class="keyword">if</span> ok:</span><br><span class="line">                    <span class="keyword">if</span> i[<span class="number">2</span>] == <span class="string">&quot;cn_gf01&quot;</span>:</span><br><span class="line">                        gf_server = <span class="string">&quot;天空岛&quot;</span></span><br><span class="line">                    <span class="keyword">elif</span> i[<span class="number">2</span>] == <span class="string">&quot;cn_qd01&quot;</span>:</span><br><span class="line">                        gf_server = <span class="string">&quot;世界树&quot;</span></span><br><span class="line">                    return_data = <span class="string">f&quot;\n[用户昵称]：<span class="subst">&#123;i[<span class="number">0</span>]&#125;</span>\n    ┣━[<span class="subst">&#123;gf_server&#125;</span>]：<span class="subst">&#123;i[<span class="number">1</span>]&#125;</span>\n    ┣━[签到状态]：签到成功\n    ┣━[今日奖励]：<span class="subst">&#123;get_item(get_signgive(cookies)[sign_days])&#125;</span>\n    ┗━[本月累签]：<span class="subst">&#123;sign_days + <span class="number">1</span>&#125;</span>天&quot;</span></span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    return_data = <span class="string">f&quot;\n[用户昵称]：<span class="subst">&#123;i[<span class="number">0</span>]&#125;</span>\n    ┣━[<span class="subst">&#123;gf_server&#125;</span>]：<span class="subst">&#123;i[<span class="number">1</span>]&#125;</span>\n    ┗━[签到状态]：签到失败&quot;</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;账号没有绑定任何原神账号！&quot;</span>)</span><br><span class="line">        return_data = <span class="string">&quot;\n并没有绑定任何原神账号&quot;</span></span><br><span class="line">    <span class="keyword">return</span> return_data</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 请求头</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">headers</span>(<span class="params">cookies</span>):</span></span><br><span class="line">    headers = &#123;</span><br><span class="line">        <span class="string">&#x27;Accept&#x27;</span>: <span class="string">&#x27;application/json, text/plain, */*&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;DS&#x27;</span>: get_ds(web=<span class="literal">True</span>, web_old=<span class="literal">True</span>),</span><br><span class="line">        <span class="string">&#x27;Origin&#x27;</span>: <span class="string">&#x27;https://webstatic.mihoyo.com&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;x-rpc-app_version&#x27;</span>: mihoyobbs_Version_old,</span><br><span class="line">        <span class="string">&#x27;User-Agent&#x27;</span>: <span class="string">&#x27;Mozilla/5.0 (Linux; Android 9; Unspecified Device) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/39.0.0.0 Mobile Safari/537.36 miHoYoBBS/2.3.0&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;x-rpc-client_type&#x27;</span>: mihoyobbs_Client_type_web,</span><br><span class="line">        <span class="string">&#x27;Referer&#x27;</span>: <span class="string">&#x27;https://webstatic.mihoyo.com/bbs/event/signin-ys/index.html?bbs_auth_required=true&amp;act_id=e202009291139501&amp;utm_source=bbs&amp;utm_medium=mys&amp;utm_campaign=icon&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;Accept-Encoding&#x27;</span>: <span class="string">&#x27;gzip, deflate&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;Accept-Language&#x27;</span>: <span class="string">&#x27;zh-CN,en-US;q=0.8&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;X-Requested-With&#x27;</span>: <span class="string">&#x27;com.mihoyo.hyperion&#x27;</span>,</span><br><span class="line">        <span class="string">&quot;Cookie&quot;</span>: cookies,</span><br><span class="line">        <span class="string">&#x27;x-rpc-device_id&#x27;</span>: get_device_id(cookies)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> headers</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 企业微信应用推送</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">workweixi</span>(<span class="params">message</span>):</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;企业微信应用推送开始&quot;</span>)</span><br><span class="line">    url0 = <span class="string">&quot;https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=&#123;0&#125;&amp;corpsecret=&#123;1&#125;&quot;</span>.<span class="built_in">format</span>(corpid, SECRET)</span><br><span class="line">    r = requests.get(url=url0)</span><br><span class="line">    c = r.json()</span><br><span class="line">    bb = c[<span class="string">&#x27;access_token&#x27;</span>]</span><br><span class="line">    url1 = <span class="string">&quot;https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=&#123;&#125;&quot;</span>.<span class="built_in">format</span>(bb)</span><br><span class="line">    body = &#123;</span><br><span class="line">        <span class="string">&quot;touser&quot;</span>: nameid,</span><br><span class="line">        <span class="string">&quot;agentid&quot;</span>: agentid,</span><br><span class="line">        <span class="string">&quot;msgtype&quot;</span>: <span class="string">&quot;textcard&quot;</span>,</span><br><span class="line">        <span class="string">&quot;textcard&quot;</span>: &#123;</span><br><span class="line">            <span class="string">&quot;title&quot;</span>: <span class="string">&quot;签到提醒&quot;</span>,</span><br><span class="line">            <span class="string">&quot;description&quot;</span>: message,</span><br><span class="line">            <span class="string">&quot;url&quot;</span>: <span class="string">&quot;https://console.cloud.tencent.com/scf/list?rid=1&amp;ns=default&quot;</span>,</span><br><span class="line">            <span class="string">&quot;btntxt&quot;</span>: <span class="string">&quot;更多&quot;</span>,</span><br><span class="line">        &#125;,</span><br><span class="line">    &#125;</span><br><span class="line">    r = requests.post(url=url1, data=json.dumps(body))</span><br><span class="line">    a = r.json()</span><br><span class="line">    <span class="built_in">print</span>(a[<span class="string">&#x27;errmsg&#x27;</span>])</span><br><span class="line">    <span class="keyword">if</span> a[<span class="string">&#x27;errmsg&#x27;</span>] == <span class="string">&#x27;ok&#x27;</span>:</span><br><span class="line">        msg = <span class="string">&quot;推送成功&quot;</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        msg = <span class="string">&quot;推送失败&quot;</span></span><br><span class="line">    <span class="built_in">print</span>(msg)</span><br><span class="line">    <span class="keyword">return</span> msg</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 时间戳</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">timestamp</span>() -&gt; <span class="built_in">int</span>:</span></span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">int</span>(time.time())</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 随机文本</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">random_text</span>(<span class="params">num: <span class="built_in">int</span></span>) -&gt; <span class="built_in">str</span>:</span></span><br><span class="line">    <span class="keyword">return</span> <span class="string">&#x27;&#x27;</span>.join(random.sample(string.ascii_lowercase + string.digits, num))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># md5计算</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">md5</span>(<span class="params">text: <span class="built_in">str</span></span>) -&gt; <span class="built_in">str</span>:</span></span><br><span class="line">    md5 = hashlib.md5()</span><br><span class="line">    md5.update(text.encode())</span><br><span class="line">    <span class="keyword">return</span> md5.hexdigest()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成一个device id</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_device_id</span>(<span class="params">cookies</span>) -&gt; <span class="built_in">str</span>:</span></span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">str</span>(uuid.uuid3(uuid.NAMESPACE_URL, cookies)).replace(</span><br><span class="line">        <span class="string">&#x27;-&#x27;</span>, <span class="string">&#x27;&#x27;</span>).upper()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取请求Header里的DS 当web为true则生成网页端的DS</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_ds</span>(<span class="params">web: <span class="built_in">bool</span>, web_old: <span class="built_in">bool</span></span>) -&gt; <span class="built_in">str</span>:</span></span><br><span class="line">    <span class="keyword">if</span> web:</span><br><span class="line">        <span class="keyword">if</span> web_old:</span><br><span class="line">            n = mihoyobbs_Salt_web_old</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            n = mihoyobbs_Salt_web</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        n = mihoyobbs_Salt</span><br><span class="line">    i = <span class="built_in">str</span>(timestamp())</span><br><span class="line">    r = random_text(<span class="number">6</span>)</span><br><span class="line">    c = md5(<span class="string">&quot;salt=&quot;</span> + n + <span class="string">&quot;&amp;t=&quot;</span> + i + <span class="string">&quot;&amp;r=&quot;</span> + r)</span><br><span class="line">    <span class="keyword">return</span> <span class="string">f&quot;<span class="subst">&#123;i&#125;</span>,<span class="subst">&#123;r&#125;</span>,<span class="subst">&#123;c&#125;</span>&quot;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取签到的奖励名称</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_item</span>(<span class="params">raw_data: <span class="built_in">dict</span></span>) -&gt; <span class="built_in">str</span>:</span></span><br><span class="line">    temp_name = raw_data[<span class="string">&quot;name&quot;</span>]</span><br><span class="line">    temp_cnt = raw_data[<span class="string">&quot;cnt&quot;</span>]</span><br><span class="line">    <span class="keyword">return</span> <span class="string">f&quot;<span class="subst">&#123;temp_name&#125;</span>x<span class="subst">&#123;temp_cnt&#125;</span>&quot;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    date_today = date.today()</span><br><span class="line">    return_data = <span class="string">f&quot;[任务名称]：原神签到福利\n[签到时间]：<span class="subst">&#123;date_today&#125;</span>&quot;</span></span><br><span class="line">    <span class="keyword">for</span> cookies <span class="keyword">in</span> mihoyobbs_Cookies:</span><br><span class="line">        return_data += sign_account(cookies)</span><br><span class="line">    workweixi(return_data)</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+            <!--[if lt IE 9]><script>document.createElement('audio');</script><![endif]-->
+            <audio id="audio" loop="1" preload="auto" controls="controls" data-autoplay="false">
+                <source type="audio/mpeg" src="">
+            </audio>
+            
+                <ul id="audio-list" style="display:none">
+                    
+                        
+                            <li title="0" data-url="https://cdn.jsdelivr.net/gh/hikaru199/blog_music@main/blog_nsbf.mp3"></li>
+                        
+                    
+                        
+                            <li title="1" data-url="https://cdn.jsdelivr.net/gh/hikaru199/blog_music@main/blog_dgjw.mp3"></li>
+                        
+                    
+                        
+                            <li title="2" data-url="https://cdn.jsdelivr.net/gh/hikaru199/blog_music@main/blog_kygc.mp3"></li>
+                        
+                    
+                        
+                            <li title="3" data-url="https://cdn.jsdelivr.net/gh/hikaru199/blog_music@main/blog_lrnz.mp3"></li>
+                        
+                    
+                        
+                            <li title="4" data-url="https://cdn.jsdelivr.net/gh/hikaru199/blog_music@main/blog_tqzz.mp3"></li>
+                        
+                    
+                        
+                            <li title="5" data-url="https://cdn.jsdelivr.net/gh/hikaru199/blog_music@main/blog_wwhm.mp3"></li>
+                        
+                    
+                        
+                            <li title="6" data-url="https://cdn.jsdelivr.net/gh/hikaru199/blog_music@main/blog_xynh.mp3"></li>
+                        
+                    
+                        
+                            <li title="7" data-url="https://cdn.jsdelivr.net/gh/hikaru199/blog_music@main/blog_czrs.mp3"></li>
+                        
+                    
+                        
+                            <li title="8" data-url="https://cdn.jsdelivr.net/gh/hikaru199/blog_music@main/blog_zxtk.mp3"></li>
+                        
+                    
+                        
+                            <li title="9" data-url="https://cdn.jsdelivr.net/gh/hikaru199/blog_music@main/blog_yxrs.mp3"></li>
+                        
+                    
+                        
+                            <li title="10" data-url="https://cdn.jsdelivr.net/gh/hikaru199/blog_music@main/blog_just.mp3"></li>
+                        
+                    
+                </ul>
+            
+        </div>
+        
+    <div id="gitalk-container" class="comment link"
+		data-enable="false"
+        data-ae="false"
+        data-ci=""
+        data-cs=""
+        data-r=""
+        data-o=""
+        data-a=""
+        data-d="false"
+    >查看评论</div>
+
+
+    </div>
+    
+</div>
+
+
+    </div>
+</div>
+</body>
+
+
+<script src="//lib.baomitu.com/jquery/1.8.3/jquery.min.js"></script>
+<script src="/js/plugin.js"></script>
+<script src="/js/typed.js"></script>
+<script src="/js/diaspora.js"></script>
+
+
+<link rel="stylesheet" href="/photoswipe/photoswipe.css">
+<link rel="stylesheet" href="/photoswipe/default-skin/default-skin.css">
+
+
+<script src="/photoswipe/photoswipe.min.js"></script>
+<script src="/photoswipe/photoswipe-ui-default.min.js"></script>
+
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+            <div class="pswp__top-bar">
+                <!--  Controls are self-explanatory. Order can be changed. -->
+                <div class="pswp__counter"></div>
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div> 
+            </div>
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+</html>
