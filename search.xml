@@ -13,10 +13,10 @@
       </tags>
   </entry>
   <entry>
-    <title>Python · 原神微博超话签到活动监测</title>
-    <url>/2021/11/21/Python%C2%B7%E5%8E%9F%E7%A5%9E%E5%BE%AE%E5%8D%9A%E8%B6%85%E8%AF%9D%E7%AD%BE%E5%88%B0%E6%B4%BB%E5%8A%A8%E7%9B%91%E6%B5%8B/</url>
-    <content><![CDATA[<p>通过<code>requests</code>库实现原神微博超话签到活动监测并自动签到领取                                                                        </p>
-<h1 id="原神微博超话签到活动监测"><a href="#原神微博超话签到活动监测" class="headerlink" title="原神微博超话签到活动监测"></a>原神微博超话签到活动监测</h1><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># _*_ coding: utf-8 _*_</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">Author: Hikaru199</span></span><br><span class="line"><span class="string">Date: 2021-11-21</span></span><br><span class="line"><span class="string">wechat: Hikaru-199</span></span><br><span class="line"><span class="string">function： </span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="keyword">import</span> json</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">from</span> datetime <span class="keyword">import</span> date</span><br><span class="line"><span class="keyword">from</span> time <span class="keyword">import</span> sleep</span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line"><span class="comment"># 固定参数</span></span><br><span class="line">CONTAINER_ID = <span class="string">&#x27;100808fc439dedbb06ca5fd858848e521b8716&#x27;</span></span><br><span class="line">SUPER_URL = <span class="string">&#x27;https://m.weibo.cn/api/container/getIndex?containerid=&#123;&#125;&#x27;</span>.<span class="built_in">format</span>(<span class="string">&#x27;100803_-_page_my_follow_super&#x27;</span>)</span><br><span class="line">YS_URL = <span class="string">&#x27;https://m.weibo.cn/api/container/getIndex?containerid=&#123;&#125;_-_activity_list&#x27;</span>.<span class="built_in">format</span>(CONTAINER_ID)</span><br><span class="line">KA_URL = <span class="string">&#x27;https://ka.sina.com.cn/innerapi/draw&#x27;</span></span><br><span class="line">BOX_URL = <span class="string">&#x27;https://ka.sina.com.cn/html5/mybox&#x27;</span></span><br><span class="line">WB_USER_AGENT = <span class="string">&#x27;Mozilla/5.0 (iPhone; CPU iPhone OS 14_0_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E150&#x27;</span></span><br><span class="line"><span class="comment"># 企业微信配置</span></span><br><span class="line">corpid = <span class="string">&#x27;ww84e00679b9595cda&#x27;</span>  <span class="comment"># 企业ID</span></span><br><span class="line">SECRET = <span class="string">&#x27;lhBV0rgftwnBhd5XtWgo0w3XNdsZa6o6VL3x8uLrSj8&#x27;</span>  <span class="comment"># 应用的凭证密钥secret</span></span><br><span class="line">agentid = <span class="string">&#x27;1000008&#x27;</span>  <span class="comment"># 企业应用的id</span></span><br><span class="line">nameid = <span class="string">&#x27;LuoGengGuang&#x27;</span>  <span class="comment"># nameid企业微信用户id</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 变量</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">Sina COOKIE</span></span><br><span class="line"><span class="string">    :param WB_COOKIE: 新浪微博的COOKIE.前往  https://m.weibo.cn 获取.</span></span><br><span class="line"><span class="string">    :param KA_COOKIE: 抓包获取的COOKIE https://games.weibo.cn.</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line">wb_from = <span class="string">&#x27;10B9195010&#x27;</span></span><br><span class="line">wb_aid = <span class="string">&quot;01A4H-ENXJeGZgXIbGf72AI6T5q66dyshUviWoFOH0eSexQFo.&quot;</span></span><br><span class="line">wb_cookie = <span class="string">&quot;WEIBOCN_FROM=1110006030; loginScene=102003; SUB=_2A25PCbzlDeRhGeBL7VoY9y_OzjuIHXVs9cStrDV6PUJbkdCOLUnjkW1NRvICljh3X2hehK-vhpWapzwaYhDtdbla; _T_WM=41088849483; XSRF-TOKEN=71365f; MLOGIN=1; M_WEIBOCN_PARAMS=luicode%3D10000011%26lfid%3D102803%26uicode%3D20000174; &quot;</span></span><br><span class="line">ka_cookie = <span class="string">&quot;SUB=_2A25PCKa3DeRhGeBL7VoY9y_OzjuIHXVsRdT_rDV6PUJbitCOLU_DkWtNRvIClg-4NH8HURJT0hqKqs9UGAsMM1c9; SUBP=0033WrSXqPxfM725Ws9jqgMF55529P9D9WWW0gy7GSi5VfnvbyfaCImO5NHD95QcSKqR1KMpeo-NWs4DqcjMi--NiK.Xi-2Ri--ciKnRi-zNSo-c1h.NeKzfS7tt; SCF=ArOQy090RkhaiEcwDdv2tcKijBQrjealqVXijJKvhKFlDrRECO6sAaioD86du2XDbQ..; TV-G0=b6c8216bfa9ffbdce318f2b7d7161b67; _T_WM=80727813516; WEIBOCN_FROM=1110005030&quot;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 请求头</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_header</span>():</span></span><br><span class="line">    header = &#123;</span><br><span class="line">        <span class="string">&#x27;User-Agent&#x27;</span>: WB_USER_AGENT,</span><br><span class="line">        <span class="string">&#x27;Referer&#x27;</span>: <span class="string">&#x27;https://m.weibo.cn&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;Cookie&#x27;</span>: wb_cookie</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> header</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取超话列表</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_super_list</span>():</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;准备获取超话列表...&#x27;</span>)</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        response = requests.get(SUPER_URL, headers=get_header(), allow_redirects=<span class="literal">False</span>)</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        <span class="built_in">print</span>(e)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">if</span> response.status_code == <span class="number">200</span>:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&#x27;超话列表获取成功...&#x27;</span>)</span><br><span class="line">            <span class="keyword">return</span> json.loads(response.text)</span><br><span class="line">        <span class="keyword">elif</span> response.status_code == <span class="number">302</span>:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&#x27;登录可能失效, 尝试重新登录...&#x27;</span>)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&#x27;超话列表获取失败...&#x27;</span>)</span><br><span class="line">    <span class="comment"># print(&#x27;超话列表获取完毕&#x27;)</span></span><br><span class="line">    <span class="keyword">return</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取个人数据与签到地址</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">resolve_data</span>():</span></span><br><span class="line">    super_list = get_super_list()</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> super_list:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&#x27;取消解析数据信息&#x27;</span>)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;准备解析数据信息...&#x27;</span>)</span><br><span class="line">    follow_list = []</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        card_group = super_list[<span class="string">&#x27;data&#x27;</span>][<span class="string">&#x27;cards&#x27;</span>][<span class="number">0</span>][<span class="string">&#x27;card_group&#x27;</span>][<span class="number">1</span>:-<span class="number">1</span>]</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        <span class="built_in">print</span>(e)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">for</span> card <span class="keyword">in</span> card_group:</span><br><span class="line">            follow = &#123;</span><br><span class="line">                <span class="string">&#x27;title_sub&#x27;</span>: card[<span class="string">&#x27;title_sub&#x27;</span>],</span><br><span class="line">                <span class="string">&#x27;containerid&#x27;</span>: card[<span class="string">&#x27;scheme&#x27;</span>].split(<span class="string">&#x27;&amp;&#x27;</span>)[<span class="number">0</span>].split(<span class="string">&#x27;=&#x27;</span>)[<span class="number">1</span>],</span><br><span class="line">                <span class="string">&#x27;lv&#x27;</span>: <span class="built_in">int</span>(re.findall(<span class="string">&#x27;\d+&#x27;</span>, card[<span class="string">&#x27;desc1&#x27;</span>])[<span class="number">0</span>]),</span><br><span class="line">                <span class="string">&#x27;is_sign&#x27;</span>: card[<span class="string">&#x27;buttons&#x27;</span>][<span class="number">0</span>][<span class="string">&#x27;name&#x27;</span>],</span><br><span class="line">                <span class="string">&#x27;sign_url&#x27;</span>: <span class="literal">False</span></span><br><span class="line">            &#125;</span><br><span class="line">            scheme = card[<span class="string">&#x27;buttons&#x27;</span>][<span class="number">0</span>][<span class="string">&#x27;scheme&#x27;</span>]</span><br><span class="line">            <span class="keyword">if</span> scheme:</span><br><span class="line">                follow[<span class="string">&#x27;sign_url&#x27;</span>] = <span class="string">f&#x27;https://m.weibo.cn<span class="subst">&#123;scheme&#125;</span>&#x27;</span></span><br><span class="line">            follow_list.append(follow)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&#x27;解析到 <span class="subst">&#123;<span class="built_in">len</span>(follow_list)&#125;</span> 条数据&#x27;</span>)</span><br><span class="line">    <span class="keyword">if</span> follow_list:</span><br><span class="line">        <span class="keyword">for</span> follow <span class="keyword">in</span> follow_list:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">f&#x27;[Lv.<span class="subst">&#123;follow[<span class="string">&quot;lv&quot;</span>]&#125;</span>]<span class="subst">&#123;follow[<span class="string">&quot;title_sub&quot;</span>]&#125;</span>&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;数据信息解析完毕&#x27;</span>)</span><br><span class="line">    <span class="keyword">return</span> follow_list</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 超话签到</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">super_sign</span>():</span></span><br><span class="line">    follow_list = resolve_data()</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> follow_list:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&#x27;取消微博超话签到&#x27;</span>)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    <span class="keyword">for</span> follow <span class="keyword">in</span> follow_list:</span><br><span class="line">        lv = <span class="string">f&#x27;[Lv.<span class="subst">&#123;follow[<span class="string">&quot;lv&quot;</span>]&#125;</span>]&#x27;</span></span><br><span class="line">        name = follow[<span class="string">&#x27;title_sub&#x27;</span>]</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&#x27;准备为 <span class="subst">&#123;name&#125;</span> 超话签到...&#x27;</span>)</span><br><span class="line">        sleep(<span class="number">5</span>)</span><br><span class="line">        <span class="keyword">if</span> follow[<span class="string">&#x27;is_sign&#x27;</span>] == <span class="string">&#x27;已签&#x27;</span>:</span><br><span class="line">            result = <span class="string">f&#x27;<span class="subst">&#123;lv&#125;</span><span class="subst">&#123;name&#125;</span>: 已经签到过了哦&#x27;</span></span><br><span class="line">            <span class="built_in">print</span>(result)</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line">        <span class="keyword">elif</span> follow[<span class="string">&#x27;is_sign&#x27;</span>] == <span class="string">&#x27;签到&#x27;</span>:</span><br><span class="line">            url = follow[<span class="string">&#x27;sign_url&#x27;</span>]</span><br><span class="line">            <span class="keyword">try</span>:</span><br><span class="line">                response = json.loads(requests.post(url, headers=get_header()).text)</span><br><span class="line">            <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">                <span class="built_in">print</span>(e)</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                <span class="keyword">if</span> response[<span class="string">&#x27;ok&#x27;</span>] == <span class="number">1</span>:</span><br><span class="line">                    result = <span class="string">f&#x27;<span class="subst">&#123;lv&#125;</span><span class="subst">&#123;name&#125;</span>: 签到成功&#x27;</span></span><br><span class="line">                    <span class="built_in">print</span>(result)</span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    result= <span class="string">f&#x27;<span class="subst">&#123;lv&#125;</span><span class="subst">&#123;name&#125;</span>: 签到失败\n<span class="subst">&#123;response&#125;</span>&#x27;</span></span><br><span class="line">                    <span class="built_in">print</span>(result)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;微博超话签到完毕&#x27;</span>)</span><br><span class="line">    <span class="keyword">return</span> result</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># Cookies 转 dict</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">cookie_to_dict</span>(<span class="params">cookie</span>):</span></span><br><span class="line">    cookies = &#123;&#125;</span><br><span class="line">    <span class="keyword">for</span> item <span class="keyword">in</span> cookie.split(<span class="string">&quot;; &quot;</span>):</span><br><span class="line">        <span class="keyword">if</span> item == <span class="string">&#x27;&#x27;</span>:</span><br><span class="line">            <span class="keyword">pass</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            cookies[item.split(<span class="string">&#x27;=&#x27;</span>)[<span class="number">0</span>]] = item.split(<span class="string">&#x27;=&#x27;</span>)[<span class="number">1</span>]</span><br><span class="line">    <span class="keyword">return</span> cookies</span><br><span class="line"><span class="comment"># -------------------------------------------------------</span></span><br><span class="line"><span class="comment"># 获取活动信息</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_id</span>():</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;准备获取活动信息...&#x27;</span>)</span><br><span class="line">    id_list = []</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        response = json.loads(requests.get(YS_URL, headers=get_header()).text)</span><br><span class="line">        <span class="keyword">for</span> item <span class="keyword">in</span> response[<span class="string">&#x27;data&#x27;</span>][<span class="string">&#x27;cards&#x27;</span>]:</span><br><span class="line">            <span class="keyword">if</span> <span class="string">&#x27;group&#x27;</span> <span class="keyword">in</span> item[<span class="string">&#x27;card_group&#x27;</span>][<span class="number">0</span>]:</span><br><span class="line">                group = item[<span class="string">&#x27;card_group&#x27;</span>][<span class="number">0</span>][<span class="string">&#x27;group&#x27;</span>]</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&#x27;活动信息获取失败:<span class="subst">&#123;e&#125;</span>&#x27;</span>)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">for</span> ids <span class="keyword">in</span> group:</span><br><span class="line">            <span class="comment"># print(ids)</span></span><br><span class="line">            <span class="keyword">if</span> <span class="string">&#x27;签到&#x27;</span> <span class="keyword">in</span> ids.get(<span class="string">&#x27;title_sub&#x27;</span>, <span class="string">&#x27;&#x27;</span>):</span><br><span class="line">                <span class="built_in">id</span> = <span class="built_in">str</span>(ids[<span class="string">&#x27;scheme&#x27;</span>])</span><br><span class="line">                <span class="built_in">id</span> = <span class="built_in">id</span>[<span class="built_in">id</span>.index(<span class="string">&#x27;ticket_id%253D&#x27;</span>):<span class="built_in">id</span>.index(<span class="string">&#x27;%2526ext&#x27;</span>)].replace(<span class="string">&#x27;ticket_id%253D&#x27;</span>, <span class="string">&#x27;&#x27;</span>)</span><br><span class="line">                id_list.append(<span class="built_in">id</span>)</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> id_list:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&#x27;原神超话暂无活动&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;活动信息获取完毕&#x27;</span>)</span><br><span class="line">    <span class="comment"># print(id_list)</span></span><br><span class="line">    <span class="keyword">return</span> id_list</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 企业微信应用推送</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">workweixi</span>(<span class="params">message</span>):</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;企业微信应用推送开始&quot;</span>)</span><br><span class="line">    url0 = <span class="string">&quot;https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=&#123;0&#125;&amp;corpsecret=&#123;1&#125;&quot;</span>.<span class="built_in">format</span>(corpid, SECRET)</span><br><span class="line">    r = requests.get(url=url0)</span><br><span class="line">    c = r.json()</span><br><span class="line">    bb = c[<span class="string">&#x27;access_token&#x27;</span>]</span><br><span class="line">    url1 = <span class="string">&quot;https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=&#123;&#125;&quot;</span>.<span class="built_in">format</span>(bb)</span><br><span class="line">    body = &#123;</span><br><span class="line">        <span class="string">&quot;touser&quot;</span>: nameid,</span><br><span class="line">        <span class="string">&quot;agentid&quot;</span>: agentid,</span><br><span class="line">        <span class="string">&quot;msgtype&quot;</span>: <span class="string">&quot;textcard&quot;</span>,</span><br><span class="line">        <span class="string">&quot;textcard&quot;</span>: &#123;</span><br><span class="line">            <span class="string">&quot;title&quot;</span>: <span class="string">&quot;微博超话提醒&quot;</span>,</span><br><span class="line">            <span class="string">&quot;description&quot;</span>: message,</span><br><span class="line">            <span class="string">&quot;url&quot;</span>: <span class="string">&quot;https://m.weibo.cn/&quot;</span>,</span><br><span class="line">            <span class="string">&quot;btntxt&quot;</span>: <span class="string">&quot;更多&quot;</span>,</span><br><span class="line">        &#125;,</span><br><span class="line">    &#125;</span><br><span class="line">    r = requests.post(url=url1, data=json.dumps(body))</span><br><span class="line">    a = r.json()</span><br><span class="line">    <span class="built_in">print</span>(a[<span class="string">&#x27;errmsg&#x27;</span>])</span><br><span class="line">    <span class="keyword">if</span> a[<span class="string">&#x27;errmsg&#x27;</span>] == <span class="string">&#x27;ok&#x27;</span>:</span><br><span class="line">        msg = <span class="string">&quot;推送成功&quot;</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        msg = <span class="string">&quot;推送失败&quot;</span></span><br><span class="line">    <span class="built_in">print</span>(msg)</span><br><span class="line">    <span class="keyword">return</span> msg</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    date_time = date.today()</span><br><span class="line">    return_data = <span class="string">f&quot;[任务名称]：原神微博超话兑换码监测\n[签到时间]：<span class="subst">&#123;date_time&#125;</span>&quot;</span></span><br><span class="line">    return_data += <span class="string">f&#x27;\n[超话签到]：\n    ┗━<span class="subst">&#123;super_sign()&#125;</span>&#x27;</span></span><br><span class="line">    id_list = get_id()</span><br><span class="line">    <span class="keyword">if</span> get_id() == <span class="string">&#x27;&#x27;</span>:</span><br><span class="line">        return_data += <span class="string">f&#x27;\n[活动状态]：暂时没有签到活动！&#x27;</span></span><br><span class="line">        workweixi(return_data)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        return_data += <span class="string">f&#x27;\n[活动状态]：活动正在进行中...&#x27;</span></span><br><span class="line">        <span class="keyword">for</span> <span class="built_in">id</span> <span class="keyword">in</span> get_id():</span><br><span class="line">            prize_data = &#123;&#125;</span><br><span class="line">            url = <span class="string">f&#x27;https://games.weibo.cn/prize/aj/lottery?ticket_id=<span class="subst">&#123;<span class="built_in">id</span>&#125;</span>&amp;ext=&amp;aid=<span class="subst">&#123;wb_aid&#125;</span>&amp;from=<span class="subst">&#123;wb_from&#125;</span>&#x27;</span></span><br><span class="line">            header = &#123;</span><br><span class="line">                <span class="string">&#x27;User-Agent&#x27;</span>: WB_USER_AGENT,</span><br><span class="line">                <span class="string">&#x27;Referer&#x27;</span>: <span class="string">f&#x27;https://games.weibo.cn/prize/lottery?ticket_id=<span class="subst">&#123;<span class="built_in">id</span>&#125;</span>&amp;ext=&#x27;</span>,</span><br><span class="line">            &#125;</span><br><span class="line">            cookies = cookie_to_dict(ka_cookie)</span><br><span class="line">            <span class="keyword">try</span>:</span><br><span class="line">                response = json.loads(requests.request(<span class="string">&#x27;get&#x27;</span>, url, headers=header, cookies=cookies).text)</span><br><span class="line">                prize_data = response[<span class="string">&#x27;data&#x27;</span>][<span class="string">&#x27;prize_data&#x27;</span>]</span><br><span class="line">            <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">                <span class="built_in">print</span>(e)</span><br><span class="line">                <span class="keyword">continue</span></span><br><span class="line">            card_no = prize_data[<span class="string">&#x27;card_no&#x27;</span>]  <span class="comment"># 兑换码</span></span><br><span class="line">            <span class="comment"># game_name = prize_data[&#x27;game_name&#x27;]  # 原神</span></span><br><span class="line">            <span class="comment"># card_type = prize_data[&#x27;type&#x27;]  # 礼包类型</span></span><br><span class="line">            <span class="comment"># card_name = prize_data[&#x27;card_name&#x27;]  # 礼包分类</span></span><br><span class="line">            prize_name = prize_data[<span class="string">&#x27;prize_name&#x27;</span>]  <span class="comment"># 礼包名称</span></span><br><span class="line">            return_data += <span class="string">f&#x27;\n    ┗━[<span class="subst">&#123;prize_name&#125;</span>]：<span class="subst">&#123;card_no&#125;</span>&#x27;</span></span><br><span class="line">    <span class="built_in">print</span>(return_data)</span><br><span class="line">    workweixi(return_data)</span><br></pre></td></tr></table></figure>]]></content>
+    <title>Python · 原神自动签到</title>
+    <url>/2021/11/20/Python%C2%B7%E5%8E%9F%E7%A5%9E%E8%87%AA%E5%8A%A8%E7%AD%BE%E5%88%B0/</url>
+    <content><![CDATA[<p>通过<code>requests</code>库实现自动签到，并使用<code>企业微信</code>消息推送                                                                        </p>
+<h1 id="原神自动签到"><a href="#原神自动签到" class="headerlink" title="原神自动签到"></a>原神自动签到</h1><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># _*_ coding: utf-8 _*_</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">Author: Hikaru199</span></span><br><span class="line"><span class="string">Date: 2021-11-20</span></span><br><span class="line"><span class="string">wechat: Hikaru-199</span></span><br><span class="line"><span class="string">function： </span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="keyword">import</span> hashlib</span><br><span class="line"><span class="keyword">import</span> json</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> random</span><br><span class="line"><span class="keyword">import</span> string</span><br><span class="line"><span class="keyword">import</span> uuid</span><br><span class="line"><span class="keyword">from</span> datetime <span class="keyword">import</span> date</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line"><span class="comment"># 固定变量</span></span><br><span class="line"><span class="comment"># 米游社的Salt</span></span><br><span class="line">mihoyobbs_Salt = <span class="string">&quot;fd3ykrh7o1j54g581upo1tvpam0dsgtf&quot;</span></span><br><span class="line">mihoyobbs_Salt_web = <span class="string">&quot;14bmu1mz0yuljprsfgpvjh3ju2ni468r&quot;</span></span><br><span class="line">mihoyobbs_Salt_web_old = <span class="string">&quot;h8w582wxwgqvahcdkpvdhbh2w9casgfl&quot;</span></span><br><span class="line"><span class="comment"># 米游社的版本</span></span><br><span class="line">mihoyobbs_Version = <span class="string">&quot;2.7.0&quot;</span>  <span class="comment"># Slat和Version相互对应</span></span><br><span class="line">mihoyobbs_Version_old = <span class="string">&quot;2.3.0&quot;</span></span><br><span class="line"><span class="comment"># 米游社的客户端类型</span></span><br><span class="line">mihoyobbs_Client_type = <span class="string">&quot;2&quot;</span>  <span class="comment"># 1为ios 2为安卓</span></span><br><span class="line">mihoyobbs_Client_type_web = <span class="string">&quot;5&quot;</span>  <span class="comment"># 4为pc web 5为mobile web</span></span><br><span class="line"><span class="comment"># 原神自动签到相关的设置</span></span><br><span class="line">genshin_Act_id = <span class="string">&quot;e202009291139501&quot;</span></span><br><span class="line">genshin_Account_info_url = <span class="string">&quot;https://api-takumi.mihoyo.com/binding/api/getUserGameRolesByCookie?game_biz=hk4e_cn&quot;</span></span><br><span class="line">genshin_Signlisturl = <span class="string">&quot;https://api-takumi.mihoyo.com/event/bbs_sign_reward/home?act_id=&#123;&#125;&quot;</span></span><br><span class="line">genshin_Is_signurl = <span class="string">&quot;https://api-takumi.mihoyo.com/event/bbs_sign_reward/info?act_id=&#123;&#125;&amp;region=&#123;&#125;&amp;uid=&#123;&#125;&quot;</span></span><br><span class="line">genshin_Signurl = <span class="string">&quot;https://api-takumi.mihoyo.com/event/bbs_sign_reward/sign&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 可变变量</span></span><br><span class="line"><span class="comment"># 企业微信配置</span></span><br><span class="line">corpid = <span class="string">&#x27;&#x27;</span>  <span class="comment"># 企业ID</span></span><br><span class="line">SECRET = <span class="string">&#x27;&#x27;</span>  <span class="comment"># 应用的凭证密钥secret</span></span><br><span class="line">agentid = <span class="string">&#x27;&#x27;</span>  <span class="comment"># 企业应用的id</span></span><br><span class="line">nameid = <span class="string">&#x27;&#x27;</span>  <span class="comment"># nameid企业微信用户id</span></span><br><span class="line"><span class="comment"># Cookies 可多账号签到</span></span><br><span class="line">mihoyobbs_Cookies = [</span><br><span class="line">    <span class="string">&quot;cookies_1&quot;</span>,</span><br><span class="line">    <span class="string">&quot;cookies_2&quot;</span>]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取绑定的账号列表</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_account_list</span>(<span class="params">cookies</span>):</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;正在获取米哈游账号绑定原神账号列表...&quot;</span>)</span><br><span class="line">    temp_list = []</span><br><span class="line">    genshin_Account_info_url = <span class="string">&quot;https://api-takumi.mihoyo.com/binding/api/getUserGameRolesByCookie?game_biz=hk4e_cn&quot;</span></span><br><span class="line">    req = requests.get(genshin_Account_info_url, headers=headers(cookies))</span><br><span class="line">    data = req.json()</span><br><span class="line">    <span class="keyword">if</span> data[<span class="string">&quot;retcode&quot;</span>] != <span class="number">0</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;获取账号列表失败！&quot;</span>)</span><br><span class="line">        <span class="comment"># genshin_Auto_sign = False</span></span><br><span class="line">        <span class="comment"># config.save_config()</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;米游社Cookie配置错误！&quot;</span>)</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> data[<span class="string">&quot;data&quot;</span>][<span class="string">&quot;list&quot;</span>]:</span><br><span class="line">        temp_list.append([i[<span class="string">&quot;nickname&quot;</span>], i[<span class="string">&quot;game_uid&quot;</span>], i[<span class="string">&quot;region&quot;</span>]])</span><br><span class="line">    <span class="comment"># print(f&quot;已获取到&#123;len(temp_list)&#125;个原神账号信息&quot;)</span></span><br><span class="line">    <span class="keyword">return</span> temp_list</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取已经签到奖励列表</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_signgive</span>(<span class="params">cookies</span>) -&gt; <span class="built_in">list</span>:</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;正在获取签到奖励列表...&quot;</span>)</span><br><span class="line">    req = requests.get(genshin_Signlisturl.<span class="built_in">format</span>(genshin_Act_id), headers=headers(cookies))</span><br><span class="line">    data = req.json()</span><br><span class="line">    <span class="keyword">if</span> data[<span class="string">&quot;retcode&quot;</span>] != <span class="number">0</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;获取签到奖励列表失败&quot;</span>)</span><br><span class="line">        <span class="built_in">print</span>(req.text)</span><br><span class="line">    <span class="keyword">return</span> data[<span class="string">&quot;data&quot;</span>][<span class="string">&quot;awards&quot;</span>]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 判断签到</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">is_sign</span>(<span class="params">cookies, region: <span class="built_in">str</span>, uid: <span class="built_in">str</span></span>):</span></span><br><span class="line">    req = requests.get(genshin_Is_signurl.<span class="built_in">format</span>(genshin_Act_id, region, uid), headers=headers(cookies))</span><br><span class="line">    data = req.json()</span><br><span class="line">    <span class="keyword">if</span> data[<span class="string">&quot;retcode&quot;</span>] != <span class="number">0</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;获取账号签到信息失败！&quot;</span>)</span><br><span class="line">        <span class="built_in">print</span>(req.text)</span><br><span class="line">        <span class="comment"># genshin_Auto_sign = False</span></span><br><span class="line">        <span class="comment"># config.save_config()</span></span><br><span class="line">        <span class="comment"># raise CookieError(&quot;BBS Cookie Errror&quot;)</span></span><br><span class="line">    <span class="keyword">return</span> data[<span class="string">&quot;data&quot;</span>]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 签到</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">sign_account</span>(<span class="params">cookies</span>):</span></span><br><span class="line">    acc_List = get_account_list(cookies)</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(acc_List) != <span class="number">0</span>:</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> acc_List:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">f&quot;正在为旅行者<span class="subst">&#123;i[<span class="number">0</span>]&#125;</span>进行签到...&quot;</span>)</span><br><span class="line">            time.sleep(random.randint(<span class="number">2</span>, <span class="number">8</span>))</span><br><span class="line">            is_data = is_sign(cookies, region=i[<span class="number">2</span>], uid=i[<span class="number">1</span>])</span><br><span class="line">            <span class="keyword">if</span> is_data[<span class="string">&quot;first_bind&quot;</span>]:</span><br><span class="line">                <span class="built_in">print</span>(<span class="string">f&quot;旅行者<span class="subst">&#123;i[<span class="number">0</span>]&#125;</span>是第一次绑定米游社，请先手动签到一次&quot;</span>)</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                sign_days = is_data[<span class="string">&quot;total_sign_day&quot;</span>] - <span class="number">1</span></span><br><span class="line">                ok = <span class="literal">True</span></span><br><span class="line">                <span class="keyword">if</span> is_data[<span class="string">&quot;is_sign&quot;</span>]:</span><br><span class="line">                    <span class="built_in">print</span>(<span class="string">f&quot;旅行者<span class="subst">&#123;i[<span class="number">0</span>]&#125;</span>今天已经签到过了~\r\n今天获得的奖励是<span class="subst">&#123;get_item(get_signgive(cookies)[sign_days])&#125;</span>&quot;</span>)</span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    time.sleep(random.randint(<span class="number">2</span>, <span class="number">8</span>))</span><br><span class="line">                    req = requests.post(url=genshin_Signurl, headers=headers(cookies),</span><br><span class="line">                                        json=&#123;<span class="string">&#x27;act_id&#x27;</span>: genshin_Act_id, <span class="string">&#x27;region&#x27;</span>: i[<span class="number">2</span>], <span class="string">&#x27;uid&#x27;</span>: i[<span class="number">1</span>]&#125;)</span><br><span class="line">                    data = req.json()</span><br><span class="line">                    <span class="keyword">if</span> data[<span class="string">&quot;retcode&quot;</span>] == <span class="number">0</span>:</span><br><span class="line">                        <span class="built_in">print</span>(</span><br><span class="line">                            <span class="string">f&quot;旅行者<span class="subst">&#123;i[<span class="number">0</span>]&#125;</span>签到成功~\r\n今天获得的奖励是<span class="subst">&#123;get_item(get_signgive(cookies)[<span class="number">0</span> <span class="keyword">if</span> sign_days == <span class="number">0</span> <span class="keyword">else</span> sign_days + <span class="number">1</span>])&#125;</span>&quot;</span>)</span><br><span class="line">                        sign_days += <span class="number">1</span></span><br><span class="line">                    <span class="keyword">elif</span> data[<span class="string">&quot;retcode&quot;</span>] == -<span class="number">5003</span>:</span><br><span class="line">                        <span class="built_in">print</span>(<span class="string">f&quot;旅行者<span class="subst">&#123;i[<span class="number">0</span>]&#125;</span>今天已经签到过了~\r\n今天获得的奖励是<span class="subst">&#123;get_item(get_signgive(cookies)[sign_days])&#125;</span>&quot;</span>)</span><br><span class="line">                    <span class="keyword">else</span>:</span><br><span class="line">                        <span class="built_in">print</span>(<span class="string">&quot;账号签到失败！&quot;</span>)</span><br><span class="line">                        <span class="built_in">print</span>(req.text)</span><br><span class="line">                        ok = <span class="literal">False</span></span><br><span class="line">                <span class="keyword">if</span> ok:</span><br><span class="line">                    <span class="keyword">if</span> i[<span class="number">2</span>] == <span class="string">&quot;cn_gf01&quot;</span>:</span><br><span class="line">                        gf_server = <span class="string">&quot;天空岛&quot;</span></span><br><span class="line">                    <span class="keyword">elif</span> i[<span class="number">2</span>] == <span class="string">&quot;cn_qd01&quot;</span>:</span><br><span class="line">                        gf_server = <span class="string">&quot;世界树&quot;</span></span><br><span class="line">                    return_data = <span class="string">f&quot;\n[用户昵称]：<span class="subst">&#123;i[<span class="number">0</span>]&#125;</span>\n    ┣━[<span class="subst">&#123;gf_server&#125;</span>]：<span class="subst">&#123;i[<span class="number">1</span>]&#125;</span>\n    ┣━[签到状态]：签到成功\n    ┣━[今日奖励]：<span class="subst">&#123;get_item(get_signgive(cookies)[sign_days])&#125;</span>\n    ┗━[本月累签]：<span class="subst">&#123;sign_days + <span class="number">1</span>&#125;</span>天&quot;</span></span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    return_data = <span class="string">f&quot;\n[用户昵称]：<span class="subst">&#123;i[<span class="number">0</span>]&#125;</span>\n    ┣━[<span class="subst">&#123;gf_server&#125;</span>]：<span class="subst">&#123;i[<span class="number">1</span>]&#125;</span>\n    ┗━[签到状态]：签到失败&quot;</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;账号没有绑定任何原神账号！&quot;</span>)</span><br><span class="line">        return_data = <span class="string">&quot;\n并没有绑定任何原神账号&quot;</span></span><br><span class="line">    <span class="keyword">return</span> return_data</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 请求头</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">headers</span>(<span class="params">cookies</span>):</span></span><br><span class="line">    headers = &#123;</span><br><span class="line">        <span class="string">&#x27;Accept&#x27;</span>: <span class="string">&#x27;application/json, text/plain, */*&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;DS&#x27;</span>: get_ds(web=<span class="literal">True</span>, web_old=<span class="literal">True</span>),</span><br><span class="line">        <span class="string">&#x27;Origin&#x27;</span>: <span class="string">&#x27;https://webstatic.mihoyo.com&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;x-rpc-app_version&#x27;</span>: mihoyobbs_Version_old,</span><br><span class="line">        <span class="string">&#x27;User-Agent&#x27;</span>: <span class="string">&#x27;Mozilla/5.0 (Linux; Android 9; Unspecified Device) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/39.0.0.0 Mobile Safari/537.36 miHoYoBBS/2.3.0&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;x-rpc-client_type&#x27;</span>: mihoyobbs_Client_type_web,</span><br><span class="line">        <span class="string">&#x27;Referer&#x27;</span>: <span class="string">&#x27;https://webstatic.mihoyo.com/bbs/event/signin-ys/index.html?bbs_auth_required=true&amp;act_id=e202009291139501&amp;utm_source=bbs&amp;utm_medium=mys&amp;utm_campaign=icon&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;Accept-Encoding&#x27;</span>: <span class="string">&#x27;gzip, deflate&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;Accept-Language&#x27;</span>: <span class="string">&#x27;zh-CN,en-US;q=0.8&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;X-Requested-With&#x27;</span>: <span class="string">&#x27;com.mihoyo.hyperion&#x27;</span>,</span><br><span class="line">        <span class="string">&quot;Cookie&quot;</span>: cookies,</span><br><span class="line">        <span class="string">&#x27;x-rpc-device_id&#x27;</span>: get_device_id(cookies)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> headers</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 企业微信应用推送</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">workweixi</span>(<span class="params">message</span>):</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;企业微信应用推送开始&quot;</span>)</span><br><span class="line">    url0 = <span class="string">&quot;https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=&#123;0&#125;&amp;corpsecret=&#123;1&#125;&quot;</span>.<span class="built_in">format</span>(corpid, SECRET)</span><br><span class="line">    r = requests.get(url=url0)</span><br><span class="line">    c = r.json()</span><br><span class="line">    bb = c[<span class="string">&#x27;access_token&#x27;</span>]</span><br><span class="line">    url1 = <span class="string">&quot;https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=&#123;&#125;&quot;</span>.<span class="built_in">format</span>(bb)</span><br><span class="line">    body = &#123;</span><br><span class="line">        <span class="string">&quot;touser&quot;</span>: nameid,</span><br><span class="line">        <span class="string">&quot;agentid&quot;</span>: agentid,</span><br><span class="line">        <span class="string">&quot;msgtype&quot;</span>: <span class="string">&quot;textcard&quot;</span>,</span><br><span class="line">        <span class="string">&quot;textcard&quot;</span>: &#123;</span><br><span class="line">            <span class="string">&quot;title&quot;</span>: <span class="string">&quot;签到提醒&quot;</span>,</span><br><span class="line">            <span class="string">&quot;description&quot;</span>: message,</span><br><span class="line">            <span class="string">&quot;url&quot;</span>: <span class="string">&quot;https://console.cloud.tencent.com/scf/list?rid=1&amp;ns=default&quot;</span>,</span><br><span class="line">            <span class="string">&quot;btntxt&quot;</span>: <span class="string">&quot;更多&quot;</span>,</span><br><span class="line">        &#125;,</span><br><span class="line">    &#125;</span><br><span class="line">    r = requests.post(url=url1, data=json.dumps(body))</span><br><span class="line">    a = r.json()</span><br><span class="line">    <span class="built_in">print</span>(a[<span class="string">&#x27;errmsg&#x27;</span>])</span><br><span class="line">    <span class="keyword">if</span> a[<span class="string">&#x27;errmsg&#x27;</span>] == <span class="string">&#x27;ok&#x27;</span>:</span><br><span class="line">        msg = <span class="string">&quot;推送成功&quot;</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        msg = <span class="string">&quot;推送失败&quot;</span></span><br><span class="line">    <span class="built_in">print</span>(msg)</span><br><span class="line">    <span class="keyword">return</span> msg</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 时间戳</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">timestamp</span>() -&gt; <span class="built_in">int</span>:</span></span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">int</span>(time.time())</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 随机文本</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">random_text</span>(<span class="params">num: <span class="built_in">int</span></span>) -&gt; <span class="built_in">str</span>:</span></span><br><span class="line">    <span class="keyword">return</span> <span class="string">&#x27;&#x27;</span>.join(random.sample(string.ascii_lowercase + string.digits, num))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># md5计算</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">md5</span>(<span class="params">text: <span class="built_in">str</span></span>) -&gt; <span class="built_in">str</span>:</span></span><br><span class="line">    md5 = hashlib.md5()</span><br><span class="line">    md5.update(text.encode())</span><br><span class="line">    <span class="keyword">return</span> md5.hexdigest()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成一个device id</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_device_id</span>(<span class="params">cookies</span>) -&gt; <span class="built_in">str</span>:</span></span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">str</span>(uuid.uuid3(uuid.NAMESPACE_URL, cookies)).replace(</span><br><span class="line">        <span class="string">&#x27;-&#x27;</span>, <span class="string">&#x27;&#x27;</span>).upper()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取请求Header里的DS 当web为true则生成网页端的DS</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_ds</span>(<span class="params">web: <span class="built_in">bool</span>, web_old: <span class="built_in">bool</span></span>) -&gt; <span class="built_in">str</span>:</span></span><br><span class="line">    <span class="keyword">if</span> web:</span><br><span class="line">        <span class="keyword">if</span> web_old:</span><br><span class="line">            n = mihoyobbs_Salt_web_old</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            n = mihoyobbs_Salt_web</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        n = mihoyobbs_Salt</span><br><span class="line">    i = <span class="built_in">str</span>(timestamp())</span><br><span class="line">    r = random_text(<span class="number">6</span>)</span><br><span class="line">    c = md5(<span class="string">&quot;salt=&quot;</span> + n + <span class="string">&quot;&amp;t=&quot;</span> + i + <span class="string">&quot;&amp;r=&quot;</span> + r)</span><br><span class="line">    <span class="keyword">return</span> <span class="string">f&quot;<span class="subst">&#123;i&#125;</span>,<span class="subst">&#123;r&#125;</span>,<span class="subst">&#123;c&#125;</span>&quot;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取签到的奖励名称</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_item</span>(<span class="params">raw_data: <span class="built_in">dict</span></span>) -&gt; <span class="built_in">str</span>:</span></span><br><span class="line">    temp_name = raw_data[<span class="string">&quot;name&quot;</span>]</span><br><span class="line">    temp_cnt = raw_data[<span class="string">&quot;cnt&quot;</span>]</span><br><span class="line">    <span class="keyword">return</span> <span class="string">f&quot;<span class="subst">&#123;temp_name&#125;</span>x<span class="subst">&#123;temp_cnt&#125;</span>&quot;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    date_today = date.today()</span><br><span class="line">    return_data = <span class="string">f&quot;[任务名称]：原神签到福利\n[签到时间]：<span class="subst">&#123;date_today&#125;</span>&quot;</span></span><br><span class="line">    <span class="keyword">for</span> cookies <span class="keyword">in</span> mihoyobbs_Cookies:</span><br><span class="line">        return_data += sign_account(cookies)</span><br><span class="line">    workweixi(return_data)</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>Python</category>
       </categories>
@@ -25,10 +25,10 @@
       </tags>
   </entry>
   <entry>
-    <title>Python · 原神自动签到</title>
-    <url>/2021/11/20/Python%C2%B7%E5%8E%9F%E7%A5%9E%E8%87%AA%E5%8A%A8%E7%AD%BE%E5%88%B0/</url>
-    <content><![CDATA[<p>通过<code>requests</code>库实现自动签到，并使用<code>企业微信</code>消息推送                                                                        </p>
-<h1 id="原神自动签到"><a href="#原神自动签到" class="headerlink" title="原神自动签到"></a>原神自动签到</h1><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># _*_ coding: utf-8 _*_</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">Author: Hikaru199</span></span><br><span class="line"><span class="string">Date: 2021-11-20</span></span><br><span class="line"><span class="string">wechat: Hikaru-199</span></span><br><span class="line"><span class="string">function： </span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="keyword">import</span> hashlib</span><br><span class="line"><span class="keyword">import</span> json</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> random</span><br><span class="line"><span class="keyword">import</span> string</span><br><span class="line"><span class="keyword">import</span> uuid</span><br><span class="line"><span class="keyword">from</span> datetime <span class="keyword">import</span> date</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line"><span class="comment"># 固定变量</span></span><br><span class="line"><span class="comment"># 米游社的Salt</span></span><br><span class="line">mihoyobbs_Salt = <span class="string">&quot;fd3ykrh7o1j54g581upo1tvpam0dsgtf&quot;</span></span><br><span class="line">mihoyobbs_Salt_web = <span class="string">&quot;14bmu1mz0yuljprsfgpvjh3ju2ni468r&quot;</span></span><br><span class="line">mihoyobbs_Salt_web_old = <span class="string">&quot;h8w582wxwgqvahcdkpvdhbh2w9casgfl&quot;</span></span><br><span class="line"><span class="comment"># 米游社的版本</span></span><br><span class="line">mihoyobbs_Version = <span class="string">&quot;2.7.0&quot;</span>  <span class="comment"># Slat和Version相互对应</span></span><br><span class="line">mihoyobbs_Version_old = <span class="string">&quot;2.3.0&quot;</span></span><br><span class="line"><span class="comment"># 米游社的客户端类型</span></span><br><span class="line">mihoyobbs_Client_type = <span class="string">&quot;2&quot;</span>  <span class="comment"># 1为ios 2为安卓</span></span><br><span class="line">mihoyobbs_Client_type_web = <span class="string">&quot;5&quot;</span>  <span class="comment"># 4为pc web 5为mobile web</span></span><br><span class="line"><span class="comment"># 原神自动签到相关的设置</span></span><br><span class="line">genshin_Act_id = <span class="string">&quot;e202009291139501&quot;</span></span><br><span class="line">genshin_Account_info_url = <span class="string">&quot;https://api-takumi.mihoyo.com/binding/api/getUserGameRolesByCookie?game_biz=hk4e_cn&quot;</span></span><br><span class="line">genshin_Signlisturl = <span class="string">&quot;https://api-takumi.mihoyo.com/event/bbs_sign_reward/home?act_id=&#123;&#125;&quot;</span></span><br><span class="line">genshin_Is_signurl = <span class="string">&quot;https://api-takumi.mihoyo.com/event/bbs_sign_reward/info?act_id=&#123;&#125;&amp;region=&#123;&#125;&amp;uid=&#123;&#125;&quot;</span></span><br><span class="line">genshin_Signurl = <span class="string">&quot;https://api-takumi.mihoyo.com/event/bbs_sign_reward/sign&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 可变变量</span></span><br><span class="line"><span class="comment"># 企业微信配置</span></span><br><span class="line">corpid = <span class="string">&#x27;&#x27;</span>  <span class="comment"># 企业ID</span></span><br><span class="line">SECRET = <span class="string">&#x27;&#x27;</span>  <span class="comment"># 应用的凭证密钥secret</span></span><br><span class="line">agentid = <span class="string">&#x27;&#x27;</span>  <span class="comment"># 企业应用的id</span></span><br><span class="line">nameid = <span class="string">&#x27;&#x27;</span>  <span class="comment"># nameid企业微信用户id</span></span><br><span class="line"><span class="comment"># Cookies 可多账号签到</span></span><br><span class="line">mihoyobbs_Cookies = [</span><br><span class="line">    <span class="string">&quot;cookies_1&quot;</span>,</span><br><span class="line">    <span class="string">&quot;cookies_2&quot;</span>]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取绑定的账号列表</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_account_list</span>(<span class="params">cookies</span>):</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;正在获取米哈游账号绑定原神账号列表...&quot;</span>)</span><br><span class="line">    temp_list = []</span><br><span class="line">    genshin_Account_info_url = <span class="string">&quot;https://api-takumi.mihoyo.com/binding/api/getUserGameRolesByCookie?game_biz=hk4e_cn&quot;</span></span><br><span class="line">    req = requests.get(genshin_Account_info_url, headers=headers(cookies))</span><br><span class="line">    data = req.json()</span><br><span class="line">    <span class="keyword">if</span> data[<span class="string">&quot;retcode&quot;</span>] != <span class="number">0</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;获取账号列表失败！&quot;</span>)</span><br><span class="line">        <span class="comment"># genshin_Auto_sign = False</span></span><br><span class="line">        <span class="comment"># config.save_config()</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;米游社Cookie配置错误！&quot;</span>)</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> data[<span class="string">&quot;data&quot;</span>][<span class="string">&quot;list&quot;</span>]:</span><br><span class="line">        temp_list.append([i[<span class="string">&quot;nickname&quot;</span>], i[<span class="string">&quot;game_uid&quot;</span>], i[<span class="string">&quot;region&quot;</span>]])</span><br><span class="line">    <span class="comment"># print(f&quot;已获取到&#123;len(temp_list)&#125;个原神账号信息&quot;)</span></span><br><span class="line">    <span class="keyword">return</span> temp_list</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取已经签到奖励列表</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_signgive</span>(<span class="params">cookies</span>) -&gt; <span class="built_in">list</span>:</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;正在获取签到奖励列表...&quot;</span>)</span><br><span class="line">    req = requests.get(genshin_Signlisturl.<span class="built_in">format</span>(genshin_Act_id), headers=headers(cookies))</span><br><span class="line">    data = req.json()</span><br><span class="line">    <span class="keyword">if</span> data[<span class="string">&quot;retcode&quot;</span>] != <span class="number">0</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;获取签到奖励列表失败&quot;</span>)</span><br><span class="line">        <span class="built_in">print</span>(req.text)</span><br><span class="line">    <span class="keyword">return</span> data[<span class="string">&quot;data&quot;</span>][<span class="string">&quot;awards&quot;</span>]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 判断签到</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">is_sign</span>(<span class="params">cookies, region: <span class="built_in">str</span>, uid: <span class="built_in">str</span></span>):</span></span><br><span class="line">    req = requests.get(genshin_Is_signurl.<span class="built_in">format</span>(genshin_Act_id, region, uid), headers=headers(cookies))</span><br><span class="line">    data = req.json()</span><br><span class="line">    <span class="keyword">if</span> data[<span class="string">&quot;retcode&quot;</span>] != <span class="number">0</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;获取账号签到信息失败！&quot;</span>)</span><br><span class="line">        <span class="built_in">print</span>(req.text)</span><br><span class="line">        <span class="comment"># genshin_Auto_sign = False</span></span><br><span class="line">        <span class="comment"># config.save_config()</span></span><br><span class="line">        <span class="comment"># raise CookieError(&quot;BBS Cookie Errror&quot;)</span></span><br><span class="line">    <span class="keyword">return</span> data[<span class="string">&quot;data&quot;</span>]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 签到</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">sign_account</span>(<span class="params">cookies</span>):</span></span><br><span class="line">    acc_List = get_account_list(cookies)</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(acc_List) != <span class="number">0</span>:</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> acc_List:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">f&quot;正在为旅行者<span class="subst">&#123;i[<span class="number">0</span>]&#125;</span>进行签到...&quot;</span>)</span><br><span class="line">            time.sleep(random.randint(<span class="number">2</span>, <span class="number">8</span>))</span><br><span class="line">            is_data = is_sign(cookies, region=i[<span class="number">2</span>], uid=i[<span class="number">1</span>])</span><br><span class="line">            <span class="keyword">if</span> is_data[<span class="string">&quot;first_bind&quot;</span>]:</span><br><span class="line">                <span class="built_in">print</span>(<span class="string">f&quot;旅行者<span class="subst">&#123;i[<span class="number">0</span>]&#125;</span>是第一次绑定米游社，请先手动签到一次&quot;</span>)</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                sign_days = is_data[<span class="string">&quot;total_sign_day&quot;</span>] - <span class="number">1</span></span><br><span class="line">                ok = <span class="literal">True</span></span><br><span class="line">                <span class="keyword">if</span> is_data[<span class="string">&quot;is_sign&quot;</span>]:</span><br><span class="line">                    <span class="built_in">print</span>(<span class="string">f&quot;旅行者<span class="subst">&#123;i[<span class="number">0</span>]&#125;</span>今天已经签到过了~\r\n今天获得的奖励是<span class="subst">&#123;get_item(get_signgive(cookies)[sign_days])&#125;</span>&quot;</span>)</span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    time.sleep(random.randint(<span class="number">2</span>, <span class="number">8</span>))</span><br><span class="line">                    req = requests.post(url=genshin_Signurl, headers=headers(cookies),</span><br><span class="line">                                        json=&#123;<span class="string">&#x27;act_id&#x27;</span>: genshin_Act_id, <span class="string">&#x27;region&#x27;</span>: i[<span class="number">2</span>], <span class="string">&#x27;uid&#x27;</span>: i[<span class="number">1</span>]&#125;)</span><br><span class="line">                    data = req.json()</span><br><span class="line">                    <span class="keyword">if</span> data[<span class="string">&quot;retcode&quot;</span>] == <span class="number">0</span>:</span><br><span class="line">                        <span class="built_in">print</span>(</span><br><span class="line">                            <span class="string">f&quot;旅行者<span class="subst">&#123;i[<span class="number">0</span>]&#125;</span>签到成功~\r\n今天获得的奖励是<span class="subst">&#123;get_item(get_signgive(cookies)[<span class="number">0</span> <span class="keyword">if</span> sign_days == <span class="number">0</span> <span class="keyword">else</span> sign_days + <span class="number">1</span>])&#125;</span>&quot;</span>)</span><br><span class="line">                        sign_days += <span class="number">1</span></span><br><span class="line">                    <span class="keyword">elif</span> data[<span class="string">&quot;retcode&quot;</span>] == -<span class="number">5003</span>:</span><br><span class="line">                        <span class="built_in">print</span>(<span class="string">f&quot;旅行者<span class="subst">&#123;i[<span class="number">0</span>]&#125;</span>今天已经签到过了~\r\n今天获得的奖励是<span class="subst">&#123;get_item(get_signgive(cookies)[sign_days])&#125;</span>&quot;</span>)</span><br><span class="line">                    <span class="keyword">else</span>:</span><br><span class="line">                        <span class="built_in">print</span>(<span class="string">&quot;账号签到失败！&quot;</span>)</span><br><span class="line">                        <span class="built_in">print</span>(req.text)</span><br><span class="line">                        ok = <span class="literal">False</span></span><br><span class="line">                <span class="keyword">if</span> ok:</span><br><span class="line">                    <span class="keyword">if</span> i[<span class="number">2</span>] == <span class="string">&quot;cn_gf01&quot;</span>:</span><br><span class="line">                        gf_server = <span class="string">&quot;天空岛&quot;</span></span><br><span class="line">                    <span class="keyword">elif</span> i[<span class="number">2</span>] == <span class="string">&quot;cn_qd01&quot;</span>:</span><br><span class="line">                        gf_server = <span class="string">&quot;世界树&quot;</span></span><br><span class="line">                    return_data = <span class="string">f&quot;\n[用户昵称]：<span class="subst">&#123;i[<span class="number">0</span>]&#125;</span>\n    ┣━[<span class="subst">&#123;gf_server&#125;</span>]：<span class="subst">&#123;i[<span class="number">1</span>]&#125;</span>\n    ┣━[签到状态]：签到成功\n    ┣━[今日奖励]：<span class="subst">&#123;get_item(get_signgive(cookies)[sign_days])&#125;</span>\n    ┗━[本月累签]：<span class="subst">&#123;sign_days + <span class="number">1</span>&#125;</span>天&quot;</span></span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    return_data = <span class="string">f&quot;\n[用户昵称]：<span class="subst">&#123;i[<span class="number">0</span>]&#125;</span>\n    ┣━[<span class="subst">&#123;gf_server&#125;</span>]：<span class="subst">&#123;i[<span class="number">1</span>]&#125;</span>\n    ┗━[签到状态]：签到失败&quot;</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;账号没有绑定任何原神账号！&quot;</span>)</span><br><span class="line">        return_data = <span class="string">&quot;\n并没有绑定任何原神账号&quot;</span></span><br><span class="line">    <span class="keyword">return</span> return_data</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 请求头</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">headers</span>(<span class="params">cookies</span>):</span></span><br><span class="line">    headers = &#123;</span><br><span class="line">        <span class="string">&#x27;Accept&#x27;</span>: <span class="string">&#x27;application/json, text/plain, */*&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;DS&#x27;</span>: get_ds(web=<span class="literal">True</span>, web_old=<span class="literal">True</span>),</span><br><span class="line">        <span class="string">&#x27;Origin&#x27;</span>: <span class="string">&#x27;https://webstatic.mihoyo.com&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;x-rpc-app_version&#x27;</span>: mihoyobbs_Version_old,</span><br><span class="line">        <span class="string">&#x27;User-Agent&#x27;</span>: <span class="string">&#x27;Mozilla/5.0 (Linux; Android 9; Unspecified Device) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/39.0.0.0 Mobile Safari/537.36 miHoYoBBS/2.3.0&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;x-rpc-client_type&#x27;</span>: mihoyobbs_Client_type_web,</span><br><span class="line">        <span class="string">&#x27;Referer&#x27;</span>: <span class="string">&#x27;https://webstatic.mihoyo.com/bbs/event/signin-ys/index.html?bbs_auth_required=true&amp;act_id=e202009291139501&amp;utm_source=bbs&amp;utm_medium=mys&amp;utm_campaign=icon&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;Accept-Encoding&#x27;</span>: <span class="string">&#x27;gzip, deflate&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;Accept-Language&#x27;</span>: <span class="string">&#x27;zh-CN,en-US;q=0.8&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;X-Requested-With&#x27;</span>: <span class="string">&#x27;com.mihoyo.hyperion&#x27;</span>,</span><br><span class="line">        <span class="string">&quot;Cookie&quot;</span>: cookies,</span><br><span class="line">        <span class="string">&#x27;x-rpc-device_id&#x27;</span>: get_device_id(cookies)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> headers</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 企业微信应用推送</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">workweixi</span>(<span class="params">message</span>):</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;企业微信应用推送开始&quot;</span>)</span><br><span class="line">    url0 = <span class="string">&quot;https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=&#123;0&#125;&amp;corpsecret=&#123;1&#125;&quot;</span>.<span class="built_in">format</span>(corpid, SECRET)</span><br><span class="line">    r = requests.get(url=url0)</span><br><span class="line">    c = r.json()</span><br><span class="line">    bb = c[<span class="string">&#x27;access_token&#x27;</span>]</span><br><span class="line">    url1 = <span class="string">&quot;https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=&#123;&#125;&quot;</span>.<span class="built_in">format</span>(bb)</span><br><span class="line">    body = &#123;</span><br><span class="line">        <span class="string">&quot;touser&quot;</span>: nameid,</span><br><span class="line">        <span class="string">&quot;agentid&quot;</span>: agentid,</span><br><span class="line">        <span class="string">&quot;msgtype&quot;</span>: <span class="string">&quot;textcard&quot;</span>,</span><br><span class="line">        <span class="string">&quot;textcard&quot;</span>: &#123;</span><br><span class="line">            <span class="string">&quot;title&quot;</span>: <span class="string">&quot;签到提醒&quot;</span>,</span><br><span class="line">            <span class="string">&quot;description&quot;</span>: message,</span><br><span class="line">            <span class="string">&quot;url&quot;</span>: <span class="string">&quot;https://console.cloud.tencent.com/scf/list?rid=1&amp;ns=default&quot;</span>,</span><br><span class="line">            <span class="string">&quot;btntxt&quot;</span>: <span class="string">&quot;更多&quot;</span>,</span><br><span class="line">        &#125;,</span><br><span class="line">    &#125;</span><br><span class="line">    r = requests.post(url=url1, data=json.dumps(body))</span><br><span class="line">    a = r.json()</span><br><span class="line">    <span class="built_in">print</span>(a[<span class="string">&#x27;errmsg&#x27;</span>])</span><br><span class="line">    <span class="keyword">if</span> a[<span class="string">&#x27;errmsg&#x27;</span>] == <span class="string">&#x27;ok&#x27;</span>:</span><br><span class="line">        msg = <span class="string">&quot;推送成功&quot;</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        msg = <span class="string">&quot;推送失败&quot;</span></span><br><span class="line">    <span class="built_in">print</span>(msg)</span><br><span class="line">    <span class="keyword">return</span> msg</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 时间戳</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">timestamp</span>() -&gt; <span class="built_in">int</span>:</span></span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">int</span>(time.time())</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 随机文本</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">random_text</span>(<span class="params">num: <span class="built_in">int</span></span>) -&gt; <span class="built_in">str</span>:</span></span><br><span class="line">    <span class="keyword">return</span> <span class="string">&#x27;&#x27;</span>.join(random.sample(string.ascii_lowercase + string.digits, num))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># md5计算</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">md5</span>(<span class="params">text: <span class="built_in">str</span></span>) -&gt; <span class="built_in">str</span>:</span></span><br><span class="line">    md5 = hashlib.md5()</span><br><span class="line">    md5.update(text.encode())</span><br><span class="line">    <span class="keyword">return</span> md5.hexdigest()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成一个device id</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_device_id</span>(<span class="params">cookies</span>) -&gt; <span class="built_in">str</span>:</span></span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">str</span>(uuid.uuid3(uuid.NAMESPACE_URL, cookies)).replace(</span><br><span class="line">        <span class="string">&#x27;-&#x27;</span>, <span class="string">&#x27;&#x27;</span>).upper()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取请求Header里的DS 当web为true则生成网页端的DS</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_ds</span>(<span class="params">web: <span class="built_in">bool</span>, web_old: <span class="built_in">bool</span></span>) -&gt; <span class="built_in">str</span>:</span></span><br><span class="line">    <span class="keyword">if</span> web:</span><br><span class="line">        <span class="keyword">if</span> web_old:</span><br><span class="line">            n = mihoyobbs_Salt_web_old</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            n = mihoyobbs_Salt_web</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        n = mihoyobbs_Salt</span><br><span class="line">    i = <span class="built_in">str</span>(timestamp())</span><br><span class="line">    r = random_text(<span class="number">6</span>)</span><br><span class="line">    c = md5(<span class="string">&quot;salt=&quot;</span> + n + <span class="string">&quot;&amp;t=&quot;</span> + i + <span class="string">&quot;&amp;r=&quot;</span> + r)</span><br><span class="line">    <span class="keyword">return</span> <span class="string">f&quot;<span class="subst">&#123;i&#125;</span>,<span class="subst">&#123;r&#125;</span>,<span class="subst">&#123;c&#125;</span>&quot;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取签到的奖励名称</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_item</span>(<span class="params">raw_data: <span class="built_in">dict</span></span>) -&gt; <span class="built_in">str</span>:</span></span><br><span class="line">    temp_name = raw_data[<span class="string">&quot;name&quot;</span>]</span><br><span class="line">    temp_cnt = raw_data[<span class="string">&quot;cnt&quot;</span>]</span><br><span class="line">    <span class="keyword">return</span> <span class="string">f&quot;<span class="subst">&#123;temp_name&#125;</span>x<span class="subst">&#123;temp_cnt&#125;</span>&quot;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    date_today = date.today()</span><br><span class="line">    return_data = <span class="string">f&quot;[任务名称]：原神签到福利\n[签到时间]：<span class="subst">&#123;date_today&#125;</span>&quot;</span></span><br><span class="line">    <span class="keyword">for</span> cookies <span class="keyword">in</span> mihoyobbs_Cookies:</span><br><span class="line">        return_data += sign_account(cookies)</span><br><span class="line">    workweixi(return_data)</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>]]></content>
+    <title>Python · 原神微博超话签到活动监测</title>
+    <url>/2021/11/21/Python%C2%B7%E5%8E%9F%E7%A5%9E%E5%BE%AE%E5%8D%9A%E8%B6%85%E8%AF%9D%E7%AD%BE%E5%88%B0%E6%B4%BB%E5%8A%A8%E7%9B%91%E6%B5%8B/</url>
+    <content><![CDATA[<p>通过<code>requests</code>库实现原神微博超话签到活动监测并自动签到领取                                                                        </p>
+<h1 id="原神微博超话签到活动监测"><a href="#原神微博超话签到活动监测" class="headerlink" title="原神微博超话签到活动监测"></a>原神微博超话签到活动监测</h1><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># _*_ coding: utf-8 _*_</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">Author: Hikaru199</span></span><br><span class="line"><span class="string">Date: 2021-11-21</span></span><br><span class="line"><span class="string">wechat: Hikaru-199</span></span><br><span class="line"><span class="string">function： </span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="keyword">import</span> json</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">from</span> datetime <span class="keyword">import</span> date</span><br><span class="line"><span class="keyword">from</span> time <span class="keyword">import</span> sleep</span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line"><span class="comment"># 固定参数</span></span><br><span class="line">CONTAINER_ID = <span class="string">&#x27;100808fc439dedbb06ca5fd858848e521b8716&#x27;</span></span><br><span class="line">SUPER_URL = <span class="string">&#x27;https://m.weibo.cn/api/container/getIndex?containerid=&#123;&#125;&#x27;</span>.<span class="built_in">format</span>(<span class="string">&#x27;100803_-_page_my_follow_super&#x27;</span>)</span><br><span class="line">YS_URL = <span class="string">&#x27;https://m.weibo.cn/api/container/getIndex?containerid=&#123;&#125;_-_activity_list&#x27;</span>.<span class="built_in">format</span>(CONTAINER_ID)</span><br><span class="line">KA_URL = <span class="string">&#x27;https://ka.sina.com.cn/innerapi/draw&#x27;</span></span><br><span class="line">BOX_URL = <span class="string">&#x27;https://ka.sina.com.cn/html5/mybox&#x27;</span></span><br><span class="line">WB_USER_AGENT = <span class="string">&#x27;Mozilla/5.0 (iPhone; CPU iPhone OS 14_0_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E150&#x27;</span></span><br><span class="line"><span class="comment"># 企业微信配置</span></span><br><span class="line">corpid = <span class="string">&#x27;ww84e00679b9595cda&#x27;</span>  <span class="comment"># 企业ID</span></span><br><span class="line">SECRET = <span class="string">&#x27;lhBV0rgftwnBhd5XtWgo0w3XNdsZa6o6VL3x8uLrSj8&#x27;</span>  <span class="comment"># 应用的凭证密钥secret</span></span><br><span class="line">agentid = <span class="string">&#x27;1000008&#x27;</span>  <span class="comment"># 企业应用的id</span></span><br><span class="line">nameid = <span class="string">&#x27;LuoGengGuang&#x27;</span>  <span class="comment"># nameid企业微信用户id</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 变量</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">Sina COOKIE</span></span><br><span class="line"><span class="string">    :param WB_COOKIE: 新浪微博的COOKIE.前往  https://m.weibo.cn 获取.</span></span><br><span class="line"><span class="string">    :param KA_COOKIE: 抓包获取的COOKIE https://games.weibo.cn.</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line">wb_from = <span class="string">&#x27;10B9195010&#x27;</span></span><br><span class="line">wb_aid = <span class="string">&quot;01A4H-ENXJeGZgXIbGf72AI6T5q66dyshUviWoFOH0eSexQFo.&quot;</span></span><br><span class="line">wb_cookie = <span class="string">&quot;WEIBOCN_FROM=1110006030; loginScene=102003; SUB=_2A25PCbzlDeRhGeBL7VoY9y_OzjuIHXVs9cStrDV6PUJbkdCOLUnjkW1NRvICljh3X2hehK-vhpWapzwaYhDtdbla; _T_WM=41088849483; XSRF-TOKEN=71365f; MLOGIN=1; M_WEIBOCN_PARAMS=luicode%3D10000011%26lfid%3D102803%26uicode%3D20000174; &quot;</span></span><br><span class="line">ka_cookie = <span class="string">&quot;SUB=_2A25PCKa3DeRhGeBL7VoY9y_OzjuIHXVsRdT_rDV6PUJbitCOLU_DkWtNRvIClg-4NH8HURJT0hqKqs9UGAsMM1c9; SUBP=0033WrSXqPxfM725Ws9jqgMF55529P9D9WWW0gy7GSi5VfnvbyfaCImO5NHD95QcSKqR1KMpeo-NWs4DqcjMi--NiK.Xi-2Ri--ciKnRi-zNSo-c1h.NeKzfS7tt; SCF=ArOQy090RkhaiEcwDdv2tcKijBQrjealqVXijJKvhKFlDrRECO6sAaioD86du2XDbQ..; TV-G0=b6c8216bfa9ffbdce318f2b7d7161b67; _T_WM=80727813516; WEIBOCN_FROM=1110005030&quot;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 请求头</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_header</span>():</span></span><br><span class="line">    header = &#123;</span><br><span class="line">        <span class="string">&#x27;User-Agent&#x27;</span>: WB_USER_AGENT,</span><br><span class="line">        <span class="string">&#x27;Referer&#x27;</span>: <span class="string">&#x27;https://m.weibo.cn&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;Cookie&#x27;</span>: wb_cookie</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> header</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取超话列表</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_super_list</span>():</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;准备获取超话列表...&#x27;</span>)</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        response = requests.get(SUPER_URL, headers=get_header(), allow_redirects=<span class="literal">False</span>)</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        <span class="built_in">print</span>(e)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">if</span> response.status_code == <span class="number">200</span>:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&#x27;超话列表获取成功...&#x27;</span>)</span><br><span class="line">            <span class="keyword">return</span> json.loads(response.text)</span><br><span class="line">        <span class="keyword">elif</span> response.status_code == <span class="number">302</span>:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&#x27;登录可能失效, 尝试重新登录...&#x27;</span>)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&#x27;超话列表获取失败...&#x27;</span>)</span><br><span class="line">    <span class="comment"># print(&#x27;超话列表获取完毕&#x27;)</span></span><br><span class="line">    <span class="keyword">return</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取个人数据与签到地址</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">resolve_data</span>():</span></span><br><span class="line">    super_list = get_super_list()</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> super_list:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&#x27;取消解析数据信息&#x27;</span>)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;准备解析数据信息...&#x27;</span>)</span><br><span class="line">    follow_list = []</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        card_group = super_list[<span class="string">&#x27;data&#x27;</span>][<span class="string">&#x27;cards&#x27;</span>][<span class="number">0</span>][<span class="string">&#x27;card_group&#x27;</span>][<span class="number">1</span>:-<span class="number">1</span>]</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        <span class="built_in">print</span>(e)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">for</span> card <span class="keyword">in</span> card_group:</span><br><span class="line">            follow = &#123;</span><br><span class="line">                <span class="string">&#x27;title_sub&#x27;</span>: card[<span class="string">&#x27;title_sub&#x27;</span>],</span><br><span class="line">                <span class="string">&#x27;containerid&#x27;</span>: card[<span class="string">&#x27;scheme&#x27;</span>].split(<span class="string">&#x27;&amp;&#x27;</span>)[<span class="number">0</span>].split(<span class="string">&#x27;=&#x27;</span>)[<span class="number">1</span>],</span><br><span class="line">                <span class="string">&#x27;lv&#x27;</span>: <span class="built_in">int</span>(re.findall(<span class="string">&#x27;\d+&#x27;</span>, card[<span class="string">&#x27;desc1&#x27;</span>])[<span class="number">0</span>]),</span><br><span class="line">                <span class="string">&#x27;is_sign&#x27;</span>: card[<span class="string">&#x27;buttons&#x27;</span>][<span class="number">0</span>][<span class="string">&#x27;name&#x27;</span>],</span><br><span class="line">                <span class="string">&#x27;sign_url&#x27;</span>: <span class="literal">False</span></span><br><span class="line">            &#125;</span><br><span class="line">            scheme = card[<span class="string">&#x27;buttons&#x27;</span>][<span class="number">0</span>][<span class="string">&#x27;scheme&#x27;</span>]</span><br><span class="line">            <span class="keyword">if</span> scheme:</span><br><span class="line">                follow[<span class="string">&#x27;sign_url&#x27;</span>] = <span class="string">f&#x27;https://m.weibo.cn<span class="subst">&#123;scheme&#125;</span>&#x27;</span></span><br><span class="line">            follow_list.append(follow)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&#x27;解析到 <span class="subst">&#123;<span class="built_in">len</span>(follow_list)&#125;</span> 条数据&#x27;</span>)</span><br><span class="line">    <span class="keyword">if</span> follow_list:</span><br><span class="line">        <span class="keyword">for</span> follow <span class="keyword">in</span> follow_list:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">f&#x27;[Lv.<span class="subst">&#123;follow[<span class="string">&quot;lv&quot;</span>]&#125;</span>]<span class="subst">&#123;follow[<span class="string">&quot;title_sub&quot;</span>]&#125;</span>&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;数据信息解析完毕&#x27;</span>)</span><br><span class="line">    <span class="keyword">return</span> follow_list</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 超话签到</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">super_sign</span>():</span></span><br><span class="line">    follow_list = resolve_data()</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> follow_list:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&#x27;取消微博超话签到&#x27;</span>)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    <span class="keyword">for</span> follow <span class="keyword">in</span> follow_list:</span><br><span class="line">        lv = <span class="string">f&#x27;[Lv.<span class="subst">&#123;follow[<span class="string">&quot;lv&quot;</span>]&#125;</span>]&#x27;</span></span><br><span class="line">        name = follow[<span class="string">&#x27;title_sub&#x27;</span>]</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&#x27;准备为 <span class="subst">&#123;name&#125;</span> 超话签到...&#x27;</span>)</span><br><span class="line">        sleep(<span class="number">5</span>)</span><br><span class="line">        <span class="keyword">if</span> follow[<span class="string">&#x27;is_sign&#x27;</span>] == <span class="string">&#x27;已签&#x27;</span>:</span><br><span class="line">            result = <span class="string">f&#x27;<span class="subst">&#123;lv&#125;</span><span class="subst">&#123;name&#125;</span>: 已经签到过了哦&#x27;</span></span><br><span class="line">            <span class="built_in">print</span>(result)</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line">        <span class="keyword">elif</span> follow[<span class="string">&#x27;is_sign&#x27;</span>] == <span class="string">&#x27;签到&#x27;</span>:</span><br><span class="line">            url = follow[<span class="string">&#x27;sign_url&#x27;</span>]</span><br><span class="line">            <span class="keyword">try</span>:</span><br><span class="line">                response = json.loads(requests.post(url, headers=get_header()).text)</span><br><span class="line">            <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">                <span class="built_in">print</span>(e)</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                <span class="keyword">if</span> response[<span class="string">&#x27;ok&#x27;</span>] == <span class="number">1</span>:</span><br><span class="line">                    result = <span class="string">f&#x27;<span class="subst">&#123;lv&#125;</span><span class="subst">&#123;name&#125;</span>: 签到成功&#x27;</span></span><br><span class="line">                    <span class="built_in">print</span>(result)</span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    result= <span class="string">f&#x27;<span class="subst">&#123;lv&#125;</span><span class="subst">&#123;name&#125;</span>: 签到失败\n<span class="subst">&#123;response&#125;</span>&#x27;</span></span><br><span class="line">                    <span class="built_in">print</span>(result)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;微博超话签到完毕&#x27;</span>)</span><br><span class="line">    <span class="keyword">return</span> result</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># Cookies 转 dict</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">cookie_to_dict</span>(<span class="params">cookie</span>):</span></span><br><span class="line">    cookies = &#123;&#125;</span><br><span class="line">    <span class="keyword">for</span> item <span class="keyword">in</span> cookie.split(<span class="string">&quot;; &quot;</span>):</span><br><span class="line">        <span class="keyword">if</span> item == <span class="string">&#x27;&#x27;</span>:</span><br><span class="line">            <span class="keyword">pass</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            cookies[item.split(<span class="string">&#x27;=&#x27;</span>)[<span class="number">0</span>]] = item.split(<span class="string">&#x27;=&#x27;</span>)[<span class="number">1</span>]</span><br><span class="line">    <span class="keyword">return</span> cookies</span><br><span class="line"><span class="comment"># -------------------------------------------------------</span></span><br><span class="line"><span class="comment"># 获取活动信息</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_id</span>():</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;准备获取活动信息...&#x27;</span>)</span><br><span class="line">    id_list = []</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        response = json.loads(requests.get(YS_URL, headers=get_header()).text)</span><br><span class="line">        <span class="keyword">for</span> item <span class="keyword">in</span> response[<span class="string">&#x27;data&#x27;</span>][<span class="string">&#x27;cards&#x27;</span>]:</span><br><span class="line">            <span class="keyword">if</span> <span class="string">&#x27;group&#x27;</span> <span class="keyword">in</span> item[<span class="string">&#x27;card_group&#x27;</span>][<span class="number">0</span>]:</span><br><span class="line">                group = item[<span class="string">&#x27;card_group&#x27;</span>][<span class="number">0</span>][<span class="string">&#x27;group&#x27;</span>]</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&#x27;活动信息获取失败:<span class="subst">&#123;e&#125;</span>&#x27;</span>)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">for</span> ids <span class="keyword">in</span> group:</span><br><span class="line">            <span class="comment"># print(ids)</span></span><br><span class="line">            <span class="keyword">if</span> <span class="string">&#x27;签到&#x27;</span> <span class="keyword">in</span> ids.get(<span class="string">&#x27;title_sub&#x27;</span>, <span class="string">&#x27;&#x27;</span>):</span><br><span class="line">                <span class="built_in">id</span> = <span class="built_in">str</span>(ids[<span class="string">&#x27;scheme&#x27;</span>])</span><br><span class="line">                <span class="built_in">id</span> = <span class="built_in">id</span>[<span class="built_in">id</span>.index(<span class="string">&#x27;ticket_id%253D&#x27;</span>):<span class="built_in">id</span>.index(<span class="string">&#x27;%2526ext&#x27;</span>)].replace(<span class="string">&#x27;ticket_id%253D&#x27;</span>, <span class="string">&#x27;&#x27;</span>)</span><br><span class="line">                id_list.append(<span class="built_in">id</span>)</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> id_list:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&#x27;原神超话暂无活动&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;活动信息获取完毕&#x27;</span>)</span><br><span class="line">    <span class="comment"># print(id_list)</span></span><br><span class="line">    <span class="keyword">return</span> id_list</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 企业微信应用推送</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">workweixi</span>(<span class="params">message</span>):</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;企业微信应用推送开始&quot;</span>)</span><br><span class="line">    url0 = <span class="string">&quot;https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=&#123;0&#125;&amp;corpsecret=&#123;1&#125;&quot;</span>.<span class="built_in">format</span>(corpid, SECRET)</span><br><span class="line">    r = requests.get(url=url0)</span><br><span class="line">    c = r.json()</span><br><span class="line">    bb = c[<span class="string">&#x27;access_token&#x27;</span>]</span><br><span class="line">    url1 = <span class="string">&quot;https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=&#123;&#125;&quot;</span>.<span class="built_in">format</span>(bb)</span><br><span class="line">    body = &#123;</span><br><span class="line">        <span class="string">&quot;touser&quot;</span>: nameid,</span><br><span class="line">        <span class="string">&quot;agentid&quot;</span>: agentid,</span><br><span class="line">        <span class="string">&quot;msgtype&quot;</span>: <span class="string">&quot;textcard&quot;</span>,</span><br><span class="line">        <span class="string">&quot;textcard&quot;</span>: &#123;</span><br><span class="line">            <span class="string">&quot;title&quot;</span>: <span class="string">&quot;微博超话提醒&quot;</span>,</span><br><span class="line">            <span class="string">&quot;description&quot;</span>: message,</span><br><span class="line">            <span class="string">&quot;url&quot;</span>: <span class="string">&quot;https://m.weibo.cn/&quot;</span>,</span><br><span class="line">            <span class="string">&quot;btntxt&quot;</span>: <span class="string">&quot;更多&quot;</span>,</span><br><span class="line">        &#125;,</span><br><span class="line">    &#125;</span><br><span class="line">    r = requests.post(url=url1, data=json.dumps(body))</span><br><span class="line">    a = r.json()</span><br><span class="line">    <span class="built_in">print</span>(a[<span class="string">&#x27;errmsg&#x27;</span>])</span><br><span class="line">    <span class="keyword">if</span> a[<span class="string">&#x27;errmsg&#x27;</span>] == <span class="string">&#x27;ok&#x27;</span>:</span><br><span class="line">        msg = <span class="string">&quot;推送成功&quot;</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        msg = <span class="string">&quot;推送失败&quot;</span></span><br><span class="line">    <span class="built_in">print</span>(msg)</span><br><span class="line">    <span class="keyword">return</span> msg</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    date_time = date.today()</span><br><span class="line">    return_data = <span class="string">f&quot;[任务名称]：原神微博超话兑换码监测\n[签到时间]：<span class="subst">&#123;date_time&#125;</span>&quot;</span></span><br><span class="line">    return_data += <span class="string">f&#x27;\n[超话签到]：\n    ┗━<span class="subst">&#123;super_sign()&#125;</span>&#x27;</span></span><br><span class="line">    id_list = get_id()</span><br><span class="line">    <span class="keyword">if</span> get_id() == <span class="string">&#x27;&#x27;</span>:</span><br><span class="line">        return_data += <span class="string">f&#x27;\n[活动状态]：暂时没有签到活动！&#x27;</span></span><br><span class="line">        workweixi(return_data)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        return_data += <span class="string">f&#x27;\n[活动状态]：活动正在进行中...&#x27;</span></span><br><span class="line">        <span class="keyword">for</span> <span class="built_in">id</span> <span class="keyword">in</span> get_id():</span><br><span class="line">            prize_data = &#123;&#125;</span><br><span class="line">            url = <span class="string">f&#x27;https://games.weibo.cn/prize/aj/lottery?ticket_id=<span class="subst">&#123;<span class="built_in">id</span>&#125;</span>&amp;ext=&amp;aid=<span class="subst">&#123;wb_aid&#125;</span>&amp;from=<span class="subst">&#123;wb_from&#125;</span>&#x27;</span></span><br><span class="line">            header = &#123;</span><br><span class="line">                <span class="string">&#x27;User-Agent&#x27;</span>: WB_USER_AGENT,</span><br><span class="line">                <span class="string">&#x27;Referer&#x27;</span>: <span class="string">f&#x27;https://games.weibo.cn/prize/lottery?ticket_id=<span class="subst">&#123;<span class="built_in">id</span>&#125;</span>&amp;ext=&#x27;</span>,</span><br><span class="line">            &#125;</span><br><span class="line">            cookies = cookie_to_dict(ka_cookie)</span><br><span class="line">            <span class="keyword">try</span>:</span><br><span class="line">                response = json.loads(requests.request(<span class="string">&#x27;get&#x27;</span>, url, headers=header, cookies=cookies).text)</span><br><span class="line">                prize_data = response[<span class="string">&#x27;data&#x27;</span>][<span class="string">&#x27;prize_data&#x27;</span>]</span><br><span class="line">            <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">                <span class="built_in">print</span>(e)</span><br><span class="line">                <span class="keyword">continue</span></span><br><span class="line">            card_no = prize_data[<span class="string">&#x27;card_no&#x27;</span>]  <span class="comment"># 兑换码</span></span><br><span class="line">            <span class="comment"># game_name = prize_data[&#x27;game_name&#x27;]  # 原神</span></span><br><span class="line">            <span class="comment"># card_type = prize_data[&#x27;type&#x27;]  # 礼包类型</span></span><br><span class="line">            <span class="comment"># card_name = prize_data[&#x27;card_name&#x27;]  # 礼包分类</span></span><br><span class="line">            prize_name = prize_data[<span class="string">&#x27;prize_name&#x27;</span>]  <span class="comment"># 礼包名称</span></span><br><span class="line">            return_data += <span class="string">f&#x27;\n    ┗━[<span class="subst">&#123;prize_name&#125;</span>]：<span class="subst">&#123;card_no&#125;</span>&#x27;</span></span><br><span class="line">    <span class="built_in">print</span>(return_data)</span><br><span class="line">    workweixi(return_data)</span><br></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>Python</category>
       </categories>
@@ -133,6 +133,461 @@
 <p>deploy:<br>  &emsp;type: git<br>  &emsp;repo: <a href="https://gitee.com/hikaru199/hikaruc199.gitee.io.git">https://gitee.com/hikaru199/hikaruc199.gitee.io.git</a><br>  &emsp;branch: master</p>
 </blockquote>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git config --global user.name <span class="string">&quot;Hikaru&quot;</span></span><br><span class="line">git config --global user.email <span class="string">&quot;849892160@qq.com&quot;</span></span><br><span class="line">ssh-keygen -t rsa -C <span class="string">&quot;849892160@qq.com&quot;</span></span><br><span class="line">ssh git@github.com</span><br><span class="line">npm install hexo-deployer-git --save</span><br><span class="line">hexo clean  //清理</span><br><span class="line">hexo g  //生成页面</span><br><span class="line">hexo d //部署页面</span><br></pre></td></tr></table></figure>]]></content>
+  </entry>
+  <entry>
+    <title>番剧杂谈 · Just Because!</title>
+    <url>/2021/11/06/%E7%95%AA%E5%89%A7%E6%9D%82%E8%B0%88%C2%B7Just%20Because!/</url>
+    <content><![CDATA[<div align=center><img width = '270' height ='375' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_00.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;高三的冬天，所剩无几的高中生活。大家都认为就这么毫无波澜地迎来毕业之日。直到某一天，他突然回来了。在中学时搬去遥远城镇的同学。与不合时节的转学生的再次相见，伴随着某种不确定的感情，转变开始的信号发出了微弱的声响。</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_01.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;整体节奏是比较缓慢的番，以男主瑛太的转学为起点叙述高中最后一年的故事，是杂糅了“青春”、“校园”、“选择”、“恋情”等关键词的作品，对我来说，这样的标签是绝对会看的番，至于问为什么的话，就是一句——“热爱”！仅仅如此……</p>
+</blockquote>
+<div align=center><img width = '1080' height='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_02.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;转学后回来的瑛太遇上国中的基友阳斗，就像这段回忆里说的那样，即便越好转学后常联系，但是也只有最初的一个月左右，因为联系了就不知道该说什么了，久了便不会再有联系了，这是这个世界的常态，不是每天见面的话就会变成那样<br>&emsp;&emsp;对于我来说，因为是小学六年级的时候转学，对于当时的我并没有太多实感，但刚刚转学的那段时间里，孤独感还是有的，偶尔还会想起之前的伙伴，但是在融入新环境后也就不太有那种感觉了<br>&emsp;&emsp;现在的我，或者是说之前的我，小学和初中的同学，在毕业时我都很干脆的清除了联系，因为那并没有值得我去留恋的东西，孤身一人升到没有人能发掘到我过去的高中。但是高中毕业后却留了不少人的联系，不过大多数是那种“万事通”之类的人物，因为根据六边形社交，通过他们可以快速的获取到高中各个不同的小团体的其他人，仅仅保留联系方式，却也不常联系</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_03.jpg"/>
+
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;经典三角构图</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_04.jpg"/>
+
+<div align=center><img width = '1080' height ='550' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_05.jpg"/>
+
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_06.jpg"/>
+
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;夏目在看到基友阳斗跟其他女生对话时叹气了，基本可以确定国中的夏目是喜欢基友的，然而却被男主看到，很经典的剧情该说是<br>&emsp;&emsp;总之就是非常非常喜欢短发加发卡……<br>&emsp;&emsp;原因未知，只是每每看到都会心生爱慕，仅仅如此</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_07.jpg"/>
+
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;阳斗：“你喜欢夏目是吧”<br>&emsp;&emsp;瑛太：“为什么会变成这样”<br>&emsp;&emsp;阳斗：“你国中的时候跟我说过吧”<br>&emsp;&emsp;瑛太：“才没说过”<br>&emsp;&emsp;阳斗：“那我为什么知道”<br>&emsp;&emsp;瑛太：“我还想问你呢”<br>&emsp;&emsp;瑛太：“都是以前的事情了”<br>&emsp;&emsp;可以从这段对话里看出瑛太喜欢夏目，然后根据前情是夏目喜欢阳斗，但阳斗并不知情，而瑛太发现了，虽说复杂但又非常经典的三角</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_08.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;在？<br>&emsp;&emsp;摄像头拆一下，谢谢！</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_09.jpg"/>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_10.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;只是单纯的看着聊天页面，却不知道回复什么比较好，像极了我<br>&emsp;&emsp;有时候就是这样，明明觉得还是应该回复一下比较好的，但是却根本不知道该怎么回复，尤其是一些不明所以的话，因为不理解也不好意思让对方解释，说没看懂对方又以为你在装傻，真的是很麻烦的呢，明明线上通讯只是用来方便传递信息，却在网络上对着屏幕聊不明所以的感情，就算你用文字表达的很真切，但是还是想传达的情感完全不会被传达啊，真搞不明白人类……</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_11.jpg"/>
+
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;明明已经编辑好了的消息却没有勇气发出去<br>&emsp;&emsp;有时候总是会顾及很多东西，比如会不会对方曲解了含义，或是突然的消息造成对方的困扰，再不然就是要是对方无视了怎么办，好尴尬，就是有着这样的理由，除非是非常明确的事务，一般我不会选择主动联系别人，至少现在的我是这样的</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_12.jpg"/>
+
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_13.jpg"/>
+
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;真兄弟就应该同时被甩……<br>&emsp;&emsp;因为家庭原因而不能选择恋爱的叶月<br>&emsp;&emsp;因为喜欢阳斗而忽视瑛太的夏目<br>&emsp;&emsp;怎么说呢，胃疼，但是不讨厌，或许已经习惯了吧，喜欢的人喜欢别人，被喜欢的人却过于执着，而两个位置我都体验过，所以我知道这样的感受。作为爱慕者没能追求到的懊悔，作为被爱慕者执着于过去的失败拒绝他人，当然，原因肯定不只是执着，也有像叶月的家庭因素，总之就是很难受的状态，所以在学会如何处理这样的事件时，我必须先不接触感情，也就形成了现在的我</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_14.jpg"/>
+
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_15.jpg"/>
+
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;明明已经保送，但是为了跟夏目考一个大学，还是选择偷偷报名入学考试，真是青春啊，有勇气将未来赌在感情(一个人)上，我很羡慕，但绝对不会效仿，因为我可是…非常的…懦弱呢……</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_16.jpg"/>
+
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;双向奔赴的爱情了已经是，明明考不上的机率比较大，但还是选择努力一把，真是羡慕呢……<br>&emsp;&emsp;但是错位了啊，明明说双向奔赴，但是却因为没有告诉对方而错位，我的胃开始隐隐作痛了啊~</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_17.jpg"/>
+
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_18.jpg"/>
+
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_19.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;学妹的恶搞壁纸被夏目发现了，原本两人都打算送巧克力来着，结果却是一个没拿到，啊~<br>&emsp;&emsp;胃疼停不下来了啊，为什么，好心疼夏目，但是也好心疼学妹啊，明明所有人都没错的，但是形成的结果却是所有人都不幸了，果然爱情是超级麻烦的，啊~我的胃啊</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_20.jpg"/>
+
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_21.jpg"/>
+
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_22.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;故事以瑛太的告白和夏目的接受结尾，双向奔赴能修得正果什么的，果然还是大家喜闻乐见的结局，只是胃疼了这么久，发糖才十秒不到，果然还是不能满足啊~~</p>
+</blockquote>
+<blockquote>
+<h2 id="观感杂谈"><a href="#观感杂谈" class="headerlink" title="观感杂谈"></a><center>观感杂谈</center></h2></blockquote>
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;总结：胃疼~~停不下来的那种！<br>&emsp;&emsp;怎么说呢，这是第二次看这部番，因为这部番被我列入了“绝对不能二番目列表”，果然还是跟第一次看这部番的感觉一样胃疼呢<br>&emsp;&emsp;番里对女主夏目美绪的感情处理从单恋到双向奔赴，条理清晰，采用大量的心理和行为描写，在对话方面却是省了很多配音经费，不过它所要表达的就是这样，因为缺乏交流而引发误会，因为没说出口而压抑的爱意，这些或许就是它想要传达的东西，但是并没有现实可比性哦，因为这么坚强又执着，即便误会还没解开也继续奔赴，单纯想要证明自己爱意的女孩子或男孩子是不存在的啦，至少我不认为会有这样的存在<br>&emsp;&emsp;之所以没说学妹和基友那对，主要是因为“我可是一开始就站男主女主的”，大概就是这样吧。但是我喜欢学妹的人物设定，就像番里说的那样“充满活力的女孩子很招人喜欢”，对待感情拿得起放得下也是我喜欢并值得学习的地方。基友阳斗与叶月也是属于设定上的完美角色，从结局上“起眼与不起眼”、“理想与现实”的写照也很明显，是奔着结婚去的那种恋爱，这也是我现在唯一想谈的(或许是因为青春已逝吧)<br>&emsp;&emsp;总之总之，还是非常喜欢的一部番，非常值得体会和深思，除了有点费胃药……</p>
+</blockquote>
+<div align=right>
+
+
+<blockquote>
+<p>&emsp;&emsp;——Hikaru199</p>
+</blockquote>
+]]></content>
+      <categories>
+        <category>番剧杂谈</category>
+      </categories>
+      <tags>
+        <tag>番剧杂谈</tag>
+        <tag>Just Because!</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>番剧杂谈 · 你是彼方</title>
+    <url>/2021/07/15/%E7%95%AA%E5%89%A7%E6%9D%82%E8%B0%88%C2%B7%E4%BD%A0%E6%98%AF%E5%BD%BC%E6%96%B9/</url>
+    <content><![CDATA[<div align=center><img width = '270' height ='381' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/nsbf_img/nsbf_00.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;故事以池袋为舞台，讲述了澪虽然很在意青梅竹马的新，但却无法将自己的心情传达给他。某天和新吵架的澪为了和好在去他身边的途中遭遇了交通事故。当澪恢复意识的时候，那是一个从未见过的不可思议的世界…<br>&emsp;&emsp;无论是画面、人设还是故事剧情，完成度都相当高了，对于主角澪酱的塑造也是非常完整，对于我个人来说，与动画塑造的主角的形象有许许多多的共鸣点。</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/nsbf_img/nsbf_01.png"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;故事以一段梦境开始，这种梦境一般出现就是预告一样，从高空坠落的场景甚至让我想起了“天气之子”…</p>
+</blockquote>
+<div align=center><img width = '1080' height='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/nsbf_img/nsbf_02.png"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;笨拙的可爱形象，总是能让我提起兴趣，可爱的女孩子是谁都无法抗拒的吧…</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/nsbf_img/nsbf_03.png"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;看到成绩时的一声“啊—”更是将澪的可爱升华到了极致</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/nsbf_img/nsbf_04.png"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;约定熟成的约会环节也是，澪的性格更多的体现了出来，与自己喜欢的人约会，也许是因为害怕确定关系，对交往后的事情充满迷茫，更喜欢的把对方当成“特别的好友”来对待，这种心情我体会过很多次，在到达朋友以上恋人未满的关系时，我往往不知道该如何是好，害怕变得麻烦，害怕别人的看法，紧接着关系危机就会慢慢出现…</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/nsbf_img/nsbf_05.png"/>
+
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;明明很珍视对方，却总是会在不合适的气氛做着不合适的事情，说着最伤人的话，因为这样的我错过了很多，或者说放弃了很多，明明不想放弃却又无法后悔…</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/nsbf_img/nsbf_06.png"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;在告白前的车祸，像是动漫里的固定桥段一样，澪的灵魂也离开了身体，剧中并没有解释为什么会发生这种情况，也许是为了让观众遐想而特意留白，也许只是单纯的没写，不过结合整部动漫来看，男主新送的手链与男主的背景极大可能就是原因</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/nsbf_img/nsbf_07.png"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;灵魂来到彼方，这里的设定像极了“千与千寻”要是鲸鱼换成白龙就一样了，哈哈…</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/nsbf_img/nsbf_08.png"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;为了回到现实，澪必须找回“回忆”，一个面对过去的自己，并在心态上做出转变的过程，在与殡的战斗和与彼方的其他角色交流，最终确定自己“不再逃避，选择面对”的心意</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/nsbf_img/nsbf_09.png"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;至于回到现实的澪对新说了什么，我不得而知，但能面对自己喜欢的人说出爱意，真的是一件需要勇气的事情。</p>
+</blockquote>
+<div align=center><img width = '1080' height ='543' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/nsbf_img/nsbf_10.png"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;“明明很喜欢唱歌，但是在众人面前却唱不出来，由于太紧张，声音发颤、嘶哑，因为掉了节拍而被嘲笑为“音痴”，担心会被嘲弄，对唱歌感到害怕…<br>&emsp;&emsp;不管怎么努力都得不到赞赏，所以我放弃了努力…</p>
+</blockquote>
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;我逃避了，我觉得痛苦的事情…<br>&emsp;&emsp;因为害怕事情变得麻烦，所以撒了谎…<br>&emsp;&emsp;逃避痛苦和麻烦的的事，对自己说谎…<br>&emsp;&emsp;想着“总会有办法的”，一边糊弄过去…<br>&emsp;&emsp;没办法靠自己决定任何事…<br>&emsp;&emsp;过于在意他人的看法…<br>&emsp;&emsp;连自己喜欢的，都没能痛快地说喜欢…<br>&emsp;&emsp;……”</p>
+</blockquote>
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;“反正这样的我”变成了我的口头禅<br>&emsp;&emsp;遇见的都是讨厌的事，没法喜欢上自己<br>&emsp;&emsp;选择没有察觉，保持着距离<br>&emsp;&emsp;说服自己，这样就好<br>&emsp;&emsp;但这样下去就没法再触碰他了<br>&emsp;&emsp;没法再和他说话，不得不离开…</p>
+</blockquote>
+<div align=right>
+
+
+<blockquote>
+<p>&emsp;&emsp;——澪</p>
+</blockquote>
+<blockquote>
+<h2 id="观感杂谈"><a href="#观感杂谈" class="headerlink" title="观感杂谈"></a><center>观感杂谈</center></h2></blockquote>
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;我是一个很在意别人看法的人，但却没有改变的勇气。<br>&emsp;&emsp;因为太在意别人看法，我也放弃了很多重要的东西。<br>&emsp;&emsp;因为声音不好听我放弃了说话，让自己看起来内向一些，表现得不善与人交谈，可能是因为演的太久了，已经忘了本来的自己了；<br>&emsp;&emsp;因为不好看我放弃了追求别人的想法，被自己喜欢的人说不配，让我真的自闭了，自那以后不管对一个女孩子多么喜欢，也装作不感兴趣，明明就很喜欢的；<br>&emsp;&emsp;因为被说自作多情我放弃了去理解，对那些喜欢我的人，我总是装作没有察觉，让自己看起来迟钝，明明都已经不算是暗示了，我想说对不起，但是却不知道怎么说，该说是我故意装傻还是故意欺骗感情呢，好像都不行的啊。<br>&emsp;&emsp;我没有办法摆脱，至少，现在的我无法做到</p>
+</blockquote>
+<div align=right>
+
+
+<blockquote>
+<p>&emsp;&emsp;——Hikaru199</p>
+</blockquote>
+]]></content>
+      <categories>
+        <category>番剧杂谈</category>
+      </categories>
+      <tags>
+        <tag>番剧杂谈</tag>
+        <tag>你是彼方</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>番剧杂谈 · 天气之子</title>
+    <url>/2021/07/24/%E7%95%AA%E5%89%A7%E6%9D%82%E8%B0%88%C2%B7%E5%A4%A9%E6%B0%94%E4%B9%8B%E5%AD%90/</url>
+    <content><![CDATA[<div align=center><img width = '270' height ='381' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_00.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;故事描述帆高（醍醐虎汰朗 配音）在高一的夏天离开位在离岛的家乡，独自一人来到东京，拮据的生活迫使他不得不找份工作，最后来到一间专门出版奇怪超自然刊物的出版社担任写手。不久，东京开始下起连日大雨，仿佛暗示著帆高不顺遂的未来，在这座繁忙城市里到处取材的帆高邂逅了与弟弟相依为命，不可思议的美少女阳菜（森七菜 配音）。“等等就会放晴了喔。”阳菜这样告诉著帆高，不久，头顶的乌云逐渐散去，耀眼的阳光洒落街道……原来，阳菜拥有“改变天气”的奇妙能力……</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_01.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;离家出走的少年，一个人的旅途，这也是我至今在妄想，却没勇气去做的事情，没有亲人的束缚是我一直以来所追求的目标，可是无能又胆小的我却只能安静的等待着长大</p>
+</blockquote>
+<div align=center><img width = '1080' height='569' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_02.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;这是我最理想的房间设计了，以后就按着这个复刻一个这样的地方，一个完全属于自己、完全隔离外界的小空间</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_03.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;在人生失意前路迷茫的时候，人往往会捕捉美好的细节。在帆高没有找到工作，饿着肚子的时候，阳菜的一个汉堡也许无法提供饱腹感，却可以提供无穷的喜悦感，那是一种对大人对这个世界的厌恶感里获得的一丝美好。对于青春期的男孩子，即便是素不相识的人无意投来的好意也会被放大成爱意，而这就是青春妄想症</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_04.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;作为多年沉浸在二次元的朦胧小男孩，我理解，这是不可抗力</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_05.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;但是相信我，我绝不会这么大胆的看，至少就是瞥几眼，真的….</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_06.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;对阳菜的处境一无所知就贸然冲上去，年少时就是这样，凭着一腔热血和虚幻的正义感，就能成为行动的动力，但是长大以后就会发现，并不是正义感消失了，只是考虑的东西太多了，犹豫的时间已经让自己错过了出手的时机，义无反顾的冲上去救下困境的女孩子其实还是超酷的，我想过无数次这样的情景，但是真正发生的时候，我却还是选择了旁观…</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_07.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;拥有放晴能力的阳菜与她自己的经历和环境形成的对比，乐观真的是非常让人羡慕的，至少我会很羡慕，但是每当我想到对方的经历和环境过后，那种乐观却让人无比心疼，那种心疼会让我的无力变成一种痛苦，我不敢于接触了，像是一个极其脆弱的玻璃球，再我没办法完全保证它的安全前，变得不敢触碰</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_08.jpg"/>
+
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_09.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;面对孩子的发现表示的敷衍的母亲，面对未知选择探索的学生，这里的对比也表现出了，长大真的会失去很多，对于年轻时代的好奇心，也许我们都已经无法记清了，忘记了对未知的渴望，而甘愿沉浸在世俗的材米油盐当中，这是现在社会很可怕的事情，也许是因为高度社会分化的原因，大多数普通人选择将这些复杂的东西交给那些所谓的精英们去做，开始放弃了自主的思考，我无法为那些思想已经固化的的人说明什么，但对于自己，我只想保持自己的那一份好奇，保留自己还未完全长大的心理</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_10.jpg"/>
+
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_11.jpg"/>
+
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_12.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;请叫小雨表情喵，突然又想养一只猫了，但是…<br>&emsp;&emsp;等有能生活自理的猫我一定养，我发誓…</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_13.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;其实我觉得女孩子的身材其实可能没我好来着，哈哈，就我个人而言吧，我不会在吧身材放在择偶要求里，因为我不是很在意，但是很多时候，因为跟朋友们聊天，又有时候会讨论这类话题，要是说没要求还会被追问为什么，为了避免麻烦，我往往会回答”满足动漫人物身材就行”，因为我很在意比例这种东西，有点强迫症</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_14.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;跟女孩子开身材或者性之类的玩笑我超喜欢的，不过只跟熟悉的并且不当成恋爱对象的人开这样的玩笑，因为看女孩子害羞的样子真的很可爱很有满足感，但是却总是被当成变态，不过就是变态啦，无所谓咯</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_15.jpg"/>
+
+<div align=center><img width = '1080' height ='540' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_16.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;人的心灵真的不可思议<br>&emsp;&emsp;仅仅因为窗外是晴天，就会变得很精神<br>&emsp;&emsp;仅仅因为天空是湛蓝的，就会觉得活着如此美好<br>&emsp;&emsp;就会觉得身边的某个人更加的可爱”<br>&emsp;&emsp;应该没有人会喜欢雨天吧，对于我，我就很讨厌雨天，因为雨天我的心情就会很压抑，就会开始胡思乱想，就会想起一个个令我后悔的过去</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_17.jpg"/>
+
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_18.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;阳菜问帆高希不希望恢复晴天，在不知道代价的帆高来说，选择只是轻易给出的，但是阳菜却会毅然选择献祭，有时候就是这样，一些很普通的问题却会给对方带来极大的理解偏差，阳菜给的问题是“晴天和我你选择哪个”，而对于帆高理解的的问题却是“你喜欢晴天还是雨天”，往往就是这样的理解偏差和不坦率，会造成很多很多的悲剧…<br>&emsp;&emsp;经典日剧跑一般象征着故事的高潮点，两人的回忆与过去的平常历历在目，这确实也是常用发刀手法，虽然我历练了这么久，但是眼角却还是变得有些湿润…</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_19.jpg"/>
+
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_20.jpg"/>
+
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_21.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;有时候爱情就是会让人羡慕，但是祝福还是应当的，传统美德？算是吧。</p>
+</blockquote>
+<blockquote>
+<h2 id="观感杂谈"><a href="#观感杂谈" class="headerlink" title="观感杂谈"></a><center>观感杂谈</center></h2></blockquote>
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;新海诚的作品在这个时代觉得是出类拔萃的，尤其吹爆的是能做到每一帧都是壁纸的画风和技术，剧本还是可圈可点，存在一部分剧情的空洞，也许是篇幅限制，也许是刻意留白都不好说，但总体观感就是一个字——“神作”<br>&emsp;&emsp;这部作品与新海诚前一部神作《你的名字》是一个系列的两种线路，《你的名字》里是在“世界”和“她”里选择了“世界”这样的更符合大众观念的的选项，而《天气之子》则是选择了“她”，这种观念不能迎合大众，也是对这部作品的口碑上不如《你的名字》，但是反观，两种选择都没有错，只是不同人的认同点不同而已<br>&emsp;&emsp;“爱情是可以将世界与她区分开来的东西”<br>&emsp;&emsp;这是我一直认可的爱情观，但是现实却是世界从未停止过的干扰和不坚定的自己，让爱情在现实面前不堪一击，我很无力，我尝试着找到平衡点，但是现实的压迫对于我来说过于沉重，如果没有办法改变我所处的环境，我并不想去爱上任何人，这是我给自己上的枷锁，为了避免我改变心意，把解开的钥匙给丢掉了，等待着枷锁腐烂变质到我足以挣脱它的时候，我应该才会去考虑恋爱吧</p>
+</blockquote>
+<div align=right>
+
+
+<blockquote>
+<p>&emsp;&emsp;——Hikaru199</p>
+</blockquote>
+]]></content>
+      <categories>
+        <category>番剧杂谈</category>
+      </categories>
+      <tags>
+        <tag>番剧杂谈</tag>
+        <tag>天气之子</tag>
+      </tags>
   </entry>
   <entry>
     <title>番剧杂谈 · 堀与宫村</title>
@@ -334,461 +789,6 @@
       </tags>
   </entry>
   <entry>
-    <title>番剧杂谈 · Just Because!</title>
-    <url>/2021/11/06/%E7%95%AA%E5%89%A7%E6%9D%82%E8%B0%88%C2%B7Just%20Because!/</url>
-    <content><![CDATA[<div align=center><img width = '270' height ='375' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_00.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;高三的冬天，所剩无几的高中生活。大家都认为就这么毫无波澜地迎来毕业之日。直到某一天，他突然回来了。在中学时搬去遥远城镇的同学。与不合时节的转学生的再次相见，伴随着某种不确定的感情，转变开始的信号发出了微弱的声响。</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_01.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;整体节奏是比较缓慢的番，以男主瑛太的转学为起点叙述高中最后一年的故事，是杂糅了“青春”、“校园”、“选择”、“恋情”等关键词的作品，对我来说，这样的标签是绝对会看的番，至于问为什么的话，就是一句——“热爱”！仅仅如此……</p>
-</blockquote>
-<div align=center><img width = '1080' height='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_02.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;转学后回来的瑛太遇上国中的基友阳斗，就像这段回忆里说的那样，即便越好转学后常联系，但是也只有最初的一个月左右，因为联系了就不知道该说什么了，久了便不会再有联系了，这是这个世界的常态，不是每天见面的话就会变成那样<br>&emsp;&emsp;对于我来说，因为是小学六年级的时候转学，对于当时的我并没有太多实感，但刚刚转学的那段时间里，孤独感还是有的，偶尔还会想起之前的伙伴，但是在融入新环境后也就不太有那种感觉了<br>&emsp;&emsp;现在的我，或者是说之前的我，小学和初中的同学，在毕业时我都很干脆的清除了联系，因为那并没有值得我去留恋的东西，孤身一人升到没有人能发掘到我过去的高中。但是高中毕业后却留了不少人的联系，不过大多数是那种“万事通”之类的人物，因为根据六边形社交，通过他们可以快速的获取到高中各个不同的小团体的其他人，仅仅保留联系方式，却也不常联系</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_03.jpg"/>
-
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;经典三角构图</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_04.jpg"/>
-
-<div align=center><img width = '1080' height ='550' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_05.jpg"/>
-
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_06.jpg"/>
-
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;夏目在看到基友阳斗跟其他女生对话时叹气了，基本可以确定国中的夏目是喜欢基友的，然而却被男主看到，很经典的剧情该说是<br>&emsp;&emsp;总之就是非常非常喜欢短发加发卡……<br>&emsp;&emsp;原因未知，只是每每看到都会心生爱慕，仅仅如此</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_07.jpg"/>
-
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;阳斗：“你喜欢夏目是吧”<br>&emsp;&emsp;瑛太：“为什么会变成这样”<br>&emsp;&emsp;阳斗：“你国中的时候跟我说过吧”<br>&emsp;&emsp;瑛太：“才没说过”<br>&emsp;&emsp;阳斗：“那我为什么知道”<br>&emsp;&emsp;瑛太：“我还想问你呢”<br>&emsp;&emsp;瑛太：“都是以前的事情了”<br>&emsp;&emsp;可以从这段对话里看出瑛太喜欢夏目，然后根据前情是夏目喜欢阳斗，但阳斗并不知情，而瑛太发现了，虽说复杂但又非常经典的三角</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_08.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;在？<br>&emsp;&emsp;摄像头拆一下，谢谢！</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_09.jpg"/>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_10.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;只是单纯的看着聊天页面，却不知道回复什么比较好，像极了我<br>&emsp;&emsp;有时候就是这样，明明觉得还是应该回复一下比较好的，但是却根本不知道该怎么回复，尤其是一些不明所以的话，因为不理解也不好意思让对方解释，说没看懂对方又以为你在装傻，真的是很麻烦的呢，明明线上通讯只是用来方便传递信息，却在网络上对着屏幕聊不明所以的感情，就算你用文字表达的很真切，但是还是想传达的情感完全不会被传达啊，真搞不明白人类……</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_11.jpg"/>
-
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;明明已经编辑好了的消息却没有勇气发出去<br>&emsp;&emsp;有时候总是会顾及很多东西，比如会不会对方曲解了含义，或是突然的消息造成对方的困扰，再不然就是要是对方无视了怎么办，好尴尬，就是有着这样的理由，除非是非常明确的事务，一般我不会选择主动联系别人，至少现在的我是这样的</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_12.jpg"/>
-
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_13.jpg"/>
-
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;真兄弟就应该同时被甩……<br>&emsp;&emsp;因为家庭原因而不能选择恋爱的叶月<br>&emsp;&emsp;因为喜欢阳斗而忽视瑛太的夏目<br>&emsp;&emsp;怎么说呢，胃疼，但是不讨厌，或许已经习惯了吧，喜欢的人喜欢别人，被喜欢的人却过于执着，而两个位置我都体验过，所以我知道这样的感受。作为爱慕者没能追求到的懊悔，作为被爱慕者执着于过去的失败拒绝他人，当然，原因肯定不只是执着，也有像叶月的家庭因素，总之就是很难受的状态，所以在学会如何处理这样的事件时，我必须先不接触感情，也就形成了现在的我</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_14.jpg"/>
-
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_15.jpg"/>
-
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;明明已经保送，但是为了跟夏目考一个大学，还是选择偷偷报名入学考试，真是青春啊，有勇气将未来赌在感情(一个人)上，我很羡慕，但绝对不会效仿，因为我可是…非常的…懦弱呢……</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_16.jpg"/>
-
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;双向奔赴的爱情了已经是，明明考不上的机率比较大，但还是选择努力一把，真是羡慕呢……<br>&emsp;&emsp;但是错位了啊，明明说双向奔赴，但是却因为没有告诉对方而错位，我的胃开始隐隐作痛了啊~</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_17.jpg"/>
-
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_18.jpg"/>
-
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_19.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;学妹的恶搞壁纸被夏目发现了，原本两人都打算送巧克力来着，结果却是一个没拿到，啊~<br>&emsp;&emsp;胃疼停不下来了啊，为什么，好心疼夏目，但是也好心疼学妹啊，明明所有人都没错的，但是形成的结果却是所有人都不幸了，果然爱情是超级麻烦的，啊~我的胃啊</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_20.jpg"/>
-
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_21.jpg"/>
-
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/just_img/just_22.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;故事以瑛太的告白和夏目的接受结尾，双向奔赴能修得正果什么的，果然还是大家喜闻乐见的结局，只是胃疼了这么久，发糖才十秒不到，果然还是不能满足啊~~</p>
-</blockquote>
-<blockquote>
-<h2 id="观感杂谈"><a href="#观感杂谈" class="headerlink" title="观感杂谈"></a><center>观感杂谈</center></h2></blockquote>
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;总结：胃疼~~停不下来的那种！<br>&emsp;&emsp;怎么说呢，这是第二次看这部番，因为这部番被我列入了“绝对不能二番目列表”，果然还是跟第一次看这部番的感觉一样胃疼呢<br>&emsp;&emsp;番里对女主夏目美绪的感情处理从单恋到双向奔赴，条理清晰，采用大量的心理和行为描写，在对话方面却是省了很多配音经费，不过它所要表达的就是这样，因为缺乏交流而引发误会，因为没说出口而压抑的爱意，这些或许就是它想要传达的东西，但是并没有现实可比性哦，因为这么坚强又执着，即便误会还没解开也继续奔赴，单纯想要证明自己爱意的女孩子或男孩子是不存在的啦，至少我不认为会有这样的存在<br>&emsp;&emsp;之所以没说学妹和基友那对，主要是因为“我可是一开始就站男主女主的”，大概就是这样吧。但是我喜欢学妹的人物设定，就像番里说的那样“充满活力的女孩子很招人喜欢”，对待感情拿得起放得下也是我喜欢并值得学习的地方。基友阳斗与叶月也是属于设定上的完美角色，从结局上“起眼与不起眼”、“理想与现实”的写照也很明显，是奔着结婚去的那种恋爱，这也是我现在唯一想谈的(或许是因为青春已逝吧)<br>&emsp;&emsp;总之总之，还是非常喜欢的一部番，非常值得体会和深思，除了有点费胃药……</p>
-</blockquote>
-<div align=right>
-
-
-<blockquote>
-<p>&emsp;&emsp;——Hikaru199</p>
-</blockquote>
-]]></content>
-      <categories>
-        <category>番剧杂谈</category>
-      </categories>
-      <tags>
-        <tag>番剧杂谈</tag>
-        <tag>Just Because!</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>番剧杂谈 · 天气之子</title>
-    <url>/2021/07/24/%E7%95%AA%E5%89%A7%E6%9D%82%E8%B0%88%C2%B7%E5%A4%A9%E6%B0%94%E4%B9%8B%E5%AD%90/</url>
-    <content><![CDATA[<div align=center><img width = '270' height ='381' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_00.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;故事描述帆高（醍醐虎汰朗 配音）在高一的夏天离开位在离岛的家乡，独自一人来到东京，拮据的生活迫使他不得不找份工作，最后来到一间专门出版奇怪超自然刊物的出版社担任写手。不久，东京开始下起连日大雨，仿佛暗示著帆高不顺遂的未来，在这座繁忙城市里到处取材的帆高邂逅了与弟弟相依为命，不可思议的美少女阳菜（森七菜 配音）。“等等就会放晴了喔。”阳菜这样告诉著帆高，不久，头顶的乌云逐渐散去，耀眼的阳光洒落街道……原来，阳菜拥有“改变天气”的奇妙能力……</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_01.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;离家出走的少年，一个人的旅途，这也是我至今在妄想，却没勇气去做的事情，没有亲人的束缚是我一直以来所追求的目标，可是无能又胆小的我却只能安静的等待着长大</p>
-</blockquote>
-<div align=center><img width = '1080' height='569' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_02.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;这是我最理想的房间设计了，以后就按着这个复刻一个这样的地方，一个完全属于自己、完全隔离外界的小空间</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_03.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;在人生失意前路迷茫的时候，人往往会捕捉美好的细节。在帆高没有找到工作，饿着肚子的时候，阳菜的一个汉堡也许无法提供饱腹感，却可以提供无穷的喜悦感，那是一种对大人对这个世界的厌恶感里获得的一丝美好。对于青春期的男孩子，即便是素不相识的人无意投来的好意也会被放大成爱意，而这就是青春妄想症</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_04.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;作为多年沉浸在二次元的朦胧小男孩，我理解，这是不可抗力</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_05.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;但是相信我，我绝不会这么大胆的看，至少就是瞥几眼，真的….</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_06.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;对阳菜的处境一无所知就贸然冲上去，年少时就是这样，凭着一腔热血和虚幻的正义感，就能成为行动的动力，但是长大以后就会发现，并不是正义感消失了，只是考虑的东西太多了，犹豫的时间已经让自己错过了出手的时机，义无反顾的冲上去救下困境的女孩子其实还是超酷的，我想过无数次这样的情景，但是真正发生的时候，我却还是选择了旁观…</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_07.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;拥有放晴能力的阳菜与她自己的经历和环境形成的对比，乐观真的是非常让人羡慕的，至少我会很羡慕，但是每当我想到对方的经历和环境过后，那种乐观却让人无比心疼，那种心疼会让我的无力变成一种痛苦，我不敢于接触了，像是一个极其脆弱的玻璃球，再我没办法完全保证它的安全前，变得不敢触碰</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_08.jpg"/>
-
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_09.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;面对孩子的发现表示的敷衍的母亲，面对未知选择探索的学生，这里的对比也表现出了，长大真的会失去很多，对于年轻时代的好奇心，也许我们都已经无法记清了，忘记了对未知的渴望，而甘愿沉浸在世俗的材米油盐当中，这是现在社会很可怕的事情，也许是因为高度社会分化的原因，大多数普通人选择将这些复杂的东西交给那些所谓的精英们去做，开始放弃了自主的思考，我无法为那些思想已经固化的的人说明什么，但对于自己，我只想保持自己的那一份好奇，保留自己还未完全长大的心理</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_10.jpg"/>
-
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_11.jpg"/>
-
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_12.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;请叫小雨表情喵，突然又想养一只猫了，但是…<br>&emsp;&emsp;等有能生活自理的猫我一定养，我发誓…</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_13.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;其实我觉得女孩子的身材其实可能没我好来着，哈哈，就我个人而言吧，我不会在吧身材放在择偶要求里，因为我不是很在意，但是很多时候，因为跟朋友们聊天，又有时候会讨论这类话题，要是说没要求还会被追问为什么，为了避免麻烦，我往往会回答”满足动漫人物身材就行”，因为我很在意比例这种东西，有点强迫症</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_14.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;跟女孩子开身材或者性之类的玩笑我超喜欢的，不过只跟熟悉的并且不当成恋爱对象的人开这样的玩笑，因为看女孩子害羞的样子真的很可爱很有满足感，但是却总是被当成变态，不过就是变态啦，无所谓咯</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_15.jpg"/>
-
-<div align=center><img width = '1080' height ='540' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_16.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;人的心灵真的不可思议<br>&emsp;&emsp;仅仅因为窗外是晴天，就会变得很精神<br>&emsp;&emsp;仅仅因为天空是湛蓝的，就会觉得活着如此美好<br>&emsp;&emsp;就会觉得身边的某个人更加的可爱”<br>&emsp;&emsp;应该没有人会喜欢雨天吧，对于我，我就很讨厌雨天，因为雨天我的心情就会很压抑，就会开始胡思乱想，就会想起一个个令我后悔的过去</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_17.jpg"/>
-
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_18.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;阳菜问帆高希不希望恢复晴天，在不知道代价的帆高来说，选择只是轻易给出的，但是阳菜却会毅然选择献祭，有时候就是这样，一些很普通的问题却会给对方带来极大的理解偏差，阳菜给的问题是“晴天和我你选择哪个”，而对于帆高理解的的问题却是“你喜欢晴天还是雨天”，往往就是这样的理解偏差和不坦率，会造成很多很多的悲剧…<br>&emsp;&emsp;经典日剧跑一般象征着故事的高潮点，两人的回忆与过去的平常历历在目，这确实也是常用发刀手法，虽然我历练了这么久，但是眼角却还是变得有些湿润…</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_19.jpg"/>
-
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_20.jpg"/>
-
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/tqzz_img/tqzz_21.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;有时候爱情就是会让人羡慕，但是祝福还是应当的，传统美德？算是吧。</p>
-</blockquote>
-<blockquote>
-<h2 id="观感杂谈"><a href="#观感杂谈" class="headerlink" title="观感杂谈"></a><center>观感杂谈</center></h2></blockquote>
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;新海诚的作品在这个时代觉得是出类拔萃的，尤其吹爆的是能做到每一帧都是壁纸的画风和技术，剧本还是可圈可点，存在一部分剧情的空洞，也许是篇幅限制，也许是刻意留白都不好说，但总体观感就是一个字——“神作”<br>&emsp;&emsp;这部作品与新海诚前一部神作《你的名字》是一个系列的两种线路，《你的名字》里是在“世界”和“她”里选择了“世界”这样的更符合大众观念的的选项，而《天气之子》则是选择了“她”，这种观念不能迎合大众，也是对这部作品的口碑上不如《你的名字》，但是反观，两种选择都没有错，只是不同人的认同点不同而已<br>&emsp;&emsp;“爱情是可以将世界与她区分开来的东西”<br>&emsp;&emsp;这是我一直认可的爱情观，但是现实却是世界从未停止过的干扰和不坚定的自己，让爱情在现实面前不堪一击，我很无力，我尝试着找到平衡点，但是现实的压迫对于我来说过于沉重，如果没有办法改变我所处的环境，我并不想去爱上任何人，这是我给自己上的枷锁，为了避免我改变心意，把解开的钥匙给丢掉了，等待着枷锁腐烂变质到我足以挣脱它的时候，我应该才会去考虑恋爱吧</p>
-</blockquote>
-<div align=right>
-
-
-<blockquote>
-<p>&emsp;&emsp;——Hikaru199</p>
-</blockquote>
-]]></content>
-      <categories>
-        <category>番剧杂谈</category>
-      </categories>
-      <tags>
-        <tag>番剧杂谈</tag>
-        <tag>天气之子</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>番剧杂谈 · 你是彼方</title>
-    <url>/2021/07/15/%E7%95%AA%E5%89%A7%E6%9D%82%E8%B0%88%C2%B7%E4%BD%A0%E6%98%AF%E5%BD%BC%E6%96%B9/</url>
-    <content><![CDATA[<div align=center><img width = '270' height ='381' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/nsbf_img/nsbf_00.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;故事以池袋为舞台，讲述了澪虽然很在意青梅竹马的新，但却无法将自己的心情传达给他。某天和新吵架的澪为了和好在去他身边的途中遭遇了交通事故。当澪恢复意识的时候，那是一个从未见过的不可思议的世界…<br>&emsp;&emsp;无论是画面、人设还是故事剧情，完成度都相当高了，对于主角澪酱的塑造也是非常完整，对于我个人来说，与动画塑造的主角的形象有许许多多的共鸣点。</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/nsbf_img/nsbf_01.png"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;故事以一段梦境开始，这种梦境一般出现就是预告一样，从高空坠落的场景甚至让我想起了“天气之子”…</p>
-</blockquote>
-<div align=center><img width = '1080' height='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/nsbf_img/nsbf_02.png"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;笨拙的可爱形象，总是能让我提起兴趣，可爱的女孩子是谁都无法抗拒的吧…</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/nsbf_img/nsbf_03.png"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;看到成绩时的一声“啊—”更是将澪的可爱升华到了极致</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/nsbf_img/nsbf_04.png"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;约定熟成的约会环节也是，澪的性格更多的体现了出来，与自己喜欢的人约会，也许是因为害怕确定关系，对交往后的事情充满迷茫，更喜欢的把对方当成“特别的好友”来对待，这种心情我体会过很多次，在到达朋友以上恋人未满的关系时，我往往不知道该如何是好，害怕变得麻烦，害怕别人的看法，紧接着关系危机就会慢慢出现…</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/nsbf_img/nsbf_05.png"/>
-
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;明明很珍视对方，却总是会在不合适的气氛做着不合适的事情，说着最伤人的话，因为这样的我错过了很多，或者说放弃了很多，明明不想放弃却又无法后悔…</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/nsbf_img/nsbf_06.png"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;在告白前的车祸，像是动漫里的固定桥段一样，澪的灵魂也离开了身体，剧中并没有解释为什么会发生这种情况，也许是为了让观众遐想而特意留白，也许只是单纯的没写，不过结合整部动漫来看，男主新送的手链与男主的背景极大可能就是原因</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/nsbf_img/nsbf_07.png"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;灵魂来到彼方，这里的设定像极了“千与千寻”要是鲸鱼换成白龙就一样了，哈哈…</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/nsbf_img/nsbf_08.png"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;为了回到现实，澪必须找回“回忆”，一个面对过去的自己，并在心态上做出转变的过程，在与殡的战斗和与彼方的其他角色交流，最终确定自己“不再逃避，选择面对”的心意</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/nsbf_img/nsbf_09.png"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;至于回到现实的澪对新说了什么，我不得而知，但能面对自己喜欢的人说出爱意，真的是一件需要勇气的事情。</p>
-</blockquote>
-<div align=center><img width = '1080' height ='543' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/nsbf_img/nsbf_10.png"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;“明明很喜欢唱歌，但是在众人面前却唱不出来，由于太紧张，声音发颤、嘶哑，因为掉了节拍而被嘲笑为“音痴”，担心会被嘲弄，对唱歌感到害怕…<br>&emsp;&emsp;不管怎么努力都得不到赞赏，所以我放弃了努力…</p>
-</blockquote>
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;我逃避了，我觉得痛苦的事情…<br>&emsp;&emsp;因为害怕事情变得麻烦，所以撒了谎…<br>&emsp;&emsp;逃避痛苦和麻烦的的事，对自己说谎…<br>&emsp;&emsp;想着“总会有办法的”，一边糊弄过去…<br>&emsp;&emsp;没办法靠自己决定任何事…<br>&emsp;&emsp;过于在意他人的看法…<br>&emsp;&emsp;连自己喜欢的，都没能痛快地说喜欢…<br>&emsp;&emsp;……”</p>
-</blockquote>
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;“反正这样的我”变成了我的口头禅<br>&emsp;&emsp;遇见的都是讨厌的事，没法喜欢上自己<br>&emsp;&emsp;选择没有察觉，保持着距离<br>&emsp;&emsp;说服自己，这样就好<br>&emsp;&emsp;但这样下去就没法再触碰他了<br>&emsp;&emsp;没法再和他说话，不得不离开…</p>
-</blockquote>
-<div align=right>
-
-
-<blockquote>
-<p>&emsp;&emsp;——澪</p>
-</blockquote>
-<blockquote>
-<h2 id="观感杂谈"><a href="#观感杂谈" class="headerlink" title="观感杂谈"></a><center>观感杂谈</center></h2></blockquote>
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;我是一个很在意别人看法的人，但却没有改变的勇气。<br>&emsp;&emsp;因为太在意别人看法，我也放弃了很多重要的东西。<br>&emsp;&emsp;因为声音不好听我放弃了说话，让自己看起来内向一些，表现得不善与人交谈，可能是因为演的太久了，已经忘了本来的自己了；<br>&emsp;&emsp;因为不好看我放弃了追求别人的想法，被自己喜欢的人说不配，让我真的自闭了，自那以后不管对一个女孩子多么喜欢，也装作不感兴趣，明明就很喜欢的；<br>&emsp;&emsp;因为被说自作多情我放弃了去理解，对那些喜欢我的人，我总是装作没有察觉，让自己看起来迟钝，明明都已经不算是暗示了，我想说对不起，但是却不知道怎么说，该说是我故意装傻还是故意欺骗感情呢，好像都不行的啊。<br>&emsp;&emsp;我没有办法摆脱，至少，现在的我无法做到</p>
-</blockquote>
-<div align=right>
-
-
-<blockquote>
-<p>&emsp;&emsp;——Hikaru199</p>
-</blockquote>
-]]></content>
-      <categories>
-        <category>番剧杂谈</category>
-      </categories>
-      <tags>
-        <tag>番剧杂谈</tag>
-        <tag>你是彼方</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>番剧杂谈 · 心欲呐喊</title>
     <url>/2021/08/06/%E7%95%AA%E5%89%A7%E6%9D%82%E8%B0%88%C2%B7%E5%BF%83%E6%AC%B2%E5%91%90%E5%96%8A/</url>
     <content><![CDATA[<div align=center><img width = '270' height ='381' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/xynh_img/xynh_00.jpg"/>
@@ -909,72 +909,6 @@
       <tags>
         <tag>番剧杂谈</tag>
         <tag>心欲呐喊</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>番剧杂谈 · 我们的重制人生</title>
-    <url>/2021/09/29/%E7%95%AA%E5%89%A7%E6%9D%82%E8%B0%88%C2%B7%E6%88%91%E4%BB%AC%E7%9A%84%E9%87%8D%E5%88%B6%E4%BA%BA%E7%94%9F/</url>
-    <content><![CDATA[<div align=center><img width = '270' height ='381' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/czrs_img/czrs_00.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;2016年，桥场恭也就职于一家普通的游戏公司。然而有一天，公司作为债务抵押品被扣，社长失踪，他失业了。他在电视上看到与他同龄的创作大神们的活跃表现，不由钦佩憧憬的同时，也开始对过往浑浑噩噩的人生感到懊悔。失业的他返回家中时，无意间发现了一封自己当年放弃就读的美术大学的录取通知书，竟在下一刻被命运牵引，穿越时光回到了10年前的2006年。因过去的种种，他决心重新选择，开启“另一种人生”，但事情却似乎没那么顺利……<br>&emsp;&emsp;如果人生真的可以重置，如果可以返回上一个结点……</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/czrs_img/czrs_01.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;想起高考结束后选志愿的时候，对于大学和专业本就不了解的我，只能通过简单的检索，看着那些泛泛而论的介绍，在兴趣和热门的专业里，我选择了热门，对于当时的我来说，想着专业与就业必然相关，最后我选择了一个普通大学的经济学专业。<br>&emsp;&emsp;要说强烈的爱好和兴趣，其实我也没有。从初中开始就自学编程，主要原因是因为想做一个自己的游戏，但在我第一个小游戏发布后，慢慢的就取消了这个念头，所以当时就很犹豫是不是要选择计算机类的专业，毕竟这是一个又热门又有点兴趣的专业，后来我放弃的原因也很简单，因为我不想让兴趣变成职业。<br>&emsp;&emsp;从小到大，我喜欢的事物总是很容易更替，没有找到自己真正喜欢的事物。初一时因为喜欢偶像，而学习日语，结果是只学到五十音图就结束了；初二因为喜欢游戏，而学习编程，结果不是做游戏，而是学会了制作游戏辅助；高一时因为喜欢动画，而学习绘画，结果是我至今都没能画出自己满意的画。我的爱好从来都是一阵一阵的。</p>
-</blockquote>
-<div align=center><img width = '1080' height='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/czrs_img/czrs_02.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;不知道从什么时候开始，我觉得自己一无是处，不管是什么都做不好。<br>&emsp;&emsp;在学习上，本就不太聪明又过于懒惰，成绩一直也是平平无奇；在生活上，一直想要通过自己去挣一些钱的，但是却发现自己啥都做不了。没有特长，没有爱好，没有梦想，我总是会因为这些而迷茫，想要改变自己的想法却一直只是想法，现实里我依旧只是会抱怨而已。<br>&emsp;&emsp;很多时候我会期待，期待一个让我改变的契机。羡慕志野亚贵这样能让桥场恭也说出自己的烦恼，回顾自己，并没有人愿意去接近并了解我，更别说对人说出这样的烦恼了，就算只是倾听者也是不存在的，每次想到这里总是自嘲自己的无能。</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/czrs_img/czrs_03.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;有时候一旦发现自己身边的人在自己看不到的背后不断努力，而自己却无所事事，想着自己是否也应该更加努力的时候，现实却是我已经习惯了废材的生活方式，没有努力的目标也没有努力的动力，只是一味的看着别人靠着努力而一步步远去，被抛弃的感觉与嫉妒总是压抑不住地向外倾泻。<br>&emsp;&emsp;“究竟怎样做才是对的，我究竟该怎样？”<br>&emsp;&emsp;这样的想法是一直以来，我烦闷的原因，对于问题的最优解我不得而知，但是内心渴望有着一个明确的方向，这样的方向何时才会出现，我又何时才能摆脱现在的状况……</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/czrs_img/czrs_04.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;“为什么不向他人求助”<br>&emsp;&emsp;“为什么所有事情都揽到自己身上”<br>&emsp;&emsp;“周围的人真的就那么不值得信任嘛”<br>&emsp;&emsp;“不知所措的时候为什么从没想过依靠别人”<br>&emsp;&emsp;”我是因为这样才逐渐崩溃的嘛”<br>&emsp;&emsp;——求助？与其说我完全没有求助的对象，不如说是我从一开始拒绝了他人的帮助，因为我太过胆小、太过懦弱，只是害怕受到同情的目光，不管是什么，都想着一个人来完成，但是一个人真的做得到嘛？在拒绝了所有人之后一无所有的我，还值得被施以援手嘛……<br>&emsp;&emsp;——信任？我甚至都没有一个信任的人，想着不去信任就不会被背叛什么的，但是要怎样才能信任，说到底还是因为害怕，因为一两次的背叛而不再去相信别人，想将人际关系看的更物质化一些，让利益关系代替感情什么的想法，是从什么时候开始的也不得而知了…….</p>
-</blockquote>
-<blockquote>
-<h2 id="观感杂谈"><a href="#观感杂谈" class="headerlink" title="观感杂谈"></a><center>观感杂谈</center></h2></blockquote>
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;对于自己未来的迷茫而恐惧，也许这就是我烦恼的根本原因。<br>&emsp;&emsp;这部番我还很喜欢的，满5分的话，我给4.5分，扣掉的0.5分是我没能从番里找到摆脱现状的方法，也许两遍还不够吧，所以只能暂时叫它为《别人的重制人生》。<br>&emsp;&emsp;人生本就没有如果，对于过去直到现在，即便很多地方充满悔恨，但是我并没有办法重来，并不像GAL一样可以跳转到上一个支节点重新选择，所以对于过去我更希望的是不要忘记，作为反面教材留存在我的记忆里，但是有些时候明明做出了不一样的选择，但是却还是相似的结果，究竟是选择的错误还是思想的错误，因为不想再重复实验，也就没有追求到底的必要……<br>&emsp;&emsp;现在的我，能做什么、该做什么、要怎么做、做成什么，是我必须要做出回复的东西，否则现在的我永远都会在原地踏步……</p>
-</blockquote>
-<div align=right>
-
-
-<blockquote>
-<p>&emsp;&emsp;——Hikaru199</p>
-</blockquote>
-]]></content>
-      <categories>
-        <category>番剧杂谈</category>
-      </categories>
-      <tags>
-        <tag>番剧杂谈</tag>
-        <tag>我们的重制人生</tag>
       </tags>
   </entry>
   <entry>
@@ -1108,6 +1042,72 @@
       </tags>
   </entry>
   <entry>
+    <title>番剧杂谈 · 我们的重制人生</title>
+    <url>/2021/09/29/%E7%95%AA%E5%89%A7%E6%9D%82%E8%B0%88%C2%B7%E6%88%91%E4%BB%AC%E7%9A%84%E9%87%8D%E5%88%B6%E4%BA%BA%E7%94%9F/</url>
+    <content><![CDATA[<div align=center><img width = '270' height ='381' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/czrs_img/czrs_00.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;2016年，桥场恭也就职于一家普通的游戏公司。然而有一天，公司作为债务抵押品被扣，社长失踪，他失业了。他在电视上看到与他同龄的创作大神们的活跃表现，不由钦佩憧憬的同时，也开始对过往浑浑噩噩的人生感到懊悔。失业的他返回家中时，无意间发现了一封自己当年放弃就读的美术大学的录取通知书，竟在下一刻被命运牵引，穿越时光回到了10年前的2006年。因过去的种种，他决心重新选择，开启“另一种人生”，但事情却似乎没那么顺利……<br>&emsp;&emsp;如果人生真的可以重置，如果可以返回上一个结点……</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/czrs_img/czrs_01.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;想起高考结束后选志愿的时候，对于大学和专业本就不了解的我，只能通过简单的检索，看着那些泛泛而论的介绍，在兴趣和热门的专业里，我选择了热门，对于当时的我来说，想着专业与就业必然相关，最后我选择了一个普通大学的经济学专业。<br>&emsp;&emsp;要说强烈的爱好和兴趣，其实我也没有。从初中开始就自学编程，主要原因是因为想做一个自己的游戏，但在我第一个小游戏发布后，慢慢的就取消了这个念头，所以当时就很犹豫是不是要选择计算机类的专业，毕竟这是一个又热门又有点兴趣的专业，后来我放弃的原因也很简单，因为我不想让兴趣变成职业。<br>&emsp;&emsp;从小到大，我喜欢的事物总是很容易更替，没有找到自己真正喜欢的事物。初一时因为喜欢偶像，而学习日语，结果是只学到五十音图就结束了；初二因为喜欢游戏，而学习编程，结果不是做游戏，而是学会了制作游戏辅助；高一时因为喜欢动画，而学习绘画，结果是我至今都没能画出自己满意的画。我的爱好从来都是一阵一阵的。</p>
+</blockquote>
+<div align=center><img width = '1080' height='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/czrs_img/czrs_02.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;不知道从什么时候开始，我觉得自己一无是处，不管是什么都做不好。<br>&emsp;&emsp;在学习上，本就不太聪明又过于懒惰，成绩一直也是平平无奇；在生活上，一直想要通过自己去挣一些钱的，但是却发现自己啥都做不了。没有特长，没有爱好，没有梦想，我总是会因为这些而迷茫，想要改变自己的想法却一直只是想法，现实里我依旧只是会抱怨而已。<br>&emsp;&emsp;很多时候我会期待，期待一个让我改变的契机。羡慕志野亚贵这样能让桥场恭也说出自己的烦恼，回顾自己，并没有人愿意去接近并了解我，更别说对人说出这样的烦恼了，就算只是倾听者也是不存在的，每次想到这里总是自嘲自己的无能。</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/czrs_img/czrs_03.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;有时候一旦发现自己身边的人在自己看不到的背后不断努力，而自己却无所事事，想着自己是否也应该更加努力的时候，现实却是我已经习惯了废材的生活方式，没有努力的目标也没有努力的动力，只是一味的看着别人靠着努力而一步步远去，被抛弃的感觉与嫉妒总是压抑不住地向外倾泻。<br>&emsp;&emsp;“究竟怎样做才是对的，我究竟该怎样？”<br>&emsp;&emsp;这样的想法是一直以来，我烦闷的原因，对于问题的最优解我不得而知，但是内心渴望有着一个明确的方向，这样的方向何时才会出现，我又何时才能摆脱现在的状况……</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/czrs_img/czrs_04.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;“为什么不向他人求助”<br>&emsp;&emsp;“为什么所有事情都揽到自己身上”<br>&emsp;&emsp;“周围的人真的就那么不值得信任嘛”<br>&emsp;&emsp;“不知所措的时候为什么从没想过依靠别人”<br>&emsp;&emsp;”我是因为这样才逐渐崩溃的嘛”<br>&emsp;&emsp;——求助？与其说我完全没有求助的对象，不如说是我从一开始拒绝了他人的帮助，因为我太过胆小、太过懦弱，只是害怕受到同情的目光，不管是什么，都想着一个人来完成，但是一个人真的做得到嘛？在拒绝了所有人之后一无所有的我，还值得被施以援手嘛……<br>&emsp;&emsp;——信任？我甚至都没有一个信任的人，想着不去信任就不会被背叛什么的，但是要怎样才能信任，说到底还是因为害怕，因为一两次的背叛而不再去相信别人，想将人际关系看的更物质化一些，让利益关系代替感情什么的想法，是从什么时候开始的也不得而知了…….</p>
+</blockquote>
+<blockquote>
+<h2 id="观感杂谈"><a href="#观感杂谈" class="headerlink" title="观感杂谈"></a><center>观感杂谈</center></h2></blockquote>
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;对于自己未来的迷茫而恐惧，也许这就是我烦恼的根本原因。<br>&emsp;&emsp;这部番我还很喜欢的，满5分的话，我给4.5分，扣掉的0.5分是我没能从番里找到摆脱现状的方法，也许两遍还不够吧，所以只能暂时叫它为《别人的重制人生》。<br>&emsp;&emsp;人生本就没有如果，对于过去直到现在，即便很多地方充满悔恨，但是我并没有办法重来，并不像GAL一样可以跳转到上一个支节点重新选择，所以对于过去我更希望的是不要忘记，作为反面教材留存在我的记忆里，但是有些时候明明做出了不一样的选择，但是却还是相似的结果，究竟是选择的错误还是思想的错误，因为不想再重复实验，也就没有追求到底的必要……<br>&emsp;&emsp;现在的我，能做什么、该做什么、要怎么做、做成什么，是我必须要做出回复的东西，否则现在的我永远都会在原地踏步……</p>
+</blockquote>
+<div align=right>
+
+
+<blockquote>
+<p>&emsp;&emsp;——Hikaru199</p>
+</blockquote>
+]]></content>
+      <categories>
+        <category>番剧杂谈</category>
+      </categories>
+      <tags>
+        <tag>番剧杂谈</tag>
+        <tag>我们的重制人生</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>番剧杂谈 · 未闻花名</title>
     <url>/2021/07/29/%E7%95%AA%E5%89%A7%E6%9D%82%E8%B0%88%C2%B7%E6%9C%AA%E9%97%BB%E8%8A%B1%E5%90%8D/</url>
     <content><![CDATA[<div align=center><img width = '270' height ='381' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/wwhm_img/wwhm_00.jpg"/>
@@ -1194,6 +1194,121 @@
       <tags>
         <tag>番剧杂谈</tag>
         <tag>未闻花名</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>番剧杂谈 · 游戏人生 ZERO</title>
+    <url>/2021/10/18/%E7%95%AA%E5%89%A7%E6%9D%82%E8%B0%88%C2%B7%E6%B8%B8%E6%88%8F%E4%BA%BA%E7%94%9F%20ZERO/</url>
+    <content><![CDATA[<div align=center><img width = '270' height ='375' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/yxrs_img/yxrs_00.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;距今超过六千年的远古世界，天地割裂的凄惨战争持续不断，毫无还手之力的人类被拥有强大力量的各个种族逼入绝境，濒临灭亡。此时率领人类的年轻领袖里克，与机凯种少女休比偶然相遇。被同伴抛弃的休比，为了修复故障，拜托里克把“人类的心”告诉自己。机凯种少女的单纯与真诚，使得里克对休比逐渐放下戒备、敞开心扉，二人感情亦日渐升温。最终二人带领人类共同面对终极一战，少女休比也将面临恋人与生命的残酷抉择。末日来临，在251秒的时间里，赌上一场深情告白。<br>&emsp;&emsp;挺老却不老的番了，虽然这已经是五番目了，但是还是非常有趣、非常感动……</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/yxrs_img/yxrs_01.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;“小的时候曾认为这个世界会更加的单纯简单，没有赢不了的比试，努力就会有回报，认为这世上的一切皆有可能。<br>&emsp;&emsp;世界单纯易懂，输或者赢，亦或是平局，即便对手是最强的，只要想着下次如何胜利就好，懵懂无知的孩子是这么想的。”<br>&emsp;&emsp;对于这句话，我觉得确实是这样的没错，但那是“小时候”的前提也是，越是长大，就会越是发现很多东西是无法做到的，遥远的理想和现实的无力，往往就是这种落差才是击溃人心的关键。<br>&emsp;&emsp;那些劝说着别人努力的人，亦或是失去希望或是已经遥不可及的人，就像“你在参加长跑，已经跑了一半了，身后摔倒且不能站起来或是已经放弃的人，还有已经到达终点的人，尽是这些人在劝说着你坚持或是努力”，但是与理想的差距是无法靠努力弥补的，这样的情况下，我该选择“放弃”或是“前进”，“放弃”无异于即刻后悔，“前进”只是麻痹自己在没结束时不察觉到的事后后悔，那么选择的意义就会变成“此时你是否接受失败”。<br>&emsp;&emsp;努力的回报大概就是“死缓”，只是对于内心脆弱的我会选择放弃努力，选择其他事情“重启游戏”，想着下次一定要赢……</p>
+</blockquote>
+<div align=center><img width = '1080' height='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/yxrs_img/yxrs_02.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;男主与女主的邂逅情节，与其说合理吧，不如说离大谱，或许这就是主角加持吧</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/yxrs_img/yxrs_03.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;啊，我又又又又慕了，这种可以高度自定义的女孩子可是我梦寐以求的啊，毕竟我是养成系玩家。</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/yxrs_img/yxrs_04.jpg"/>
+
+<div align=center><img width = '1080' height ='550' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/yxrs_img/yxrs_05.jpg"/>
+
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/yxrs_img/yxrs_06.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;“结论，因为想待在里克身边”<br>&emsp;&emsp;搜寻理由报错也太可爱了，明明是机械的说<br>&emsp;&emsp;大概从这一段开始，休比就觉醒了“心”的存在，拥有自己的判断，而不只是单纯的“是与否”的机械思维</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/yxrs_img/yxrs_07.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;“休比，不是孤身一人也挺好的啊”<br>&emsp;&emsp;‘里克一直都不是一个人哦’<br>&emsp;&emsp;“不，我一直像笨蛋一样逞强耍酷。究竟想要做什么，集中精力去思考这个问题，说不定也意外的不错”<br>&emsp;&emsp;从这里开始，里克开始了终结战争的行动，与休比一起……<br>&emsp;&emsp;一直以来，我都认为自己习惯了孤身一人，“即便是孤身一人也能做到”这样的想法也从未消失，但是事实上，一个人却有着很多的束缚，且不谈实际困难方面，心理方面也一直在渴求着别人的认同，或许人就是这样吧，会在无力的时候渴望他人的帮助，哪怕只是精神上的支持也能成为动力，但至少我不曾有过这样的支持，所以哪怕是孤身一人，也要做到“一人足矣，一人就好”。</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/yxrs_img/yxrs_08.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;“引发奇迹的话，概率论就没有意义”<br>&emsp;&emsp;“概率论没有0和100”<br>&emsp;&emsp;“只要不被发现就不算作弊”<br>&emsp;&emsp;我超级喜欢这些话，正是因为相信奇迹才选择等待奇迹，奇迹可以掀翻由过去引起的必然事件，而未来的不确定性则是可以把握且必须把握的东西，即便是作弊，也要把握住。<br>&emsp;&emsp;这些话就像人生信条一样，我至今也常常用来提醒自己，尤其是在失意的时候，这些话就像是心理学称之为“信仰”一样的东西，能让我在输掉一次次的游戏（人生）后重新站起来挑战下一次的动力……</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/yxrs_img/yxrs_09.jpg"/>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/yxrs_img/yxrs_10.jpg"/>
+
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;这是我一直以来认同的爱情观。<br>&emsp;&emsp;无论过去发生了什么，也正因为都发生了，即便是懊悔、无奈、痛苦或是愤怒，都应该成为造就现在的必然，拘泥与过去只会在未来重复过去的懊悔与不甘，所以把握当下才是最优。<br>&emsp;&emsp;之所以这么认为呢，其实我经历过了，一次次重复的懊悔，所以正在试图放弃过去，试图迈出脚步踏向未来什么的。</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/yxrs_img/yxrs_11.jpg"/>
+
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/yxrs_img/yxrs_12.jpg"/>
+
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/yxrs_img/yxrs_13.jpg"/>
+
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/yxrs_img/yxrs_14.jpg"/>
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;因为里克的身体状况恶化，休比为了独自加速安装“通行管制”而使用精灵，导致被天翼种察觉并展开战斗……<br>&emsp;&emsp;这段战斗是本剧最最最精彩的部分了，因为“不能杀害任何一个人”而故意射偏，因为“不能让任何人牺牲”而选择共享数据，在被摧毁的最后一刻保护里克的求婚戒指，堵上一切的“251秒”，在精彩的战斗里夹着充满爱意的告白，这些都非常地精彩，第一次、第二次或是现在，每次看到这都眼角湿润，只能说非常具有感染力，非常非常……</p>
+</blockquote>
+<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/yxrs_img/yxrs_15.jpg"/>
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;“向全体机凯种致以最崇高的敬意”<br>&emsp;&emsp;以4807个机凯种代替未设置完成的“通行管制”，将能量导向并击穿精灵回廊而使星杯显现。<br>&emsp;&emsp;以剧情来说，没有机凯种就没有人类种，这种牺牲自己并将自己称之为道具的思想，果然还是休比共享的数据产生的作用。</p>
+</blockquote>
+<blockquote>
+<h2 id="观感杂谈"><a href="#观感杂谈" class="headerlink" title="观感杂谈"></a><center>观感杂谈</center></h2></blockquote>
+<div align=left>
+
+
+<blockquote>
+<p>&emsp;&emsp;整部剧场版不管是设定还是制作、音乐、配音都非常高质量，当然还是得疯狂安利一波。作为前传，对整部作品的设定与背景讲述的非常完整，奇特的世界观与有趣的智力对决都很不错的。<br>&emsp;&emsp;就像番名一样，如果把人生当作一场游戏，或许能少很多很多烦恼。<br>&emsp;&emsp;但是如果把游戏跟人生结合，悖论就会出现，游戏大多趋向于理想，而背离现实寻求游戏世界正是一切游戏的开端，也就是说，游戏是为了独立存在于人生（即现实）之外的“伊甸园”，那将人生当作游戏的话，就意味着满足于“现实即理想”的想法，但或许换一个角度来说，并非如此……<br>&emsp;&emsp;就像游戏是有难度梯度的，简单、困难或是噩梦，我想以梯度表示的话，人生无疑是“地狱级别”，而在这样一场游戏（人生）中，生存下去就是通关条件，而面对游戏（人生）的阻碍机制，或许我们可以以对待游戏的态度那样对待人生的阻碍，或许这样才是这部作品带给我们的思考吧。</p>
+</blockquote>
+<div align=right>
+
+
+<blockquote>
+<p>&emsp;&emsp;——Hikaru199</p>
+</blockquote>
+]]></content>
+      <categories>
+        <category>番剧杂谈</category>
+      </categories>
+      <tags>
+        <tag>番剧杂谈</tag>
+        <tag>游戏人生</tag>
       </tags>
   </entry>
   <entry>
@@ -1380,121 +1495,6 @@
       <tags>
         <tag>番剧杂谈</tag>
         <tag>电光机王</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>番剧杂谈 · 游戏人生 ZERO</title>
-    <url>/2021/10/18/%E7%95%AA%E5%89%A7%E6%9D%82%E8%B0%88%C2%B7%E6%B8%B8%E6%88%8F%E4%BA%BA%E7%94%9F%20ZERO/</url>
-    <content><![CDATA[<div align=center><img width = '270' height ='375' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/yxrs_img/yxrs_00.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;距今超过六千年的远古世界，天地割裂的凄惨战争持续不断，毫无还手之力的人类被拥有强大力量的各个种族逼入绝境，濒临灭亡。此时率领人类的年轻领袖里克，与机凯种少女休比偶然相遇。被同伴抛弃的休比，为了修复故障，拜托里克把“人类的心”告诉自己。机凯种少女的单纯与真诚，使得里克对休比逐渐放下戒备、敞开心扉，二人感情亦日渐升温。最终二人带领人类共同面对终极一战，少女休比也将面临恋人与生命的残酷抉择。末日来临，在251秒的时间里，赌上一场深情告白。<br>&emsp;&emsp;挺老却不老的番了，虽然这已经是五番目了，但是还是非常有趣、非常感动……</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/yxrs_img/yxrs_01.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;“小的时候曾认为这个世界会更加的单纯简单，没有赢不了的比试，努力就会有回报，认为这世上的一切皆有可能。<br>&emsp;&emsp;世界单纯易懂，输或者赢，亦或是平局，即便对手是最强的，只要想着下次如何胜利就好，懵懂无知的孩子是这么想的。”<br>&emsp;&emsp;对于这句话，我觉得确实是这样的没错，但那是“小时候”的前提也是，越是长大，就会越是发现很多东西是无法做到的，遥远的理想和现实的无力，往往就是这种落差才是击溃人心的关键。<br>&emsp;&emsp;那些劝说着别人努力的人，亦或是失去希望或是已经遥不可及的人，就像“你在参加长跑，已经跑了一半了，身后摔倒且不能站起来或是已经放弃的人，还有已经到达终点的人，尽是这些人在劝说着你坚持或是努力”，但是与理想的差距是无法靠努力弥补的，这样的情况下，我该选择“放弃”或是“前进”，“放弃”无异于即刻后悔，“前进”只是麻痹自己在没结束时不察觉到的事后后悔，那么选择的意义就会变成“此时你是否接受失败”。<br>&emsp;&emsp;努力的回报大概就是“死缓”，只是对于内心脆弱的我会选择放弃努力，选择其他事情“重启游戏”，想着下次一定要赢……</p>
-</blockquote>
-<div align=center><img width = '1080' height='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/yxrs_img/yxrs_02.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;男主与女主的邂逅情节，与其说合理吧，不如说离大谱，或许这就是主角加持吧</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/yxrs_img/yxrs_03.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;啊，我又又又又慕了，这种可以高度自定义的女孩子可是我梦寐以求的啊，毕竟我是养成系玩家。</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/yxrs_img/yxrs_04.jpg"/>
-
-<div align=center><img width = '1080' height ='550' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/yxrs_img/yxrs_05.jpg"/>
-
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/yxrs_img/yxrs_06.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;“结论，因为想待在里克身边”<br>&emsp;&emsp;搜寻理由报错也太可爱了，明明是机械的说<br>&emsp;&emsp;大概从这一段开始，休比就觉醒了“心”的存在，拥有自己的判断，而不只是单纯的“是与否”的机械思维</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/yxrs_img/yxrs_07.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;“休比，不是孤身一人也挺好的啊”<br>&emsp;&emsp;‘里克一直都不是一个人哦’<br>&emsp;&emsp;“不，我一直像笨蛋一样逞强耍酷。究竟想要做什么，集中精力去思考这个问题，说不定也意外的不错”<br>&emsp;&emsp;从这里开始，里克开始了终结战争的行动，与休比一起……<br>&emsp;&emsp;一直以来，我都认为自己习惯了孤身一人，“即便是孤身一人也能做到”这样的想法也从未消失，但是事实上，一个人却有着很多的束缚，且不谈实际困难方面，心理方面也一直在渴求着别人的认同，或许人就是这样吧，会在无力的时候渴望他人的帮助，哪怕只是精神上的支持也能成为动力，但至少我不曾有过这样的支持，所以哪怕是孤身一人，也要做到“一人足矣，一人就好”。</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/yxrs_img/yxrs_08.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;“引发奇迹的话，概率论就没有意义”<br>&emsp;&emsp;“概率论没有0和100”<br>&emsp;&emsp;“只要不被发现就不算作弊”<br>&emsp;&emsp;我超级喜欢这些话，正是因为相信奇迹才选择等待奇迹，奇迹可以掀翻由过去引起的必然事件，而未来的不确定性则是可以把握且必须把握的东西，即便是作弊，也要把握住。<br>&emsp;&emsp;这些话就像人生信条一样，我至今也常常用来提醒自己，尤其是在失意的时候，这些话就像是心理学称之为“信仰”一样的东西，能让我在输掉一次次的游戏（人生）后重新站起来挑战下一次的动力……</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/yxrs_img/yxrs_09.jpg"/>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/yxrs_img/yxrs_10.jpg"/>
-
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;这是我一直以来认同的爱情观。<br>&emsp;&emsp;无论过去发生了什么，也正因为都发生了，即便是懊悔、无奈、痛苦或是愤怒，都应该成为造就现在的必然，拘泥与过去只会在未来重复过去的懊悔与不甘，所以把握当下才是最优。<br>&emsp;&emsp;之所以这么认为呢，其实我经历过了，一次次重复的懊悔，所以正在试图放弃过去，试图迈出脚步踏向未来什么的。</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/yxrs_img/yxrs_11.jpg"/>
-
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/yxrs_img/yxrs_12.jpg"/>
-
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/yxrs_img/yxrs_13.jpg"/>
-
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/yxrs_img/yxrs_14.jpg"/>
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;因为里克的身体状况恶化，休比为了独自加速安装“通行管制”而使用精灵，导致被天翼种察觉并展开战斗……<br>&emsp;&emsp;这段战斗是本剧最最最精彩的部分了，因为“不能杀害任何一个人”而故意射偏，因为“不能让任何人牺牲”而选择共享数据，在被摧毁的最后一刻保护里克的求婚戒指，堵上一切的“251秒”，在精彩的战斗里夹着充满爱意的告白，这些都非常地精彩，第一次、第二次或是现在，每次看到这都眼角湿润，只能说非常具有感染力，非常非常……</p>
-</blockquote>
-<div align=center><img width = '1080' height ='608' src ="https://gitee.com/hikaru199/blog_picture/raw/master/images/yxrs_img/yxrs_15.jpg"/>
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;“向全体机凯种致以最崇高的敬意”<br>&emsp;&emsp;以4807个机凯种代替未设置完成的“通行管制”，将能量导向并击穿精灵回廊而使星杯显现。<br>&emsp;&emsp;以剧情来说，没有机凯种就没有人类种，这种牺牲自己并将自己称之为道具的思想，果然还是休比共享的数据产生的作用。</p>
-</blockquote>
-<blockquote>
-<h2 id="观感杂谈"><a href="#观感杂谈" class="headerlink" title="观感杂谈"></a><center>观感杂谈</center></h2></blockquote>
-<div align=left>
-
-
-<blockquote>
-<p>&emsp;&emsp;整部剧场版不管是设定还是制作、音乐、配音都非常高质量，当然还是得疯狂安利一波。作为前传，对整部作品的设定与背景讲述的非常完整，奇特的世界观与有趣的智力对决都很不错的。<br>&emsp;&emsp;就像番名一样，如果把人生当作一场游戏，或许能少很多很多烦恼。<br>&emsp;&emsp;但是如果把游戏跟人生结合，悖论就会出现，游戏大多趋向于理想，而背离现实寻求游戏世界正是一切游戏的开端，也就是说，游戏是为了独立存在于人生（即现实）之外的“伊甸园”，那将人生当作游戏的话，就意味着满足于“现实即理想”的想法，但或许换一个角度来说，并非如此……<br>&emsp;&emsp;就像游戏是有难度梯度的，简单、困难或是噩梦，我想以梯度表示的话，人生无疑是“地狱级别”，而在这样一场游戏（人生）中，生存下去就是通关条件，而面对游戏（人生）的阻碍机制，或许我们可以以对待游戏的态度那样对待人生的阻碍，或许这样才是这部作品带给我们的思考吧。</p>
-</blockquote>
-<div align=right>
-
-
-<blockquote>
-<p>&emsp;&emsp;——Hikaru199</p>
-</blockquote>
-]]></content>
-      <categories>
-        <category>番剧杂谈</category>
-      </categories>
-      <tags>
-        <tag>番剧杂谈</tag>
-        <tag>游戏人生</tag>
       </tags>
   </entry>
   <entry>
